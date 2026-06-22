@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIVN Admin — Add Product</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+<div class="admin-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">LIVN</div>
+      <div class="sidebar-role">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="orders.html" class="nav-item"><span class="nav-icon">📦</span> Orders</a>
+      <div class="nav-section-label">Catalogue</div>
+      <a href="products.html" class="nav-item"><span class="nav-icon">👗</span> Products</a>
+      <a href="add-product.html" class="nav-item active"><span class="nav-icon">➕</span> Add Product</a>
+      <div class="nav-section-label">Store</div>
+      <a href="../index.html" class="nav-item" target="_blank"><span class="nav-icon">🌐</span> View Store</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Add New Product</div>
+      <div class="topbar-right">
+        <a href="products.html" class="btn-admin btn-secondary-admin">← Back to Products</a>
+        <div class="admin-avatar">A</div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start">
+
+        <!-- Form -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Product Details</span></div>
+          <div class="card-body">
+            <div class="form-grid">
+
+              <div class="form-group-admin full">
+                <label>Product Name *</label>
+                <input type="text" id="p-name" placeholder="e.g. Floral Sleeveless Kurti" />
+              </div>
+
+              <div class="form-group-admin">
+                <label>Category *</label>
+                <select id="p-category">
+                  <option value="">Select category</option>
+                  <option>Sleeveless Kurti</option>
+                  <option>Full Sleeve Kurti</option>
+                  <option>Corset Kurti</option>
+                  <option>Noodle Strap Kurti</option>
+                  <option>Halter Neck Kurti</option>
+                </select>
+              </div>
+
+              <div class="form-group-admin">
+                <label>Quantity *</label>
+                <input type="number" id="p-qty" placeholder="0" min="0" />
+              </div>
+
+              <div class="form-group-admin">
+                <label>Cost Price (₹) *</label>
+                <input type="number" id="p-cost" placeholder="0" min="0" />
+              </div>
+
+              <div class="form-group-admin">
+                <label>Original Price (₹) *</label>
+                <input type="number" id="p-original" placeholder="0" min="0" />
+              </div>
+
+              <div class="form-group-admin">
+                <label>Offer Price (₹) <span style="color:var(--text-muted);font-weight:400">optional</span></label>
+                <input type="number" id="p-offer" placeholder="Leave blank if no offer" min="0" />
+                <div class="price-hint">If set, original price will show as strikethrough</div>
+              </div>
+
+              <div class="form-group-admin full">
+                <label>Description</label>
+                <textarea id="p-desc" placeholder="Short product description…"></textarea>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Image + Preview -->
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Product Image</span></div>
+            <div class="card-body">
+              <div class="img-upload-area" id="upload-area" onclick="document.getElementById('p-image-file').click()">
+                <div class="img-upload-icon">🖼</div>
+                <div class="img-upload-text">Click to upload image<br/><span>or paste URL below</span></div>
+                <img id="img-preview" class="img-preview" alt="Preview" />
+              </div>
+              <input type="file" id="p-image-file" accept="image/*" style="display:none" onchange="handleImageFile(this)" />
+              <div style="margin-top:12px">
+                <input type="text" id="p-image-url" placeholder="Or paste image URL…"
+                  style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:0.85rem;outline:none"
+                  oninput="previewFromURL(this.value)" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Price preview -->
+          <div class="card" id="price-preview-card" style="display:none">
+            <div class="card-header"><span class="card-title">Price Preview</span></div>
+            <div class="card-body">
+              <div id="price-preview-display" style="font-size:1.1rem"></div>
+            </div>
+          </div>
+
+          <button class="btn-admin btn-primary-admin" style="width:100%;justify-content:center;padding:14px" onclick="addProduct()">
+            ✅ Add Product
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+<script>
+  requireAuth();
+
+  let uploadedImageData = '';
+
+  function handleImageFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      uploadedImageData = e.target.result;
+      showPreview(uploadedImageData);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function previewFromURL(url) {
+    if (url) showPreview(url);
+  }
+
+  function showPreview(src) {
+    const area = document.getElementById('upload-area');
+    const preview = document.getElementById('img-preview');
+    preview.src = src;
+    preview.style.display = 'block';
+    area.classList.add('has-image');
+    area.querySelector('.img-upload-icon').style.display = 'none';
+    area.querySelector('.img-upload-text').style.display = 'none';
+  }
+
+  // Live price preview
+  ['p-original','p-offer'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updatePricePreview);
+  });
+
+  function updatePricePreview() {
+    const orig = parseFloat(document.getElementById('p-original').value);
+    const offer = parseFloat(document.getElementById('p-offer').value);
+    const card = document.getElementById('price-preview-card');
+    const display = document.getElementById('price-preview-display');
+    if (!orig) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    if (offer && offer < orig) {
+      display.innerHTML = `<span style="text-decoration:line-through;color:var(--text-muted);margin-right:10px">${formatINR(orig)}</span><span style="color:var(--accent);font-weight:700">${formatINR(offer)}</span> <span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600">${Math.round((1-offer/orig)*100)}% OFF</span>`;
+    } else {
+      display.innerHTML = `<span style="font-weight:700;font-size:1.2rem">${formatINR(orig)}</span>`;
+    }
+  }
+
+  function addProduct() {
+    const name = document.getElementById('p-name').value.trim();
+    const category = document.getElementById('p-category').value;
+    const qty = parseInt(document.getElementById('p-qty').value);
+    const costPrice = parseFloat(document.getElementById('p-cost').value);
+    const originalPrice = parseFloat(document.getElementById('p-original').value);
+    const offerPrice = document.getElementById('p-offer').value ? parseFloat(document.getElementById('p-offer').value) : '';
+    const imageURL = document.getElementById('p-image-url').value.trim();
+    const image = uploadedImageData || imageURL || '/assets/images/category_kurta.png';
+
+    if (!name || !category || isNaN(qty) || isNaN(costPrice) || isNaN(originalPrice)) {
+      showToast('Please fill all required fields', 'error');
+      return;
+    }
+
+    const products = getProducts();
+    products.push({ id: nextProductId(), name, category, image, qty, costPrice, originalPrice, offerPrice });
+    saveProducts(products);
+    showToast('Product added successfully!');
+
+    setTimeout(() => window.location.href = 'products.html', 1200);
+  }
+</script>
+</body>
+</html>

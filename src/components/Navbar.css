@@ -1,0 +1,204 @@
+/* Navbar - Clean Modern Style */
+.navbar-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: var(--transition-smooth);
+}
+
+.temple-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 5%;
+  background: #ffffff;
+  clip-path: none;
+  box-shadow: none;
+  border-bottom: 1px solid #eee;
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+.navbar-wrapper.scrolled .temple-navbar {
+  padding: 10px 5%;
+  background: #ffffff;
+  clip-path: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-bottom: 1px solid #eee;
+}
+
+/* Remove gopuram decorative layers */
+.navbar-gopuram-base,
+.navbar-gopuram-base-2 {
+  display: none;
+}
+
+/* Logo */
+.navbar-logo {
+  text-align: center;
+  position: relative;
+}
+
+.navbar-logo::before,
+.navbar-logo::after {
+  display: none;
+}
+
+.logo-text {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: 4px;
+  text-shadow: none;
+}
+
+.navbar-wrapper.scrolled .logo-text {
+  color: #111;
+  text-shadow: none;
+}
+
+.logo-subtext {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #888;
+  text-transform: uppercase;
+  margin-top: -5px;
+}
+
+/* Links */
+.navbar-links {
+  display: flex;
+  gap: 35px;
+}
+
+.nav-link {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  text-transform: uppercase;
+  position: relative;
+  letter-spacing: 1px;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #111;
+  transition: var(--transition-smooth);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-link:hover {
+  color: #111;
+}
+
+/* Icons */
+.navbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: var(--transition-smooth);
+}
+
+.icon-btn:hover {
+  color: #111;
+  transform: scale(1.1);
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #222;
+  cursor: pointer;
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #ffffff;
+  z-index: 999;
+  transform: translateY(-100%);
+  transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu.open {
+  transform: translateY(0);
+}
+
+.mobile-menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  text-align: center;
+}
+
+.mobile-menu-content a {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: #222;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s ease;
+}
+
+.mobile-menu.open .mobile-menu-content a {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mobile-menu-content a:nth-child(1) { transition-delay: 0.1s; }
+.mobile-menu-content a:nth-child(2) { transition-delay: 0.2s; }
+.mobile-menu-content a:nth-child(3) { transition-delay: 0.3s; }
+.mobile-menu-content a:nth-child(4) { transition-delay: 0.4s; }
+.mobile-menu-content a:nth-child(5) { transition-delay: 0.5s; }
+
+.mobile-menu-content a:hover {
+  color: #111;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .navbar-links {
+    display: none;
+  }
+  .mobile-menu-btn {
+    display: block;
+  }
+  .logo-text {
+    font-size: 1.5rem;
+  }
+}

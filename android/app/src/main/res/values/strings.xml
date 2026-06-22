@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gousamhitha</string>
+    <string name="title_activity_main">Gousamhitha</string>
+    <string name="package_name">com.gousamhitha.app</string>
+    <string name="custom_url_scheme">com.gousamhitha.app</string>
+</resources>

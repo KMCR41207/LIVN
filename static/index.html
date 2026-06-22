@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIVN — Dress the Part</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar-wrapper">
+    <nav class="temple-navbar">
+      <div class="navbar-logo">
+        <a href="index.html"><div class="logo-text">LIVN</div></a>
+      </div>
+      <div class="navbar-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="collections.html" class="nav-link">Collections</a>
+        <a href="index.html#custom-stitching" class="nav-link">Bespoke</a>
+      </div>
+      <div class="navbar-icons">
+        <button onclick="openAuthModal()" class="icon-btn" aria-label="Admin" title="Admin Panel" style="font-size:1.2rem;border:none;background:none;cursor:pointer">👤</button>
+        <button class="mobile-menu-btn" aria-label="Menu">☰</button>
+      </div>
+    </nav>
+  </div>
+  <div class="mobile-menu">
+    <div class="mobile-menu-content">
+      <a href="index.html">Home</a>
+      <a href="collections.html">Collections</a>
+      <a href="index.html#custom-stitching">Bespoke</a>
+    </div>
+  </div>
+
+  <div class="home-page">
+
+    <!-- HERO -->
+    <section class="hero-section">
+      <div class="hero-background">
+        <img src="/static/assets/images/hero_banner.png" alt="LIVN Premium Collection" class="hero-bg-img" />
+        <div class="hero-overlay"></div>
+      </div>
+      <div class="hero-content container">
+        <h1 class="hero-title">Dress the Part</h1>
+        <p class="hero-subtitle">Elevate your everyday style with modern elegance and effortless confidence.</p>
+        <div class="hero-actions">
+          <a href="collections.html" class="btn btn-gold">Shop Now</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIVIDER -->
+    <div class="temple-divider"></div>
+
+    <!-- SHOP BY STYLE -->
+    <section id="collections" class="categories-section section-padding container">
+      <div class="section-header">
+        <h2 class="section-title">Shop by Style</h2>
+        <p class="section-desc">Explore modern kurti styles designed for every mood and occasion.</p>
+      </div>
+      <div class="category-grid grid grid-cols-5" id="category-grid"></div>
+    </section>
+
+    <div class="temple-divider-sm container"><div class="carving-line"></div></div>
+
+    <!-- BESPOKE -->
+    <section id="custom-stitching" class="bespoke-section">
+      <div class="container bespoke-content grid grid-cols-2">
+        <div class="bespoke-text">
+          <h2 class="section-title" style="color:var(--color-maroon-dark)">Made to Measure</h2>
+          <p class="bespoke-desc">Tailoring that moves with you. Every cut, seam, and silhouette is crafted precisely to your measurements — because fit is everything.</p>
+          <ul class="bespoke-features">
+            <li>✦ Perfect Fit Guarantee</li>
+            <li>✦ Premium Fabric Selection</li>
+            <li>✦ Express Delivery Available</li>
+          </ul>
+          <a href="#" class="btn btn-primary" style="margin-top:20px">Book a Fitting</a>
+        </div>
+        <div class="bespoke-image-container">
+          <img src="/static/assets/images/bespoke_model.png" alt="Custom Stitching" class="bespoke-img" style="object-position:top" />
+          <div class="gold-frame"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials-section section-padding container">
+      <div class="section-header">
+        <h2 class="section-title">What They're Saying</h2>
+        <div class="temple-ornament"></div>
+      </div>
+      <div class="testimonials-grid grid grid-cols-3">
+        <div class="testimonial-card">
+          <div class="quote-mark">"</div>
+          <p class="testimonial-text">The quality is unreal. Every piece feels intentional, premium, and effortlessly stylish.</p>
+          <h4 class="testimonial-name">— Ananya S.</h4>
+        </div>
+        <div class="testimonial-card">
+          <div class="quote-mark">"</div>
+          <p class="testimonial-text">The custom fit service is flawless. Got exactly what I envisioned on the first try.</p>
+          <h4 class="testimonial-name">— Priya R.</h4>
+        </div>
+        <div class="testimonial-card">
+          <div class="quote-mark">"</div>
+          <p class="testimonial-text">I wore their kurti to a rooftop event and the compliments didn't stop. Truly premium.</p>
+          <h4 class="testimonial-name">— Meera V.</h4>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="temple-footer">
+    <div class="temple-divider"></div>
+    <div class="container footer-content grid grid-cols-4">
+      <div class="footer-brand">
+        <h3 class="footer-logo">LIVN</h3>
+        <p class="footer-desc">Modern fashion for the woman who moves with intention. Clean lines, premium fabrics, effortless style.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram">&#9670;</a>
+          <a href="#" aria-label="Facebook">&#9670;</a>
+          <a href="#" aria-label="Twitter">&#9670;</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="collections.html">All Kurtis</a></li>
+          <li><a href="collections.html?category=sleeveless-kurti">Sleeveless Kurti</a></li>
+          <li><a href="collections.html?category=corset-kurti">Corset Kurti</a></li>
+          <li><a href="index.html#custom-stitching">Custom Fit</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Assistance</h4>
+        <ul>
+          <li><a href="#">Track Order</a></li>
+          <li><a href="#">Shipping & Returns</a></li>
+          <li><a href="#">Size Guide</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h4>Reach Us</h4>
+        <ul>
+          <li><span>📍</span><span>108 Fashion Avenue, Mumbai, MH 400001</span></li>
+          <li><span>📞</span><span>+91 98765 43210</span></li>
+          <li><span>✉️</span><span>namaste@livn.com</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span id="year"></span> LIVN. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/auth-modal.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Render categories
+    const grid = document.getElementById('category-grid');
+    CATEGORIES.forEach(cat => {
+      grid.innerHTML += categoryCardHTML(cat);
+    });
+  </script>
+</body>
+</html>

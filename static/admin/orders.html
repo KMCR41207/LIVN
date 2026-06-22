@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIVN Admin — Orders</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+<div class="admin-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">LIVN</div>
+      <div class="sidebar-role">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="orders.html" class="nav-item active" data-page="orders"><span class="nav-icon">📦</span> Orders</a>
+      <div class="nav-section-label">Catalogue</div>
+      <a href="products.html" class="nav-item" data-page="products"><span class="nav-icon">👗</span> Products</a>
+      <a href="add-product.html" class="nav-item" data-page="add-product"><span class="nav-icon">➕</span> Add Product</a>
+      <div class="nav-section-label">Store</div>
+      <a href="../index.html" class="nav-item" target="_blank"><span class="nav-icon">🌐</span> View Store</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Orders</div>
+      <div class="topbar-right">
+        <div class="admin-avatar">A</div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Filter bar -->
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+        <select id="status-filter" class="status-select" style="padding:9px 14px;font-size:0.875rem" onchange="renderOrders()">
+          <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <input type="text" id="search-orders" placeholder="Search by customer or order ID…"
+          style="padding:9px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:0.875rem;outline:none;min-width:240px"
+          oninput="renderOrders()" />
+        <span id="order-count" style="margin-left:auto;font-size:0.85rem;color:var(--text-muted)"></span>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <div class="table-wrap">
+            <table id="orders-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th><th>Customer</th><th>Product</th><th>Amount</th><th>Date</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+<script>
+  requireAuth();
+
+  function renderOrders() {
+    const filter = document.getElementById('status-filter').value;
+    const search = document.getElementById('search-orders').value.toLowerCase();
+    let orders = getOrders();
+
+    if (filter) orders = orders.filter(o => o.status === filter);
+    if (search) orders = orders.filter(o =>
+      o.customer.toLowerCase().includes(search) || o.id.toLowerCase().includes(search)
+    );
+
+    document.getElementById('order-count').textContent = `${orders.length} order${orders.length !== 1 ? 's' : ''}`;
+
+    const tbody = document.querySelector('#orders-table tbody');
+    tbody.innerHTML = '';
+
+    if (!orders.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No orders found</td></tr>';
+      return;
+    }
+
+    orders.forEach(o => {
+      const badgeClass = { Pending:'badge-pending', Shipped:'badge-shipped', Delivered:'badge-delivered', Cancelled:'badge-cancelled' }[o.status] || 'badge-pending';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${o.id}</strong></td>
+        <td>${o.customer}</td>
+        <td>${o.product}</td>
+        <td>${formatINR(o.amount)}</td>
+        <td style="color:var(--text-muted)">${o.date}</td>
+        <td>
+          <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
+            ${['Pending','Shipped','Delivered','Cancelled'].map(s =>
+              `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`
+            ).join('')}
+          </select>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function updateOrderStatus(orderId, newStatus) {
+    const orders = getOrders();
+    const idx = orders.findIndex(o => o.id === orderId);
+    if (idx !== -1) {
+      orders[idx].status = newStatus;
+      saveOrders(orders);
+      showToast(`Order ${orderId} marked as ${newStatus}`);
+    }
+  }
+
+  renderOrders();
+</script>
+</body>
+</html>

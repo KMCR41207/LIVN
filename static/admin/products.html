@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIVN Admin — Products</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+<div class="admin-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">LIVN</div>
+      <div class="sidebar-role">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="orders.html" class="nav-item"><span class="nav-icon">📦</span> Orders</a>
+      <div class="nav-section-label">Catalogue</div>
+      <a href="products.html" class="nav-item active"><span class="nav-icon">👗</span> Products</a>
+      <a href="add-product.html" class="nav-item"><span class="nav-icon">➕</span> Add Product</a>
+      <div class="nav-section-label">Store</div>
+      <a href="../index.html" class="nav-item" target="_blank"><span class="nav-icon">🌐</span> View Store</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Manage Products</div>
+      <div class="topbar-right">
+        <a href="add-product.html" class="btn-admin btn-primary-admin">➕ Add Product</a>
+        <div class="admin-avatar">A</div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+        <select id="cat-filter" class="status-select" style="padding:9px 14px;font-size:0.875rem" onchange="renderProducts()">
+          <option value="">All Categories</option>
+          <option>Sleeveless Kurti</option>
+          <option>Full Sleeve Kurti</option>
+          <option>Corset Kurti</option>
+          <option>Noodle Strap Kurti</option>
+          <option>Halter Neck Kurti</option>
+        </select>
+        <span id="prod-count" style="margin-left:auto;font-size:0.85rem;color:var(--text-muted)"></span>
+      </div>
+
+      <div class="products-grid" id="products-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit Product</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id" />
+      <div class="form-grid">
+        <div class="form-group-admin full">
+          <label>Product Name</label>
+          <input type="text" id="edit-name" />
+        </div>
+        <div class="form-group-admin">
+          <label>Category</label>
+          <select id="edit-category">
+            <option>Sleeveless Kurti</option>
+            <option>Full Sleeve Kurti</option>
+            <option>Corset Kurti</option>
+            <option>Noodle Strap Kurti</option>
+            <option>Halter Neck Kurti</option>
+          </select>
+        </div>
+        <div class="form-group-admin">
+          <label>Quantity</label>
+          <input type="number" id="edit-qty" min="0" />
+        </div>
+        <div class="form-group-admin">
+          <label>Cost Price (₹)</label>
+          <input type="number" id="edit-cost" min="0" />
+        </div>
+        <div class="form-group-admin">
+          <label>Original Price (₹)</label>
+          <input type="number" id="edit-original" min="0" />
+        </div>
+        <div class="form-group-admin">
+          <label>Offer Price (₹) <span style="color:var(--text-muted);font-weight:400">optional</span></label>
+          <input type="number" id="edit-offer" min="0" placeholder="Leave blank if no offer" />
+        </div>
+        <div class="form-group-admin full">
+          <label>Image URL</label>
+          <input type="text" id="edit-image" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin btn-secondary-admin" onclick="closeModal()">Cancel</button>
+      <button class="btn-admin btn-primary-admin" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+<script>
+  requireAuth();
+
+  function renderProducts() {
+    const filter = document.getElementById('cat-filter').value;
+    let products = getProducts();
+    if (filter) products = products.filter(p => p.category === filter);
+
+    document.getElementById('prod-count').textContent = `${products.length} product${products.length !== 1 ? 's' : ''}`;
+    const grid = document.getElementById('products-grid');
+    grid.innerHTML = '';
+
+    if (!products.length) {
+      grid.innerHTML = '<p style="color:var(--text-muted);padding:40px 0">No products found.</p>';
+      return;
+    }
+
+    products.forEach(p => {
+      const priceHTML = p.offerPrice
+        ? `<span class="price-original">${formatINR(p.originalPrice)}</span><span class="price-offer">${formatINR(p.offerPrice)}</span>`
+        : `<span class="price-only">${formatINR(p.originalPrice)}</span>`;
+
+      const card = document.createElement('div');
+      card.className = 'product-admin-card';
+      card.innerHTML = `
+        <img src="${p.image}" alt="${p.name}" class="product-admin-img" onerror="this.onerror=null;this.style.background='#f3f4f6'" />
+        <div class="product-admin-info">
+          <div class="product-admin-name">${p.name}</div>
+          <div class="product-admin-cat">${p.category} · ${p.qty} units</div>
+          <div class="product-admin-prices">${priceHTML}</div>
+          <div class="product-admin-actions">
+            <button class="btn-admin btn-edit" onclick="openEdit(${p.id})">✏️ Edit</button>
+            <button class="btn-admin btn-delete" onclick="deleteProduct(${p.id})">🗑 Delete</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  function openEdit(id) {
+    const p = getProducts().find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('edit-id').value = p.id;
+    document.getElementById('edit-name').value = p.name;
+    document.getElementById('edit-category').value = p.category;
+    document.getElementById('edit-qty').value = p.qty;
+    document.getElementById('edit-cost').value = p.costPrice;
+    document.getElementById('edit-original').value = p.originalPrice;
+    document.getElementById('edit-offer').value = p.offerPrice || '';
+    document.getElementById('edit-image').value = p.image;
+    document.getElementById('edit-modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+  }
+
+  function saveEdit() {
+    const id = parseInt(document.getElementById('edit-id').value);
+    const products = getProducts();
+    const idx = products.findIndex(p => p.id === id);
+    if (idx === -1) return;
+    products[idx] = {
+      ...products[idx],
+      name: document.getElementById('edit-name').value.trim(),
+      category: document.getElementById('edit-category').value,
+      qty: parseInt(document.getElementById('edit-qty').value) || 0,
+      costPrice: parseFloat(document.getElementById('edit-cost').value) || 0,
+      originalPrice: parseFloat(document.getElementById('edit-original').value) || 0,
+      offerPrice: document.getElementById('edit-offer').value ? parseFloat(document.getElementById('edit-offer').value) : '',
+      image: document.getElementById('edit-image').value.trim(),
+    };
+    saveProducts(products);
+    closeModal();
+    renderProducts();
+    showToast('Product updated successfully');
+  }
+
+  function deleteProduct(id) {
+    if (!confirm('Delete this product? This cannot be undone.')) return;
+    const products = getProducts().filter(p => p.id !== id);
+    saveProducts(products);
+    renderProducts();
+    showToast('Product deleted', 'error');
+  }
+
+  renderProducts();
+</script>
+</body>
+</html>

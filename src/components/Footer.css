@@ -1,0 +1,138 @@
+.temple-footer {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  padding-top: 20px;
+  position: relative;
+}
+
+.footer-content {
+  padding: 60px 5%;
+}
+
+.footer-logo {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: var(--color-maroon-dark);
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.footer-desc {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+  margin-bottom: 20px;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+}
+
+.social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-gold-base);
+  color: var(--color-maroon);
+  transition: var(--transition-smooth);
+}
+
+.social-links a:hover {
+  background: var(--color-gold-base);
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.footer-links h4,
+.footer-contact h4 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  color: var(--color-maroon-dark);
+  margin-bottom: 25px;
+  position: relative;
+  display: inline-block;
+}
+
+.footer-links h4::after,
+.footer-contact h4::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 30px;
+  height: 2px;
+  background-color: var(--color-gold-base);
+}
+
+.footer-links ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-links a {
+  color: var(--color-text-secondary);
+  transition: var(--transition-smooth);
+}
+
+.footer-links a:hover {
+  color: var(--color-maroon);
+  padding-left: 5px;
+}
+
+.footer-contact ul {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.footer-contact li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.footer-contact li svg {
+  color: var(--color-gold-base);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding: 20px;
+  background-color: var(--color-maroon-dark);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  border-top: 2px solid var(--color-gold-base);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 40px;
+  }
+  
+  .footer-links h4::after,
+  .footer-contact h4::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .social-links {
+    justify-content: center;
+  }
+  
+  .footer-contact li {
+    justify-content: center;
+  }
+}

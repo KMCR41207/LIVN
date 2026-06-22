@@ -1,0 +1,531 @@
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, CheckCircle2, ShoppingBag, CreditCard, Smartphone, Truck } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { getCurrentUser } from '../lib/api';
+import { createOrder } from '../lib/api';
+import AuthModal from '../components/AuthModal';
+import './Checkout.css';
+
+// ── Step indicator ────────────────────────────────────────────────────────────
+const STEPS = ['Cart', 'Details', 'Payment'];
+
+const StepBar = ({ current }) => (
+  <div className="step-bar">
+    {STEPS.map((label, i) => (
+      <div key={label} className={`step-item ${i <= current ? 'active' : ''} ${i < current ? 'done' : ''}`}>
+        <div className="step-circle">{i < current ? '✓' : i + 1}</div>
+        <span className="step-label">{label}</span>
+        {i < STEPS.length - 1 && <div className="step-line" />}
+      </div>
+    ))}
+  </div>
+);
+
+// ── Step 0: Cart review ───────────────────────────────────────────────────────
+const CartStep = ({ cartItem, onNext, onChangeSize }) => {
+  if (!cartItem) {
+    return (
+      <div className="empty-cart">
+        <ShoppingBag size={60} className="empty-cart-icon" />
+        <h2>Your cart is empty</h2>
+        <Link to="/collections" className="btn btn-gold" style={{ marginTop: 20 }}>Browse Collections</Link>
+      </div>
+    );
+  }
+
+  const { product, size } = cartItem;
+  return (
+    <div className="cart-step">
+      <h2 className="step-title">Your Cart</h2>
+      <div className="cart-item-card">
+        <img src={product.image} alt={product.name} className="cart-item-img" />
+        <div className="cart-item-info">
+          <h3 className="cart-item-name">{product.name}</h3>
+          <p className="cart-item-cat">{product.category}</p>
+          <div className="cart-size-row">
+            <span className="cart-size-label">Size:</span>
+            <div className="size-options" style={{ marginTop: 8 }}>
+              {['XS', 'S', 'M', 'L', 'XL', 'Custom'].map(s => (
+                <button
+                  key={s}
+                  className={`size-btn ${size === s ? 'active' : ''}`}
+                  onClick={() => onChangeSize(s)}
+                >{s}</button>
+              ))}
+            </div>
+          </div>
+          <div className="cart-item-price">₹{product.price.toLocaleString('en-IN')}</div>
+        </div>
+      </div>
+
+      <div className="cart-totals">
+        <div className="total-row"><span>Subtotal</span><span>₹{product.price.toLocaleString('en-IN')}</span></div>
+        <div className="total-row"><span>Shipping</span><span>Complimentary</span></div>
+        <div className="total-row grand-total"><span>Total</span><span>₹{product.price.toLocaleString('en-IN')}</span></div>
+      </div>
+
+      <button className="btn btn-primary full-width-btn" onClick={onNext}>
+        Proceed to Details →
+      </button>
+    </div>
+  );
+};
+
+// ── Step 1: Delivery details ──────────────────────────────────────────────────
+const DetailsStep = ({ formData, onChange, onNext, onBack, size }) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onNext();
+  };
+
+  return (
+    <div className="details-step">
+      <h2 className="step-title">Delivery Details</h2>
+      <form onSubmit={handleSubmit} className="minimal-form">
+        <div className="form-group">
+          <label htmlFor="name">Full Name</label>
+          <input type="text" id="name" name="name" required value={formData.name} onChange={onChange} placeholder="E.g. Meera Sharma" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={onChange} placeholder="+91" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="address">Delivery Address</label>
+          <textarea id="address" name="address" required rows="3" value={formData.address} onChange={onChange} placeholder="Complete shipping address" />
+        </div>
+        <div className="form-group">
+          <label htmlFor="measurements">
+            {size === 'Custom' ? 'Bespoke Measurements' : 'Additional Fit Notes (optional)'}
+          </label>
+          <textarea
+            id="measurements"
+            name="measurements"
+            rows="2"
+            value={formData.measurements}
+            onChange={onChange}
+            placeholder={size === 'Custom' ? 'Bust: 34in, Waist: 28in, Hips: 38in' : 'Any specific fit requirements?'}
+          />
+        </div>
+        <div className="step-nav">
+          <button type="button" className="btn btn-outline" onClick={onBack}>← Back</button>
+          <button type="submit" className="btn btn-primary">Continue to Payment →</button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+// ── Step 2: Payment method ────────────────────────────────────────────────────
+
+// UPI app deep links — redirect user to their UPI app to approve payment
+const openUpiApp = (appId, upiId, amount, productName) => {
+  const encodedName = encodeURIComponent(`LIVN - ${productName}`);
+  const upiLinks = {
+    gpay:    `gpay://upi/pay?pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=${encodedName}`,
+    phonepe: `phonepe://pay?pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=${encodedName}`,
+    paytm:   `paytmmp://pay?pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=${encodedName}`,
+    bhim:    `upi://pay?pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=${encodedName}`,
+  };
+  // Try to open the app; browsers that can't handle the scheme will silently fail
+  window.location.href = upiLinks[appId] || upiLinks.bhim;
+};
+
+// Real SVG logos for UPI apps
+const UPI_LOGOS = {
+  gpay: (
+    <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+    </svg>
+  ),
+  phonepe: (
+    <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="24" fill="#5F259F"/>
+      <path fill="#fff" d="M30.5 13h-7.1L14 25.5V33h5v-5.5l3.5-4.5H26c3.6 0 6.5-2.9 6.5-6.5S34.1 10 30.5 10v3zm0 10H23l4-5h3.5c1.9 0 3.5 1.6 3.5 3.5S32.4 23 30.5 23z"/>
+    </svg>
+  ),
+  paytm: (
+    <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <rect width="48" height="48" rx="8" fill="#00B9F1"/>
+      <path fill="#fff" d="M8 30h4v-8h4v-4H8zm12-12h4v12h-4zm6 0h4v4h4v8h-4v-4h-4zm10 0h4v12h-4z"/>
+    </svg>
+  ),
+  bhim: (
+    <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <rect width="48" height="48" rx="8" fill="#00539B"/>
+      <text x="50%" y="58%" dominantBaseline="middle" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="bold" fontFamily="Arial">BHIM</text>
+    </svg>
+  ),
+};
+
+const UPI_APPS = [
+  { id: 'gpay',    label: 'Google Pay' },
+  { id: 'phonepe', label: 'PhonePe' },
+  { id: 'paytm',   label: 'Paytm' },
+  { id: 'bhim',    label: 'BHIM / Other UPI' },
+];
+
+const PaymentStep = ({ onBack, onConfirm, isSubmitting, product }) => {
+  const [method, setMethod] = useState('');
+  // UPI fields
+  const [upiId, setUpiId] = useState('');
+  const [selectedUpiApp, setSelectedUpiApp] = useState('');
+  // Card fields
+  const [card, setCard] = useState({ number: '', name: '', expiry: '', cvv: '' });
+
+  const handleCardChange = (e) => {
+    let { name, value } = e.target;
+    if (name === 'number') value = value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+    if (name === 'expiry') value = value.replace(/\D/g, '').slice(0, 4).replace(/^(\d{2})(\d)/, '$1/$2');
+    if (name === 'cvv') value = value.replace(/\D/g, '').slice(0, 4);
+    setCard(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleConfirm = () => {
+    if (!method) { alert('Please select a payment method.'); return; }
+    if (method === 'upi') {
+      if (!upiId.trim()) { alert('Please enter your UPI ID.'); return; }
+      if (!selectedUpiApp) { alert('Please select a UPI app.'); return; }
+      // Place order first, then redirect to UPI app
+      onConfirm(method, upiId, () => {
+        openUpiApp(selectedUpiApp, upiId, product.price, product.name);
+      });
+      return;
+    }
+    if (method === 'card') {
+      if (!card.number || !card.name || !card.expiry || !card.cvv) {
+        alert('Please fill all card details.'); return;
+      }
+    }
+    onConfirm(method, upiId);
+  };
+
+  return (
+    <div className="payment-step">
+      <h2 className="step-title">Payment Method</h2>
+      <div className="payment-methods">
+
+        {/* ── UPI ── */}
+        <div
+          className={`payment-card ${method === 'upi' ? 'selected' : ''}`}
+          onClick={() => setMethod('upi')}
+        >
+          <div className="payment-icon"><Smartphone size={26} /></div>
+          <div className="payment-info">
+            <div className="payment-label">UPI</div>
+            <div className="payment-desc">Google Pay, PhonePe, Paytm, BHIM</div>
+          </div>
+          <div className="payment-radio">{method === 'upi' ? '●' : '○'}</div>
+        </div>
+
+        {method === 'upi' && (
+          <div className="payment-expand">
+            <div className="form-group">
+              <label>Your UPI ID</label>
+              <input
+                type="text"
+                placeholder="yourname@okhdfcbank"
+                value={upiId}
+                onChange={e => setUpiId(e.target.value)}
+              />
+            </div>
+            <div className="form-group" style={{ marginTop: 16 }}>
+              <label>Select UPI App to Pay</label>
+              <div className="upi-app-grid">
+                {UPI_APPS.map(app => (
+                  <button
+                    key={app.id}
+                    type="button"
+                    className={`upi-app-btn ${selectedUpiApp === app.id ? 'active' : ''}`}
+                    onClick={() => setSelectedUpiApp(app.id)}
+                  >
+                    <span className="upi-app-logo">{UPI_LOGOS[app.id]}</span>
+                    <span>{app.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p className="upi-redirect-note">
+              After placing the order you'll be redirected to your UPI app to approve the payment.
+            </p>
+          </div>
+        )}
+
+        {/* ── Card ── */}
+        <div
+          className={`payment-card ${method === 'card' ? 'selected' : ''}`}
+          onClick={() => setMethod('card')}
+        >
+          <div className="payment-icon"><CreditCard size={26} /></div>
+          <div className="payment-info">
+            <div className="payment-label">Credit / Debit Card</div>
+            <div className="payment-desc">Visa, Mastercard, Rupay</div>
+          </div>
+          <div className="payment-radio">{method === 'card' ? '●' : '○'}</div>
+        </div>
+
+        {method === 'card' && (
+          <div className="payment-expand">
+            <div className="form-group">
+              <label>Card Number</label>
+              <input
+                type="text"
+                name="number"
+                placeholder="1234 5678 9012 3456"
+                value={card.number}
+                onChange={handleCardChange}
+                maxLength={19}
+              />
+            </div>
+            <div className="form-group" style={{ marginTop: 14 }}>
+              <label>Name on Card</label>
+              <input
+                type="text"
+                name="name"
+                placeholder="As printed on card"
+                value={card.name}
+                onChange={handleCardChange}
+              />
+            </div>
+            <div className="card-row" style={{ marginTop: 14 }}>
+              <div className="form-group">
+                <label>Expiry</label>
+                <input
+                  type="text"
+                  name="expiry"
+                  placeholder="MM/YY"
+                  value={card.expiry}
+                  onChange={handleCardChange}
+                  maxLength={5}
+                />
+              </div>
+              <div className="form-group">
+                <label>CVV</label>
+                <input
+                  type="password"
+                  name="cvv"
+                  placeholder="•••"
+                  value={card.cvv}
+                  onChange={handleCardChange}
+                  maxLength={4}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── COD ── */}
+        <div
+          className={`payment-card ${method === 'cod' ? 'selected' : ''}`}
+          onClick={() => setMethod('cod')}
+        >
+          <div className="payment-icon"><Truck size={26} /></div>
+          <div className="payment-info">
+            <div className="payment-label">Cash on Delivery</div>
+            <div className="payment-desc">Pay when your order arrives</div>
+          </div>
+          <div className="payment-radio">{method === 'cod' ? '●' : '○'}</div>
+        </div>
+
+        {method === 'cod' && (
+          <div className="payment-expand">
+            <p>🚚 You'll pay in cash when your order is delivered to your doorstep.</p>
+          </div>
+        )}
+
+      </div>
+
+      <div className="payment-total-bar">
+        <span>Total Payable</span>
+        <span className="payment-total-amount">₹{product.price.toLocaleString('en-IN')}</span>
+      </div>
+
+      <div className="step-nav">
+        <button className="btn btn-outline" onClick={onBack}>← Back</button>
+        <button className="btn btn-primary" onClick={handleConfirm} disabled={isSubmitting}>
+          {isSubmitting ? 'Placing Order...' : 'Place Order ✦'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ── Main Checkout orchestrator ────────────────────────────────────────────────
+const Checkout = () => {
+  const { cartItem, addToCart, clearCart } = useCart();
+  const [step, setStep] = useState(0);         // 0=cart, 1=details, 2=payment
+  const [showAuth, setShowAuth] = useState(false);
+  const [user, setUser] = useState(getCurrentUser());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderInfo, setOrderInfo] = useState(null);
+  const navigate = useNavigate();
+  const fallbackId = useRef('LIVN-' + Math.floor(Math.random() * 90000 + 10000));
+
+  const [formData, setFormData] = useState({ name: '', phone: '', address: '', measurements: '' });
+  const [cartSize, setCartSize] = useState(cartItem?.size || 'Standard');
+
+  useEffect(() => { window.scrollTo(0, 0); }, [step]);
+
+  // Sync size change back into cart
+  const handleSizeChange = (s) => {
+    setCartSize(s);
+    if (cartItem) addToCart(cartItem.product, s);
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Cart → Details: require login first
+  const handleCartNext = () => {
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      setShowAuth(true);
+    } else {
+      setUser(currentUser);
+      setStep(1);
+    }
+  };
+
+  const handleAuthSuccess = (u) => {
+    setUser(u);
+    setShowAuth(false);
+    setStep(1);
+  };
+
+  const handleConfirmOrder = async (paymentMethod, upiId, onAfter) => {
+    if (!cartItem) return;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        product_id:       cartItem.product.id,
+        product_name:     cartItem.product.name,
+        price:            cartItem.product.price,
+        customer_name:    formData.name,
+        customer_phone:   formData.phone,
+        shipping_address: formData.address,
+        measurements:     formData.measurements || cartSize,
+        selected_size:    cartSize,
+        payment_method:   paymentMethod,
+        upi_id:           upiId || '',
+      };
+      const { data, error } = await createOrder(payload);
+      if (error) { alert(error); return; }
+      setOrderInfo(data);
+      clearCart();
+      // For UPI: trigger app redirect after order is saved
+      if (onAfter) onAfter();
+    } catch (err) {
+      alert('Order failed. Please try again.');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ── Success screen ─────────────────────────────────────────────────────────
+  if (orderInfo) {
+    return (
+      <div className="checkout-success container">
+        <div className="success-card animate-fade-in-up">
+          <CheckCircle2 size={80} className="success-icon" />
+          <h1 className="success-title">Order Confirmed!</h1>
+          <p className="success-desc">
+            Your attire is being prepared. We will reach you at <strong>{formData.phone}</strong> with delivery updates.
+          </p>
+          <div className="order-summary-box">
+            <p><strong>Order ID:</strong> {(orderInfo?._id || fallbackId.current).toString().slice(-8).toUpperCase()}</p>
+            <p><strong>Product:</strong> {orderInfo?.product_name}</p>
+            <p><strong>Amount:</strong> ₹{orderInfo?.price?.toLocaleString('en-IN')}</p>
+            <p><strong>Payment:</strong> {orderInfo?.payment_method?.toUpperCase() || 'Confirmed'}</p>
+          </div>
+          <Link to="/" className="btn btn-gold" style={{ marginTop: 24 }}>Return to Collections</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const product = cartItem?.product;
+
+  return (
+    <div className="checkout-page container">
+      {/* Back link */}
+      <button className="back-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => step === 0 ? navigate(-1) : setStep(s => s - 1)}>
+        <ArrowLeft size={18} /><span style={{ marginLeft: 6 }}>Back</span>
+      </button>
+
+      {/* Step indicator */}
+      <StepBar current={step} />
+
+      <div className="checkout-layout grid grid-cols-2">
+        {/* Left: step content */}
+        <div className="checkout-form-section animate-fade-in-up">
+          {step === 0 && (
+            <CartStep
+              cartItem={cartItem}
+              onNext={handleCartNext}
+              onChangeSize={handleSizeChange}
+            />
+          )}
+          {step === 1 && (
+            <DetailsStep
+              formData={formData}
+              onChange={handleFormChange}
+              onNext={() => setStep(2)}
+              onBack={() => setStep(0)}
+              size={cartSize}
+            />
+          )}
+          {step === 2 && product && (
+            <PaymentStep
+              onBack={() => setStep(1)}
+              onConfirm={handleConfirmOrder}
+              isSubmitting={isSubmitting}
+              product={product}
+            />
+          )}
+        </div>
+
+        {/* Right: order summary (visible when cart has item) */}
+        {product && (
+          <div className="checkout-summary animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <div className="summary-card">
+              <h3 className="summary-title">Order Summary</h3>
+              <div className="temple-divider" style={{ margin: '15px 0' }}></div>
+              <div className="summary-product">
+                <img src={product.image} alt={product.name} className="summary-image" />
+                <div className="summary-details">
+                  <h4 className="summary-product-name">{product.name}</h4>
+                  <p className="summary-product-cat">{product.category}</p>
+                  <p className="summary-size">Size: {cartSize}</p>
+                  <div className="summary-price">₹{product.price.toLocaleString('en-IN')}</div>
+                </div>
+              </div>
+              <div className="summary-totals">
+                <div className="total-row"><span>Subtotal</span><span>₹{product.price.toLocaleString('en-IN')}</span></div>
+                <div className="total-row"><span>Shipping</span><span>Complimentary</span></div>
+                <div className="total-row grand-total"><span>Total</span><span>₹{product.price.toLocaleString('en-IN')}</span></div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Auth modal — shown when guest tries to proceed */}
+      {showAuth && (
+        <AuthModal
+          onClose={() => setShowAuth(false)}
+          onAuthSuccess={handleAuthSuccess}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Checkout;

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIVN Admin — Dashboard</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">LIVN</div>
+      <div class="sidebar-role">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="orders.html" class="nav-item" data-page="orders">
+        <span class="nav-icon">📦</span> Orders
+      </a>
+      <div class="nav-section-label">Catalogue</div>
+      <a href="products.html" class="nav-item" data-page="products">
+        <span class="nav-icon">👗</span> Products
+      </a>
+      <a href="add-product.html" class="nav-item" data-page="add-product">
+        <span class="nav-icon">➕</span> Add Product
+      </a>
+      <div class="nav-section-label">Store</div>
+      <a href="../index.html" class="nav-item" target="_blank">
+        <span class="nav-icon">🌐</span> View Store
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <div style="font-size:0.85rem;color:var(--text-muted)" id="topbar-date"></div>
+        <div class="admin-avatar">A</div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- STATS -->
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <!-- CHARTS -->
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Monthly Revenue</span>
+            <span style="font-size:0.8rem;color:var(--text-muted)">2026</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-bar-container" id="revenue-chart"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Top Products</span></div>
+          <div class="card-body" id="top-products"></div>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Recent Orders</span>
+          <a href="orders.html" style="font-size:0.82rem;color:var(--accent);font-weight:600">View All →</a>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="table-wrap">
+            <table id="recent-orders-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Date</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+<script>
+  requireAuth();
+
+  // Date
+  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  const orders = getOrders();
+  const products = getProducts();
+
+  // Stats
+  const totalRevenue = orders.filter(o => o.status === 'Delivered').reduce((s, o) => s + o.amount, 0);
+  const statsData = [
+    { label: 'Total Orders', value: orders.length, icon: '📦', cls: 'orders', change: '+12% this month' },
+    { label: 'Total Revenue', value: formatINR(totalRevenue), icon: '💰', cls: 'revenue', change: '+8% this month' },
+    { label: 'Products', value: products.length, icon: '👗', cls: 'products', change: 'In catalogue' },
+    { label: 'Pending Orders', value: orders.filter(o => o.status === 'Pending').length, icon: '⏳', cls: 'customers', change: 'Needs attention' },
+  ];
+  const statsGrid = document.getElementById('stats-grid');
+  statsData.forEach(s => {
+    statsGrid.innerHTML += `
+      <div class="stat-card">
+        <div class="stat-icon ${s.cls}">${s.icon}</div>
+        <div>
+          <div class="stat-label">${s.label}</div>
+          <div class="stat-value">${s.value}</div>
+          <div class="stat-change">${s.change}</div>
+        </div>
+      </div>`;
+  });
+
+  // Revenue chart (mock monthly data)
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const revenueData = [18000, 24000, 31000, 22000, 28000, 35000, 29000, 41000, 38000, 45000, 52000, 48000];
+  const maxRev = Math.max(...revenueData);
+  const chartEl = document.getElementById('revenue-chart');
+  months.forEach((m, i) => {
+    const pct = Math.round((revenueData[i] / maxRev) * 100);
+    chartEl.innerHTML += `
+      <div class="chart-bar-wrap">
+        <div class="chart-bar-val">₹${(revenueData[i]/1000).toFixed(0)}k</div>
+        <div class="chart-bar" style="height:${pct}%"></div>
+        <div class="chart-bar-label">${m}</div>
+      </div>`;
+  });
+
+  // Top products
+  const topProds = [...products].sort((a,b) => (b.qty < a.qty ? -1 : 1)).slice(0, 4);
+  const topEl = document.getElementById('top-products');
+  topProds.forEach(p => {
+    topEl.innerHTML += `
+      <div class="top-product-item">
+        <img src="${p.image}" alt="${p.name}" class="top-product-img" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'%3E%3Crect width=\'44\' height=\'44\' fill=\'%23f3f4f6\'/%3E%3C/svg%3E'" />
+        <div>
+          <div class="top-product-name">${p.name}</div>
+          <div class="top-product-cat">${p.category}</div>
+        </div>
+        <div class="top-product-orders">${p.qty} units</div>
+      </div>`;
+  });
+
+  // Recent orders (last 5)
+  const tbody = document.querySelector('#recent-orders-table tbody');
+  orders.slice(-5).reverse().forEach(o => {
+    const badgeClass = { Pending:'badge-pending', Shipped:'badge-shipped', Delivered:'badge-delivered', Cancelled:'badge-cancelled' }[o.status] || 'badge-pending';
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${o.id}</strong></td>
+        <td>${o.customer}</td>
+        <td>${o.product}</td>
+        <td>${formatINR(o.amount)}</td>
+        <td><span class="badge ${badgeClass}">${o.status}</span></td>
+        <td style="color:var(--text-muted)">${o.date}</td>
+      </tr>`;
+  });
+</script>
+</body>
+</html>

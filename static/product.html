@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIVN — Product</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar-wrapper">
+    <nav class="temple-navbar">
+      <div class="navbar-logo">
+        <a href="index.html"><div class="logo-text">LIVN</div></a>
+      </div>
+      <div class="navbar-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="collections.html" class="nav-link">Collections</a>
+        <a href="index.html#custom-stitching" class="nav-link">Bespoke</a>
+      </div>
+      <div class="navbar-icons">
+        <button onclick="openAuthModal()" class="icon-btn" aria-label="Admin" title="Admin Panel" style="font-size:1.2rem;border:none;background:none;cursor:pointer">👤</button>
+        <button class="mobile-menu-btn" aria-label="Menu">☰</button>
+      </div>
+    </nav>
+  </div>
+  <div class="mobile-menu">
+    <div class="mobile-menu-content">
+      <a href="index.html">Home</a>
+      <a href="collections.html">Collections</a>
+      <a href="index.html#custom-stitching">Bespoke</a>
+    </div>
+  </div>
+
+  <div class="product-page container" id="product-page">
+    <!-- Rendered by JS -->
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="temple-footer">
+    <div class="temple-divider"></div>
+    <div class="container footer-content grid grid-cols-4">
+      <div class="footer-brand">
+        <h3 class="footer-logo">LIVN</h3>
+        <p class="footer-desc">Modern fashion for the woman who moves with intention. Clean lines, premium fabrics, effortless style.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram">&#9670;</a>
+          <a href="#" aria-label="Facebook">&#9670;</a>
+          <a href="#" aria-label="Twitter">&#9670;</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="collections.html">All Kurtis</a></li>
+          <li><a href="collections.html?category=sleeveless-kurti">Sleeveless Kurti</a></li>
+          <li><a href="collections.html?category=corset-kurti">Corset Kurti</a></li>
+          <li><a href="index.html#custom-stitching">Custom Fit</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Assistance</h4>
+        <ul>
+          <li><a href="#">Track Order</a></li>
+          <li><a href="#">Shipping & Returns</a></li>
+          <li><a href="#">Size Guide</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h4>Reach Us</h4>
+        <ul>
+          <li><span>📍</span><span>108 Fashion Avenue, Mumbai, MH 400001</span></li>
+          <li><span>📞</span><span>+91 98765 43210</span></li>
+          <li><span>✉️</span><span>namaste@livn.com</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <span id="year"></span> LIVN. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/auth-modal.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const product = getProductById(id);
+    const container = document.getElementById('product-page');
+
+    if (!product) {
+      container.innerHTML = `
+        <div style="padding:150px 0;text-align:center">
+          <h2>Product Not Found</h2>
+          <a href="collections.html" class="btn btn-gold" style="margin-top:40px;display:inline-flex">Back to Collections</a>
+        </div>`;
+    } else {
+      document.title = `LIVN — ${product.name}`;
+
+      container.innerHTML = `
+        <a href="collections.html" class="back-link">&#8592; Back to Collections</a>
+        <div class="product-layout grid grid-cols-2">
+          <div class="product-gallery">
+            <div class="product-main-image-container">
+              <img src="${product.image}" alt="${product.name}" class="product-main-image" />
+              <div class="temple-frame"></div>
+            </div>
+          </div>
+          <div class="product-details">
+            <p class="product-meta">${product.category} Collection</p>
+            <h1 class="product-name">${product.name}</h1>
+            <div class="product-price-large">${formatPrice(product.price)}</div>
+            <div class="product-divider"><span class="carving-icon">✦</span></div>
+            <p class="product-description">${product.description}</p>
+            <div class="product-features">
+              <h4 class="features-title">Garb Details</h4>
+              <ul>${product.details.map(d => `<li>✦ ${d}</li>`).join('')}</ul>
+            </div>
+            <div class="size-selector">
+              <div class="size-header">
+                <span class="size-title">Select Size</span>
+              </div>
+              <div class="size-options" id="size-options">
+                ${['XS','S','M','L','XL','Custom'].map(s =>
+                  `<button class="size-btn${s==='Custom'?' custom-btn':''}" onclick="selectSize(this,'${s}')">${s}</button>`
+                ).join('')}
+              </div>
+            </div>
+            <div class="product-actions">
+              <a href="#" id="order-btn" class="btn btn-primary full-width-btn">Order Now</a>
+              <p class="bespoke-note">For bespoke measurements, select 'Custom' and provide details during checkout.</p>
+            </div>
+            <div class="trust-badges">
+              <div class="badge"><span class="badge-icon">🛡</span><span>Authentic Weaves</span></div>
+              <div class="badge"><span class="badge-icon">🚚</span><span>Secure Nationwide Shipping</span></div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    let selectedSize = '';
+    function selectSize(btn, size) {
+      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedSize = size;
+    }
+  </script>
+</body>
+</html>

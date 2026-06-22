@@ -1,0 +1,49 @@
+.collections-page {
+  padding-top: 100px;
+  min-height: 80vh;
+}
+
+.collections-header {
+  text-align: center;
+  padding: 60px 20px 40px;
+}
+
+.collections-title {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  letter-spacing: 4px;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+}
+
+.collections-desc {
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
+}
+
+.collection-section {
+  padding: 40px 0 60px;
+}
+
+.collection-category-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 36px;
+}
+
+.collection-category-name {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  letter-spacing: 3px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.collection-divider {
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+}
