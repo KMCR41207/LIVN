@@ -243,3 +243,17 @@
     font-size: 2.2rem;
   }
 }
+
+/* Dual action buttons */
+.dual-action-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.dual-action-btns .btn {
+  width: 100%;
+  padding: 16px 10px;
+  font-size: 0.95rem;
+}

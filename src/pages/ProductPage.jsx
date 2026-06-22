@@ -14,6 +14,11 @@ const ProductPage = () => {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
+  const handleAddToCart = () => {
+    addToCart(product, selectedSize || 'Standard');
+    // Stay on page — user can keep browsing
+  };
+
   const handleOrderNow = () => {
     addToCart(product, selectedSize || 'Standard');
     navigate('/checkout');
@@ -84,9 +89,14 @@ const ProductPage = () => {
           </div>
 
           <div className="product-actions">
-            <button className="btn btn-primary full-width-btn" onClick={handleOrderNow}>
-              Add to Cart & Order
-            </button>
+            <div className="dual-action-btns">
+              <button className="btn btn-outline" onClick={handleAddToCart}>
+                Add to Cart
+              </button>
+              <button className="btn btn-primary" onClick={handleOrderNow}>
+                Buy Now
+              </button>
+            </div>
             <p className="bespoke-note">For bespoke measurements, select 'Custom' and provide details during checkout.</p>
           </div>
 

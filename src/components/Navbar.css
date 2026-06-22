@@ -202,3 +202,28 @@
     font-size: 1.5rem;
   }
 }
+
+/* Cart icon with badge */
+.cart-icon-btn {
+  position: relative;
+  color: #222;
+  text-decoration: none;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--color-maroon);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  line-height: 1;
+}

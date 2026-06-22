@@ -1,15 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, ShoppingBag, CreditCard, Smartphone, Truck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ShoppingBag, CreditCard, Smartphone, Truck, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getCurrentUser } from '../lib/api';
-import { createOrder } from '../lib/api';
+import { getCurrentUser, createOrder } from '../lib/api';
 import AuthModal from '../components/AuthModal';
 import './Checkout.css';
 
 // ── Step indicator ────────────────────────────────────────────────────────────
 const STEPS = ['Cart', 'Details', 'Payment'];
-
 const StepBar = ({ current }) => (
   <div className="step-bar">
     {STEPS.map((label, i) => (
@@ -22,9 +20,9 @@ const StepBar = ({ current }) => (
   </div>
 );
 
-// ── Step 0: Cart review ───────────────────────────────────────────────────────
-const CartStep = ({ cartItem, onNext, onChangeSize }) => {
-  if (!cartItem) {
+// ── Step 0: Multi-item Cart ───────────────────────────────────────────────────
+const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty }) => {
+  if (!cartItems.length) {
     return (
       <div className="empty-cart">
         <ShoppingBag size={60} className="empty-cart-icon" />
@@ -34,51 +32,50 @@ const CartStep = ({ cartItem, onNext, onChangeSize }) => {
     );
   }
 
-  const { product, size } = cartItem;
   return (
     <div className="cart-step">
-      <h2 className="step-title">Your Cart</h2>
-      <div className="cart-item-card">
-        <img src={product.image} alt={product.name} className="cart-item-img" />
-        <div className="cart-item-info">
-          <h3 className="cart-item-name">{product.name}</h3>
-          <p className="cart-item-cat">{product.category}</p>
-          <div className="cart-size-row">
-            <span className="cart-size-label">Size:</span>
-            <div className="size-options" style={{ marginTop: 8 }}>
-              {['XS', 'S', 'M', 'L', 'XL', 'Custom'].map(s => (
-                <button
-                  key={s}
-                  className={`size-btn ${size === s ? 'active' : ''}`}
-                  onClick={() => onChangeSize(s)}
-                >{s}</button>
-              ))}
+      <h2 className="step-title">Your Cart ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})</h2>
+
+      {cartItems.map((item) => (
+        <div key={`${item.product.id}-${item.size}`} className="cart-item-card">
+          <img src={item.product.image} alt={item.product.name} className="cart-item-img" />
+          <div className="cart-item-info">
+            <h3 className="cart-item-name">{item.product.name}</h3>
+            <p className="cart-item-cat">{item.product.category}</p>
+            <p className="cart-item-size">Size: <strong>{item.size}</strong></p>
+            <div className="cart-item-bottom">
+              <div className="qty-control">
+                <button onClick={() => updateQty(item.product.id, item.size, item.qty - 1)}><Minus size={14} /></button>
+                <span>{item.qty}</span>
+                <button onClick={() => updateQty(item.product.id, item.size, item.qty + 1)}><Plus size={14} /></button>
+              </div>
+              <div className="cart-item-price">₹{(item.product.price * item.qty).toLocaleString('en-IN')}</div>
+              <button className="cart-remove-btn" onClick={() => removeFromCart(item.product.id, item.size)} title="Remove">
+                <Trash2 size={16} />
+              </button>
             </div>
           </div>
-          <div className="cart-item-price">₹{product.price.toLocaleString('en-IN')}</div>
         </div>
-      </div>
+      ))}
 
       <div className="cart-totals">
-        <div className="total-row"><span>Subtotal</span><span>₹{product.price.toLocaleString('en-IN')}</span></div>
+        <div className="total-row"><span>Subtotal</span><span>₹{totalPrice.toLocaleString('en-IN')}</span></div>
         <div className="total-row"><span>Shipping</span><span>Complimentary</span></div>
-        <div className="total-row grand-total"><span>Total</span><span>₹{product.price.toLocaleString('en-IN')}</span></div>
+        <div className="total-row grand-total"><span>Total</span><span>₹{totalPrice.toLocaleString('en-IN')}</span></div>
       </div>
 
       <button className="btn btn-primary full-width-btn" onClick={onNext}>
         Proceed to Details →
       </button>
+
+      <Link to="/collections" className="continue-shopping-link">+ Continue Shopping</Link>
     </div>
   );
 };
 
 // ── Step 1: Delivery details ──────────────────────────────────────────────────
-const DetailsStep = ({ formData, onChange, onNext, onBack, size }) => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onNext();
-  };
-
+const DetailsStep = ({ formData, onChange, onNext, onBack, hasCustomSize }) => {
+  const handleSubmit = (e) => { e.preventDefault(); onNext(); };
   return (
     <div className="details-step">
       <h2 className="step-title">Delivery Details</h2>
@@ -95,19 +92,12 @@ const DetailsStep = ({ formData, onChange, onNext, onBack, size }) => {
           <label htmlFor="address">Delivery Address</label>
           <textarea id="address" name="address" required rows="3" value={formData.address} onChange={onChange} placeholder="Complete shipping address" />
         </div>
-        <div className="form-group">
-          <label htmlFor="measurements">
-            {size === 'Custom' ? 'Bespoke Measurements' : 'Additional Fit Notes (optional)'}
-          </label>
-          <textarea
-            id="measurements"
-            name="measurements"
-            rows="2"
-            value={formData.measurements}
-            onChange={onChange}
-            placeholder={size === 'Custom' ? 'Bust: 34in, Waist: 28in, Hips: 38in' : 'Any specific fit requirements?'}
-          />
-        </div>
+        {hasCustomSize && (
+          <div className="form-group">
+            <label htmlFor="measurements">Bespoke Measurements</label>
+            <textarea id="measurements" name="measurements" rows="2" value={formData.measurements} onChange={onChange} placeholder="Bust: 34in, Waist: 28in, Hips: 38in" />
+          </div>
+        )}
         <div className="step-nav">
           <button type="button" className="btn btn-outline" onClick={onBack}>← Back</button>
           <button type="submit" className="btn btn-primary">Continue to Payment →</button>
@@ -117,22 +107,18 @@ const DetailsStep = ({ formData, onChange, onNext, onBack, size }) => {
   );
 };
 
-// ── Step 2: Payment method ────────────────────────────────────────────────────
-
-// UPI app deep links — redirect user to their UPI app to approve payment
-const openUpiApp = (appId, upiId, amount, productName) => {
-  const encodedName = encodeURIComponent(`LIVN - ${productName}`);
-  const upiLinks = {
-    gpay:    `gpay://upi/pay?pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=${encodedName}`,
-    phonepe: `phonepe://pay?pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=${encodedName}`,
-    paytm:   `paytmmp://pay?pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=${encodedName}`,
-    bhim:    `upi://pay?pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=${encodedName}`,
+// ── Step 2: Payment ───────────────────────────────────────────────────────────
+const openUpiApp = (appId, upiId, amount) => {
+  const base = `pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=LIVN%20Order`;
+  const links = {
+    gpay:    `gpay://upi/pay?${base}`,
+    phonepe: `phonepe://pay?${base}`,
+    paytm:   `paytmmp://pay?${base}`,
+    bhim:    `upi://pay?${base}`,
   };
-  // Try to open the app; browsers that can't handle the scheme will silently fail
-  window.location.href = upiLinks[appId] || upiLinks.bhim;
+  window.location.href = links[appId] || links.bhim;
 };
 
-// Real SVG logos for UPI apps
 const UPI_LOGOS = {
   gpay: (
     <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -164,18 +150,16 @@ const UPI_LOGOS = {
 };
 
 const UPI_APPS = [
-  { id: 'gpay',    label: 'Google Pay' },
+  { id: 'gpay', label: 'Google Pay' },
   { id: 'phonepe', label: 'PhonePe' },
-  { id: 'paytm',   label: 'Paytm' },
-  { id: 'bhim',    label: 'BHIM / Other UPI' },
+  { id: 'paytm', label: 'Paytm' },
+  { id: 'bhim', label: 'BHIM / Other' },
 ];
 
-const PaymentStep = ({ onBack, onConfirm, isSubmitting, product }) => {
+const PaymentStep = ({ onBack, onConfirm, isSubmitting, totalPrice }) => {
   const [method, setMethod] = useState('');
-  // UPI fields
   const [upiId, setUpiId] = useState('');
   const [selectedUpiApp, setSelectedUpiApp] = useState('');
-  // Card fields
   const [card, setCard] = useState({ number: '', name: '', expiry: '', cvv: '' });
 
   const handleCardChange = (e) => {
@@ -191,16 +175,11 @@ const PaymentStep = ({ onBack, onConfirm, isSubmitting, product }) => {
     if (method === 'upi') {
       if (!upiId.trim()) { alert('Please enter your UPI ID.'); return; }
       if (!selectedUpiApp) { alert('Please select a UPI app.'); return; }
-      // Place order first, then redirect to UPI app
-      onConfirm(method, upiId, () => {
-        openUpiApp(selectedUpiApp, upiId, product.price, product.name);
-      });
+      onConfirm(method, upiId, () => openUpiApp(selectedUpiApp, upiId, totalPrice));
       return;
     }
     if (method === 'card') {
-      if (!card.number || !card.name || !card.expiry || !card.cvv) {
-        alert('Please fill all card details.'); return;
-      }
+      if (!card.number || !card.name || !card.expiry || !card.cvv) { alert('Please fill all card details.'); return; }
     }
     onConfirm(method, upiId);
   };
@@ -210,11 +189,8 @@ const PaymentStep = ({ onBack, onConfirm, isSubmitting, product }) => {
       <h2 className="step-title">Payment Method</h2>
       <div className="payment-methods">
 
-        {/* ── UPI ── */}
-        <div
-          className={`payment-card ${method === 'upi' ? 'selected' : ''}`}
-          onClick={() => setMethod('upi')}
-        >
+        {/* UPI */}
+        <div className={`payment-card ${method === 'upi' ? 'selected' : ''}`} onClick={() => setMethod('upi')}>
           <div className="payment-icon"><Smartphone size={26} /></div>
           <div className="payment-info">
             <div className="payment-label">UPI</div>
@@ -222,45 +198,29 @@ const PaymentStep = ({ onBack, onConfirm, isSubmitting, product }) => {
           </div>
           <div className="payment-radio">{method === 'upi' ? '●' : '○'}</div>
         </div>
-
         {method === 'upi' && (
           <div className="payment-expand">
             <div className="form-group">
               <label>Your UPI ID</label>
-              <input
-                type="text"
-                placeholder="yourname@okhdfcbank"
-                value={upiId}
-                onChange={e => setUpiId(e.target.value)}
-              />
+              <input type="text" placeholder="yourname@okhdfcbank" value={upiId} onChange={e => setUpiId(e.target.value)} />
             </div>
             <div className="form-group" style={{ marginTop: 16 }}>
               <label>Select UPI App to Pay</label>
               <div className="upi-app-grid">
                 {UPI_APPS.map(app => (
-                  <button
-                    key={app.id}
-                    type="button"
-                    className={`upi-app-btn ${selectedUpiApp === app.id ? 'active' : ''}`}
-                    onClick={() => setSelectedUpiApp(app.id)}
-                  >
+                  <button key={app.id} type="button" className={`upi-app-btn ${selectedUpiApp === app.id ? 'active' : ''}`} onClick={() => setSelectedUpiApp(app.id)}>
                     <span className="upi-app-logo">{UPI_LOGOS[app.id]}</span>
                     <span>{app.label}</span>
                   </button>
                 ))}
               </div>
             </div>
-            <p className="upi-redirect-note">
-              After placing the order you'll be redirected to your UPI app to approve the payment.
-            </p>
+            <p className="upi-redirect-note">After placing the order you'll be redirected to your UPI app to approve payment.</p>
           </div>
         )}
 
-        {/* ── Card ── */}
-        <div
-          className={`payment-card ${method === 'card' ? 'selected' : ''}`}
-          onClick={() => setMethod('card')}
-        >
+        {/* Card */}
+        <div className={`payment-card ${method === 'card' ? 'selected' : ''}`} onClick={() => setMethod('card')}>
           <div className="payment-icon"><CreditCard size={26} /></div>
           <div className="payment-info">
             <div className="payment-label">Credit / Debit Card</div>
@@ -268,62 +228,31 @@ const PaymentStep = ({ onBack, onConfirm, isSubmitting, product }) => {
           </div>
           <div className="payment-radio">{method === 'card' ? '●' : '○'}</div>
         </div>
-
         {method === 'card' && (
           <div className="payment-expand">
             <div className="form-group">
               <label>Card Number</label>
-              <input
-                type="text"
-                name="number"
-                placeholder="1234 5678 9012 3456"
-                value={card.number}
-                onChange={handleCardChange}
-                maxLength={19}
-              />
+              <input type="text" name="number" placeholder="1234 5678 9012 3456" value={card.number} onChange={handleCardChange} maxLength={19} />
             </div>
             <div className="form-group" style={{ marginTop: 14 }}>
               <label>Name on Card</label>
-              <input
-                type="text"
-                name="name"
-                placeholder="As printed on card"
-                value={card.name}
-                onChange={handleCardChange}
-              />
+              <input type="text" name="name" placeholder="As printed on card" value={card.name} onChange={handleCardChange} />
             </div>
             <div className="card-row" style={{ marginTop: 14 }}>
               <div className="form-group">
                 <label>Expiry</label>
-                <input
-                  type="text"
-                  name="expiry"
-                  placeholder="MM/YY"
-                  value={card.expiry}
-                  onChange={handleCardChange}
-                  maxLength={5}
-                />
+                <input type="text" name="expiry" placeholder="MM/YY" value={card.expiry} onChange={handleCardChange} maxLength={5} />
               </div>
               <div className="form-group">
                 <label>CVV</label>
-                <input
-                  type="password"
-                  name="cvv"
-                  placeholder="•••"
-                  value={card.cvv}
-                  onChange={handleCardChange}
-                  maxLength={4}
-                />
+                <input type="password" name="cvv" placeholder="•••" value={card.cvv} onChange={handleCardChange} maxLength={4} />
               </div>
             </div>
           </div>
         )}
 
-        {/* ── COD ── */}
-        <div
-          className={`payment-card ${method === 'cod' ? 'selected' : ''}`}
-          onClick={() => setMethod('cod')}
-        >
+        {/* COD */}
+        <div className={`payment-card ${method === 'cod' ? 'selected' : ''}`} onClick={() => setMethod('cod')}>
           <div className="payment-icon"><Truck size={26} /></div>
           <div className="payment-info">
             <div className="payment-label">Cash on Delivery</div>
@@ -331,18 +260,16 @@ const PaymentStep = ({ onBack, onConfirm, isSubmitting, product }) => {
           </div>
           <div className="payment-radio">{method === 'cod' ? '●' : '○'}</div>
         </div>
-
         {method === 'cod' && (
           <div className="payment-expand">
             <p>🚚 You'll pay in cash when your order is delivered to your doorstep.</p>
           </div>
         )}
-
       </div>
 
       <div className="payment-total-bar">
         <span>Total Payable</span>
-        <span className="payment-total-amount">₹{product.price.toLocaleString('en-IN')}</span>
+        <span className="payment-total-amount">₹{totalPrice.toLocaleString('en-IN')}</span>
       </div>
 
       <div className="step-nav">
@@ -355,95 +282,86 @@ const PaymentStep = ({ onBack, onConfirm, isSubmitting, product }) => {
   );
 };
 
-// ── Main Checkout orchestrator ────────────────────────────────────────────────
+// ── Main Checkout ─────────────────────────────────────────────────────────────
 const Checkout = () => {
-  const { cartItem, addToCart, clearCart } = useCart();
-  const [step, setStep] = useState(0);         // 0=cart, 1=details, 2=payment
+  const { cartItems, removeFromCart, updateQty, clearCart, totalPrice } = useCart();
+  const [step, setStep] = useState(0);
   const [showAuth, setShowAuth] = useState(false);
-  const [user, setUser] = useState(getCurrentUser());
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderInfo, setOrderInfo] = useState(null);
+  const [ordersPlaced, setOrdersPlaced] = useState(null);
   const navigate = useNavigate();
   const fallbackId = useRef('LIVN-' + Math.floor(Math.random() * 90000 + 10000));
-
   const [formData, setFormData] = useState({ name: '', phone: '', address: '', measurements: '' });
-  const [cartSize, setCartSize] = useState(cartItem?.size || 'Standard');
+
+  const hasCustomSize = cartItems.some(i => i.size === 'Custom');
 
   useEffect(() => { window.scrollTo(0, 0); }, [step]);
-
-  // Sync size change back into cart
-  const handleSizeChange = (s) => {
-    setCartSize(s);
-    if (cartItem) addToCart(cartItem.product, s);
-  };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Cart → Details: require login first
   const handleCartNext = () => {
+    if (!cartItems.length) return;
     const currentUser = getCurrentUser();
-    if (!currentUser) {
-      setShowAuth(true);
-    } else {
-      setUser(currentUser);
-      setStep(1);
-    }
+    if (!currentUser) { setShowAuth(true); return; }
+    setStep(1);
   };
 
-  const handleAuthSuccess = (u) => {
-    setUser(u);
+  const handleAuthSuccess = () => {
     setShowAuth(false);
     setStep(1);
   };
 
+  // Place one order per cart item
   const handleConfirmOrder = async (paymentMethod, upiId, onAfter) => {
-    if (!cartItem) return;
     setIsSubmitting(true);
     try {
-      const payload = {
-        product_id:       cartItem.product.id,
-        product_name:     cartItem.product.name,
-        price:            cartItem.product.price,
-        customer_name:    formData.name,
-        customer_phone:   formData.phone,
-        shipping_address: formData.address,
-        measurements:     formData.measurements || cartSize,
-        selected_size:    cartSize,
-        payment_method:   paymentMethod,
-        upi_id:           upiId || '',
-      };
-      const { data, error } = await createOrder(payload);
-      if (error) { alert(error); return; }
-      setOrderInfo(data);
+      const results = [];
+      for (const item of cartItems) {
+        const payload = {
+          product_id:       item.product.id,
+          product_name:     item.product.name,
+          price:            item.product.price * item.qty,
+          customer_name:    formData.name,
+          customer_phone:   formData.phone,
+          shipping_address: formData.address,
+          measurements:     formData.measurements || item.size,
+          selected_size:    item.size,
+          quantity:         item.qty,
+          payment_method:   paymentMethod,
+          upi_id:           upiId || '',
+        };
+        const { data, error } = await createOrder(payload);
+        if (error) throw new Error(error);
+        results.push(data);
+      }
+      setOrdersPlaced(results);
       clearCart();
-      // For UPI: trigger app redirect after order is saved
       if (onAfter) onAfter();
     } catch (err) {
-      alert('Order failed. Please try again.');
-      console.error(err);
+      alert('Order failed: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // ── Success screen ─────────────────────────────────────────────────────────
-  if (orderInfo) {
+  // ── Success screen ──────────────────────────────────────────────────────────
+  if (ordersPlaced) {
     return (
       <div className="checkout-success container">
         <div className="success-card animate-fade-in-up">
           <CheckCircle2 size={80} className="success-icon" />
-          <h1 className="success-title">Order Confirmed!</h1>
+          <h1 className="success-title">Order{ordersPlaced.length > 1 ? 's' : ''} Confirmed!</h1>
           <p className="success-desc">
-            Your attire is being prepared. We will reach you at <strong>{formData.phone}</strong> with delivery updates.
+            Your attire is being prepared. We will reach you at <strong>{formData.phone}</strong> with updates.
           </p>
           <div className="order-summary-box">
-            <p><strong>Order ID:</strong> {(orderInfo?._id || fallbackId.current).toString().slice(-8).toUpperCase()}</p>
-            <p><strong>Product:</strong> {orderInfo?.product_name}</p>
-            <p><strong>Amount:</strong> ₹{orderInfo?.price?.toLocaleString('en-IN')}</p>
-            <p><strong>Payment:</strong> {orderInfo?.payment_method?.toUpperCase() || 'Confirmed'}</p>
+            {ordersPlaced.map((o, i) => (
+              <p key={i}><strong>{o?.product_name || `Item ${i + 1}`}</strong> — Order #{(o?._id || fallbackId.current).toString().slice(-6).toUpperCase()}</p>
+            ))}
+            <p style={{ marginTop: 10 }}><strong>Total Paid:</strong> ₹{totalPrice > 0 ? totalPrice.toLocaleString('en-IN') : ordersPlaced.reduce((s, o) => s + (o?.price || 0), 0).toLocaleString('en-IN')}</p>
           </div>
           <Link to="/" className="btn btn-gold" style={{ marginTop: 24 }}>Return to Collections</Link>
         </div>
@@ -451,26 +369,24 @@ const Checkout = () => {
     );
   }
 
-  const product = cartItem?.product;
-
   return (
     <div className="checkout-page container">
-      {/* Back link */}
-      <button className="back-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => step === 0 ? navigate(-1) : setStep(s => s - 1)}>
+      <button className="back-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        onClick={() => step === 0 ? navigate(-1) : setStep(s => s - 1)}>
         <ArrowLeft size={18} /><span style={{ marginLeft: 6 }}>Back</span>
       </button>
 
-      {/* Step indicator */}
       <StepBar current={step} />
 
       <div className="checkout-layout grid grid-cols-2">
-        {/* Left: step content */}
         <div className="checkout-form-section animate-fade-in-up">
           {step === 0 && (
             <CartStep
-              cartItem={cartItem}
+              cartItems={cartItems}
+              totalPrice={totalPrice}
               onNext={handleCartNext}
-              onChangeSize={handleSizeChange}
+              removeFromCart={removeFromCart}
+              updateQty={updateQty}
             />
           )}
           {step === 1 && (
@@ -479,50 +395,48 @@ const Checkout = () => {
               onChange={handleFormChange}
               onNext={() => setStep(2)}
               onBack={() => setStep(0)}
-              size={cartSize}
+              hasCustomSize={hasCustomSize}
             />
           )}
-          {step === 2 && product && (
+          {step === 2 && (
             <PaymentStep
               onBack={() => setStep(1)}
               onConfirm={handleConfirmOrder}
               isSubmitting={isSubmitting}
-              product={product}
+              totalPrice={totalPrice}
             />
           )}
         </div>
 
-        {/* Right: order summary (visible when cart has item) */}
-        {product && (
+        {/* Order summary sidebar */}
+        {cartItems.length > 0 && (
           <div className="checkout-summary animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <div className="summary-card">
               <h3 className="summary-title">Order Summary</h3>
               <div className="temple-divider" style={{ margin: '15px 0' }}></div>
-              <div className="summary-product">
-                <img src={product.image} alt={product.name} className="summary-image" />
-                <div className="summary-details">
-                  <h4 className="summary-product-name">{product.name}</h4>
-                  <p className="summary-product-cat">{product.category}</p>
-                  <p className="summary-size">Size: {cartSize}</p>
-                  <div className="summary-price">₹{product.price.toLocaleString('en-IN')}</div>
+              {cartItems.map((item) => (
+                <div key={`${item.product.id}-${item.size}`} className="summary-product">
+                  <img src={item.product.image} alt={item.product.name} className="summary-image" />
+                  <div className="summary-details">
+                    <h4 className="summary-product-name">{item.product.name}</h4>
+                    <p className="summary-product-cat">{item.product.category}</p>
+                    <p className="summary-size">Size: {item.size} {item.qty > 1 ? `× ${item.qty}` : ''}</p>
+                    <div className="summary-price">₹{(item.product.price * item.qty).toLocaleString('en-IN')}</div>
+                  </div>
                 </div>
-              </div>
+              ))}
               <div className="summary-totals">
-                <div className="total-row"><span>Subtotal</span><span>₹{product.price.toLocaleString('en-IN')}</span></div>
+                <div className="total-row"><span>Subtotal</span><span>₹{totalPrice.toLocaleString('en-IN')}</span></div>
                 <div className="total-row"><span>Shipping</span><span>Complimentary</span></div>
-                <div className="total-row grand-total"><span>Total</span><span>₹{product.price.toLocaleString('en-IN')}</span></div>
+                <div className="total-row grand-total"><span>Total</span><span>₹{totalPrice.toLocaleString('en-IN')}</span></div>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Auth modal — shown when guest tries to proceed */}
       {showAuth && (
-        <AuthModal
-          onClose={() => setShowAuth(false)}
-          onAuthSuccess={handleAuthSuccess}
-        />
+        <AuthModal onClose={() => setShowAuth(false)} onAuthSuccess={handleAuthSuccess} />
       )}
     </div>
   );

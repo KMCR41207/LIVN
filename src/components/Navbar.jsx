@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, User, LogOut } from 'lucide-react';
+import { Search, Menu, X, User, LogOut, ShoppingBag } from 'lucide-react';
 import { getCurrentUser, signOut } from '../lib/api';
+import { useCart } from '../context/CartContext';
 import AuthModal from './AuthModal';
 import './Navbar.css';
 
@@ -11,6 +12,7 @@ const Navbar = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -57,6 +59,14 @@ const Navbar = () => {
             <button className="icon-btn" aria-label="Search">
               <Search size={22} />
             </button>
+
+            {/* Cart icon with badge */}
+            <Link to="/checkout" className="icon-btn cart-icon-btn" aria-label="Cart">
+              <ShoppingBag size={22} />
+              {totalItems > 0 && (
+                <span className="cart-badge">{totalItems}</span>
+              )}
+            </Link>
 
             {user ? (
               <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title={`Logout (${user.email})`}>

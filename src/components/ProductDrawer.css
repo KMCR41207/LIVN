@@ -61,3 +61,17 @@
     max-width: 100%;
   }
 }
+
+/* Dual action buttons */
+.dual-action-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dual-action-btns .btn {
+  width: 100%;
+  padding: 13px 10px;
+  font-size: 0.85rem;
+}

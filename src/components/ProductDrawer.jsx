@@ -22,6 +22,12 @@ const ProductDrawer = ({ product, onClose }) => {
 
   if (!product) return null;
 
+  const handleAddToCart = () => {
+    addToCart(product, selectedSize || 'Standard');
+    onClose();
+    // Brief toast feedback would be nice, for now just close
+  };
+
   const handleOrderNow = () => {
     addToCart(product, selectedSize || 'Standard');
     onClose();
@@ -74,9 +80,14 @@ const ProductDrawer = ({ product, onClose }) => {
           </div>
 
           <div className="product-actions">
-            <button className="btn btn-primary full-width-btn" onClick={handleOrderNow}>
-              Add to Cart & Order
-            </button>
+            <div className="dual-action-btns">
+              <button className="btn btn-outline" onClick={handleAddToCart}>
+                Add to Cart
+              </button>
+              <button className="btn btn-primary" onClick={handleOrderNow}>
+                Buy Now
+              </button>
+            </div>
             <p className="bespoke-note">For bespoke measurements, select 'Custom' and provide details during checkout.</p>
           </div>
 
