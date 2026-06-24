@@ -23,9 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-# Server
+# Backend — secrets never go to git
+backend/node_modules
+backend/.env
 server/node_modules
 server/.env
 
-# Root env (contains API URL — safe to commit, but exclude if it has secrets)
-# .env
+# Root env
+.env
