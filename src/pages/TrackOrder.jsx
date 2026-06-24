@@ -77,24 +77,53 @@ const TrackOrder = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (user) {
-      fetchOrders();
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      setUser(currentUser);
+      // fetch inline to avoid dependency issues
+      setLoading(true);
+      getMyOrders()
+        .then(({ data, error }) => {
+          if (!error) setOrders(data || []);
+          else setOrders([]);
+        })
+        .catch(() => setOrders([]))
+        .finally(() => setLoading(false));
     } else {
       setLoading(false);
       setShowAuth(true);
     }
-  }, [user]);
+  }, []);
 
   const fetchOrders = async () => {
     setLoading(true);
-    const { data } = await getMyOrders();
-    setOrders(data || []);
-    setLoading(false);
+    try {
+      const { data, error } = await getMyOrders();
+      if (error) {
+        console.error('Failed to fetch orders:', error);
+        setOrders([]);
+      } else {
+        setOrders(data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAuthSuccess = (u) => {
     setUser(u);
     setShowAuth(false);
+    // fetch orders for newly logged in user
+    setLoading(true);
+    getMyOrders()
+      .then(({ data, error }) => {
+        setOrders(!error ? (data || []) : []);
+      })
+      .catch(() => setOrders([]))
+      .finally(() => setLoading(false));
   };
 
   return (
