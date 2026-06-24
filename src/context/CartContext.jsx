@@ -7,7 +7,17 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      // Migrate: old format was a single object {product, size}, new format is an array
+      if (!Array.isArray(parsed)) {
+        // If it looks like the old single-item format, migrate it
+        if (parsed && parsed.product) {
+          return [{ product: parsed.product, size: parsed.size || 'Standard', qty: 1 }];
+        }
+        return [];
+      }
+      return parsed;
     } catch {
       return [];
     }
