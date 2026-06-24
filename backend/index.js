@@ -1,6 +1,9 @@
-// Load .env from backend/ folder (local dev) or use Railway env vars in production
+// Load .env from backend/ folder in local dev only
+// On Railway (production), env vars are injected directly — no .env file needed
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config({ path: path.join(__dirname, '.env') });
+}
 
 const express = require('express');
 const mongoose = require('mongoose');
