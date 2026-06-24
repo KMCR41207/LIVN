@@ -1,0 +1,225 @@
+.track-order-page {
+  padding-top: 120px;
+  padding-bottom: 80px;
+  min-height: 80vh;
+}
+
+.track-order-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.track-order-header h1 {
+  color: var(--color-maroon-dark);
+  margin-bottom: 10px;
+}
+
+.track-order-header p {
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
+}
+
+.track-loading {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 1.1rem;
+  padding: 60px 0;
+}
+
+.track-empty, .track-auth-prompt {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.track-empty-icon {
+  color: var(--color-gold-base);
+  margin-bottom: 20px;
+}
+
+.track-empty h2, .track-auth-prompt h2 {
+  color: var(--color-maroon-dark);
+  margin-bottom: 10px;
+}
+
+.track-empty p, .track-auth-prompt p {
+  color: var(--color-text-secondary);
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ── Order Card ── */
+.order-card {
+  background: #fff;
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  padding: 28px 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.order-id {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-maroon-dark);
+}
+
+.order-date {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-top: 3px;
+}
+
+.order-status-badge {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.status-new       { background: #e3f2fd; color: #1565c0; }
+.status-stitching { background: #f3e5f5; color: #6a1b9a; }
+.status-ready     { background: #e8f5e9; color: #2e7d32; }
+.status-sent      { background: #fff3e0; color: #e65100; }
+.status-delivered { background: var(--color-bg-secondary); color: var(--color-maroon-dark); }
+
+.order-product-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 0;
+  border-top: 1px dashed #eee;
+  border-bottom: 1px dashed #eee;
+  margin-bottom: 24px;
+}
+
+.order-product-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  margin-bottom: 5px;
+}
+
+.order-product-meta {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 3px;
+}
+
+.order-product-price {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-maroon);
+}
+
+/* ── Progress Tracker ── */
+.order-progress {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 60px;
+}
+
+.progress-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bbb;
+  transition: all 0.3s;
+  z-index: 1;
+}
+
+.progress-step.done .progress-icon {
+  border-color: var(--color-maroon);
+  background: var(--color-maroon);
+  color: #fff;
+}
+
+.progress-step.current .progress-icon {
+  border-color: var(--color-gold-base);
+  background: var(--color-gold-base);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(212,175,55,0.2);
+}
+
+.progress-label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  color: #bbb;
+  margin-top: 6px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.progress-step.done .progress-label,
+.progress-step.current .progress-label {
+  color: var(--color-text-primary);
+}
+
+.progress-line {
+  position: absolute;
+  top: 19px;
+  left: calc(50% + 19px);
+  width: calc(100% - 2px);
+  height: 2px;
+  background: #ddd;
+  z-index: 0;
+}
+
+.progress-step.done .progress-line {
+  background: var(--color-maroon);
+}
+
+.order-status-desc {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.order-address {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+
+@media (max-width: 600px) {
+  .order-card { padding: 20px 16px; }
+  .progress-label { display: none; }
+}

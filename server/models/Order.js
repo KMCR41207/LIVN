@@ -7,6 +7,7 @@ const orderSchema = new mongoose.Schema(
     price:            { type: Number, required: true },
     customer_name:    { type: String, required: true },
     customer_phone:   { type: String, required: true },
+    customer_email:   { type: String, default: '' },
     shipping_address: { type: String, required: true },
     measurements:     { type: String, default: '' },
     selected_size:    { type: String, default: 'Standard' },

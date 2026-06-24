@@ -14,7 +14,16 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/orders — get all orders (admin only)
+// GET /api/orders/my — get orders for the logged-in user (by phone number stored in JWT email)
+router.get('/my', protect, async (req, res) => {
+  try {
+    const orders = await Order.find({ customer_email: req.user.email }).sort({ createdAt: -1 });
+    res.json({ data: orders, error: null });
+  } catch (err) {
+    res.status(500).json({ data: null, error: err.message });
+  }
+});
+
 router.get('/', protect, adminOnly, async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });

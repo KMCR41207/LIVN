@@ -33,8 +33,8 @@ const Footer = () => {
         <div className="footer-links">
           <h4>Assistance</h4>
           <ul>
-            <li><a href="#">Track Order</a></li>
-            <li><a href="#">Shipping & Returns</a></li>
+            <li><Link to="/track-order">Track Order</Link></li>
+            <li><Link to="/shipping-returns">Shipping & Returns</Link></li>
             <li><a href="#">Size Guide</a></li>
             <li><a href="#">Contact Us</a></li>
           </ul>

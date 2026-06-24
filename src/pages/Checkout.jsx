@@ -326,6 +326,7 @@ const Checkout = () => {
           price:            item.product.price * item.qty,
           customer_name:    formData.name,
           customer_phone:   formData.phone,
+          customer_email:   getCurrentUser()?.email || '',
           shipping_address: formData.address,
           measurements:     formData.measurements || item.size,
           selected_size:    item.size,

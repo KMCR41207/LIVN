@@ -72,6 +72,13 @@ export const createOrder = async (orderData) => {
   return { data: json.data, error: null };
 };
 
+export const getMyOrders = async () => {
+  const res = await fetch(`${BASE_URL}/orders/my`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
 export const getOrders = async () => {
   const res = await fetch(`${BASE_URL}/orders`, { headers: authHeaders() });
   const json = await res.json();

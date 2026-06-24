@@ -7,6 +7,8 @@ import Checkout from './pages/Checkout';
 import Collections from './pages/Collections';
 import NewArrivals from './pages/NewArrivals';
 import Admin from './pages/Admin';
+import TrackOrder from './pages/TrackOrder';
+import ShippingReturns from './pages/ShippingReturns';
 import { CartProvider } from './context/CartContext';
 
 import './index.css';
@@ -24,6 +26,8 @@ function App() {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/new-arrivals" element={<NewArrivals />} />
+              <Route path="/track-order" element={<TrackOrder />} />
+              <Route path="/shipping-returns" element={<ShippingReturns />} />
               <Route path="/admin" element={<Admin />} />
             </Routes>
           </main>
