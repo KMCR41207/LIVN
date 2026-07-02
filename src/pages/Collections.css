@@ -26,6 +26,11 @@
   padding: 40px 0 60px;
 }
 
+/* ensure all direct grid children don't overflow */
+.product-grid > * {
+  min-width: 0;
+}
+
 .collection-category-header {
   display: flex;
   align-items: center;
@@ -51,6 +56,8 @@
 /* ── Admin overlay controls on product cards ── */
 .product-card-wrapper {
   position: relative;
+  min-width: 0; /* prevent grid blowout */
+  width: 100%;
 }
 
 .admin-delete-overlay {
