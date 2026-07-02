@@ -25,13 +25,11 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
         onAuthSuccess(user);
         onClose();
       } else {
-        // Try sign in — if user doesn't exist and it's admin email, auto-create admin
         try {
           const { user } = await signIn(email, password);
           onAuthSuccess(user);
           onClose();
         } catch (signInErr) {
-          // If invalid credentials and it's the admin email, try creating the admin account
           if (signInErr.message === 'Invalid credentials' || signInErr.message.includes('Invalid')) {
             try {
               const { user } = await signUp(email, password);

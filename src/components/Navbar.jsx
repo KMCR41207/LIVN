@@ -30,7 +30,9 @@ const Navbar = () => {
 
   const handleAuthSuccess = (u) => {
     setUser(u);
-    if (u.role === 'admin') navigate('/admin');
+    if (u.role === 'admin') {
+      navigate('/admin');
+    }
   };
 
   const handleLogout = () => {
