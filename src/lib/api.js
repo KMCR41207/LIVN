@@ -96,3 +96,47 @@ export const updateOrderStatus = async (id, status) => {
   if (!res.ok) return { data: null, error: json.error };
   return { data: json.data, error: null };
 };
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+
+export const getProducts = async (category = '') => {
+  const url = category
+    ? `${BASE_URL}/products?category=${encodeURIComponent(category)}`
+    : `${BASE_URL}/products`;
+  const res = await fetch(url);
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createProduct = async (productData) => {
+  const res = await fetch(`${BASE_URL}/products`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(productData),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateProduct = async (id, productData) => {
+  const res = await fetch(`${BASE_URL}/products/${id}`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: JSON.stringify(productData),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deleteProduct = async (id) => {
+  const res = await fetch(`${BASE_URL}/products/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getOrders, updateOrderStatus, signIn } from '../lib/api';
-import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send } from 'lucide-react';
+import { getOrders, updateOrderStatus, signIn, getProducts, createProduct, deleteProduct } from '../lib/api';
+import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2 } from 'lucide-react';
 import './Admin.css';
 
 const STATUS_OPTIONS = ['New', 'Sent', 'Stitching', 'Ready', 'Delivered'];
@@ -25,11 +25,14 @@ const Admin = () => {
 
   // Products state
   const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productError, setProductError] = useState('');
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: '',
     category: 'Bespoke',
     price: '',
+    offer_price: '',
     image: '',
     description: ''
   });
@@ -41,6 +44,9 @@ const Admin = () => {
   useEffect(() => {
     if (isAuthenticated && activeTab === 'orders') {
       fetchOrders();
+    }
+    if (isAuthenticated && activeTab === 'products') {
+      fetchProducts();
     }
   }, [isAuthenticated, activeTab]);
 
@@ -70,6 +76,20 @@ const Admin = () => {
       console.error('Failed to fetch orders');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    setProductsLoading(true);
+    setProductError('');
+    try {
+      const { data, error } = await getProducts();
+      if (error) throw new Error(error);
+      setProducts(data || []);
+    } catch (err) {
+      setProductError(err.message || 'Failed to load products');
+    } finally {
+      setProductsLoading(false);
     }
   };
 
@@ -106,24 +126,47 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleAddProduct = (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault();
-    if (!newProduct.name || !newProduct.price) {
-      alert('Please fill in all required fields');
+    if (!newProduct.name || !newProduct.price || !newProduct.category) {
+      setProductError('Name, category, and price are required');
       return;
     }
 
-    const product = {
-      id: Date.now(),
-      ...newProduct,
-      price: parseFloat(newProduct.price),
-      createdAt: new Date().toISOString()
-    };
+    setProductsLoading(true);
+    setProductError('');
+    try {
+      const payload = {
+        name:        newProduct.name,
+        category:    newProduct.category,
+        price:       parseFloat(newProduct.price),
+        offer_price: newProduct.offer_price ? parseFloat(newProduct.offer_price) : null,
+        image:       newProduct.image,
+        description: newProduct.description,
+      };
 
-    setProducts([...products, product]);
-    setNewProduct({ name: '', category: 'Bespoke', price: '', image: '', description: '' });
-    setShowAddProduct(false);
-    alert('Product added successfully!');
+      const { data, error } = await createProduct(payload);
+      if (error) throw new Error(error);
+
+      setProducts(prev => [data, ...prev]);
+      setNewProduct({ name: '', category: 'Bespoke', price: '', offer_price: '', image: '', description: '' });
+      setShowAddProduct(false);
+    } catch (err) {
+      setProductError(err.message || 'Failed to save product');
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (id) => {
+    if (!window.confirm('Delete this product?')) return;
+    try {
+      const { error } = await deleteProduct(id);
+      if (error) throw new Error(error);
+      setProducts(prev => prev.filter(p => p._id !== id));
+    } catch (err) {
+      alert('Failed to delete: ' + err.message);
+    }
   };
 
   const handleAddComment = (orderId) => {
@@ -152,19 +195,28 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
     try {
       const response = await fetch('/api/health');
       const data = await response.json();
+
+      // Also fetch fresh counts
+      const [ordersRes, productsRes] = await Promise.all([
+        getOrders(),
+        getProducts(),
+      ]);
+
       setDbStats({
         status: data.status,
         db: data.db === 'connected' ? '✅ Connected' : '❌ Disconnected',
         timestamp: new Date().toLocaleString(),
-        ordersCount: orders.length,
-        productsCount: products.length
+        ordersCount: ordersRes.data?.length ?? 0,
+        productsCount: productsRes.data?.length ?? 0,
       });
     } catch (err) {
       setDbStats({
         status: 'error',
         db: '❌ Connection Error',
         error: err.message,
-        timestamp: new Date().toLocaleString()
+        timestamp: new Date().toLocaleString(),
+        ordersCount: 0,
+        productsCount: 0,
       });
     } finally {
       setVerificationLoading(false);
@@ -336,19 +388,32 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
             <div className="admin-section-header">
               <div>
                 <h2>Product Management</h2>
-                <p>Add and manage dress options</p>
+                <p>Add and manage dress options — saved to MongoDB</p>
               </div>
-              <button className="btn btn-gold" onClick={() => setShowAddProduct(!showAddProduct)}>
-                <Plus size={16} /> Add Product
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="btn btn-outline" onClick={fetchProducts} disabled={productsLoading}>
+                  <RefreshCw size={16} className={productsLoading ? 'spinning' : ''} />
+                  {productsLoading ? 'Loading...' : 'Refresh'}
+                </button>
+                <button className="btn btn-gold" onClick={() => setShowAddProduct(!showAddProduct)}>
+                  <Plus size={16} /> Add Product
+                </button>
+              </div>
             </div>
+
+            {productError && (
+              <div className="error-banner">{productError}</div>
+            )}
 
             {showAddProduct && (
               <div className="add-product-form">
+                <h3 style={{ marginTop: 0, color: 'var(--color-maroon-dark)', fontFamily: 'var(--font-heading)' }}>
+                  New Product
+                </h3>
                 <form onSubmit={handleAddProduct}>
                   <input
                     type="text"
-                    placeholder="Product Name"
+                    placeholder="Product Name *"
                     value={newProduct.name}
                     onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                     required
@@ -361,41 +426,57 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
                     <option>Kurti</option>
                     <option>Saree</option>
                     <option>Lehenga</option>
+                    <option>Co-ord Set</option>
+                    <option>Dress</option>
                   </select>
-                  <input
-                    type="number"
-                    placeholder="Price (₹)"
-                    value={newProduct.price}
-                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                    required
-                  />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <input
+                      type="number"
+                      placeholder="Price ₹ *"
+                      value={newProduct.price}
+                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                      required
+                    />
+                    <input
+                      type="number"
+                      placeholder="Offer Price ₹ (optional)"
+                      value={newProduct.offer_price}
+                      onChange={(e) => setNewProduct({ ...newProduct, offer_price: e.target.value })}
+                    />
+                  </div>
                   <input
                     type="url"
-                    placeholder="Image URL"
+                    placeholder="Image URL (optional)"
                     value={newProduct.image}
                     onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
                   />
                   <textarea
-                    placeholder="Description"
+                    placeholder="Description (optional)"
                     value={newProduct.description}
                     onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                   ></textarea>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button type="submit" className="btn btn-primary">Add Product</button>
-                    <button type="button" className="btn btn-outline" onClick={() => setShowAddProduct(false)}>Cancel</button>
+                    <button type="submit" className="btn btn-primary" disabled={productsLoading}>
+                      {productsLoading ? 'Saving...' : '💾 Save to Database'}
+                    </button>
+                    <button type="button" className="btn btn-outline" onClick={() => { setShowAddProduct(false); setProductError(''); }}>
+                      Cancel
+                    </button>
                   </div>
                 </form>
               </div>
             )}
 
             <div className="products-grid">
-              {products.length === 0 ? (
+              {productsLoading && products.length === 0 ? (
+                <div className="empty-state"><p>Loading products from database...</p></div>
+              ) : products.length === 0 ? (
                 <div className="empty-state">
-                  <p>No products added yet. Click "Add Product" to get started.</p>
+                  <p>No products in database yet. Click "Add Product" to create one.</p>
                 </div>
               ) : (
                 products.map((product) => (
-                  <div key={product.id} className="product-card">
+                  <div key={product._id} className="product-card">
                     {product.image && (
                       <div className="product-image">
                         <img src={product.image} alt={product.name} />
@@ -403,9 +484,31 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
                     )}
                     <h3>{product.name}</h3>
                     <p className="product-category">{product.category}</p>
-                    <p className="product-price">₹{product.price?.toLocaleString('en-IN')}</p>
-                    <p className="product-desc">{product.description}</p>
-                    <small>{new Date(product.createdAt).toLocaleDateString()}</small>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      {product.offer_price ? (
+                        <>
+                          <p className="product-price" style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '1rem' }}>
+                            ₹{product.price?.toLocaleString('en-IN')}
+                          </p>
+                          <p className="product-price">₹{product.offer_price?.toLocaleString('en-IN')}</p>
+                        </>
+                      ) : (
+                        <p className="product-price">₹{product.price?.toLocaleString('en-IN')}</p>
+                      )}
+                    </div>
+                    {product.description && <p className="product-desc">{product.description}</p>}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+                      <small style={{ color: 'var(--color-text-secondary)' }}>
+                        {new Date(product.createdAt).toLocaleDateString()}
+                      </small>
+                      <button
+                        className="btn-delete"
+                        onClick={() => handleDeleteProduct(product._id)}
+                        title="Delete product"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
