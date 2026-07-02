@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getOrders, updateOrderStatus, signIn, getProducts, createProduct, deleteProduct } from '../lib/api';
+import { getOrders, updateOrderStatus, signIn, signUp, getProducts, createProduct, deleteProduct } from '../lib/api';
 import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2 } from 'lucide-react';
 import './Admin.css';
 
@@ -10,6 +10,7 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [loginError, setLoginError] = useState('');
 
   // Tab navigation
@@ -62,6 +63,21 @@ const Admin = () => {
       setIsAuthenticated(true);
     } catch (err) {
       setLoginError(err.message || 'Invalid credentials.');
+    }
+  };
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    try {
+      const { user } = await signUp(email, password);
+      if (user.role === 'admin') {
+        setIsAuthenticated(true);
+      } else {
+        setLoginError('Account created but not admin. Contact system admin.');
+      }
+    } catch (err) {
+      setLoginError(err.message || 'Sign up failed.');
     }
   };
 
@@ -228,8 +244,8 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
       <div className="admin-login-page container">
         <div className="admin-login-card animate-fade-in-up">
           <h1 className="admin-title">Livaani Admin Portal</h1>
-          <p className="admin-subtitle">Sign in with your admin credentials.</p>
-          <form onSubmit={handleLogin} className="admin-form">
+          <p className="admin-subtitle">{isSignUp ? 'Create admin account' : 'Sign in with your admin credentials.'}</p>
+          <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="admin-form">
             <input
               type="email"
               placeholder="Admin Email"
@@ -249,7 +265,16 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
               className="admin-input"
             />
             {loginError && <p style={{ color: '#d32f2f', fontSize: '0.9rem' }}>{loginError}</p>}
-            <button type="submit" className="btn btn-primary full-width-btn">Enter Admin Portal</button>
+            <button type="submit" className="btn btn-primary full-width-btn">
+              {isSignUp ? 'Create Account' : 'Enter Admin Portal'}
+            </button>
+            <button 
+              type="button" 
+              onClick={() => { setIsSignUp(!isSignUp); setLoginError(''); }}
+              style={{ background: 'none', border: 'none', color: 'var(--color-gold-dark)', cursor: 'pointer', marginTop: '12px', fontSize: '0.9rem' }}
+            >
+              {isSignUp ? 'Already have account? Sign In' : 'No account? Create one'}
+            </button>
           </form>
         </div>
       </div>
