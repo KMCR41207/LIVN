@@ -3,7 +3,7 @@
 // In production build served by Express: falls back to /api (same origin)
 const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────
 
 const getToken = () => localStorage.getItem('livn_token');
 

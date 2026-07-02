@@ -1,0 +1,213 @@
+/* =====================================================
+   LIVN — Luxury Glass Refraction Effect
+   Inspired by high-end boutique display glass
+   Louis Vuitton / Dior / Hermès aesthetic
+   ===================================================== */
+
+/* ── Core Glass Element ── */
+.luxury-glass {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) 
+             rotateX(var(--glass-tilt-x, 0deg)) 
+             rotateY(var(--glass-tilt-y, 0deg));
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+  cursor: default;
+}
+
+/* ── Intensity Variants ── */
+
+/* Light: very subtle, almost invisible glass */
+.glass-light {
+  background: rgba(253, 251, 247, 0.25);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(255, 255, 255, 0.3) inset,
+    0 -1px 2px rgba(0, 0, 0, 0.04) inset;
+  border: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+/* Medium: elegant frosted glass — primary use */
+.glass-medium {
+  background: rgba(253, 251, 247, 0.35);
+  backdrop-filter: blur(12px) saturate(140%) brightness(1.04);
+  -webkit-backdrop-filter: blur(12px) saturate(140%) brightness(1.04);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.08),
+    0 2px 4px rgba(255, 255, 255, 0.4) inset,
+    0 -1px 3px rgba(0, 0, 0, 0.05) inset;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+}
+
+/* Heavy: rich frosted crystal */
+.glass-heavy {
+  background: rgba(253, 251, 247, 0.45);
+  backdrop-filter: blur(20px) saturate(160%) brightness(1.06);
+  -webkit-backdrop-filter: blur(20px) saturate(160%) brightness(1.06);
+  box-shadow:
+    0 12px 60px rgba(0, 0, 0, 0.10),
+    0 2px 6px rgba(255, 255, 255, 0.5) inset,
+    0 -1px 4px rgba(0, 0, 0, 0.06) inset;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+}
+
+/* ── Gold Edge Highlight ── */
+.glass-gold-edge {
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+.glass-gold-edge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(243, 229, 171, 0.7) 0%,
+    rgba(212, 175, 55, 0.4) 25%,
+    rgba(153, 101, 21, 0.2) 50%,
+    rgba(212, 175, 55, 0.4) 75%,
+    rgba(243, 229, 171, 0.7) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ── Refraction Layer — Subtle distortion simulation ── */
+.glass-refraction {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: 
+    radial-gradient(
+      ellipse 80% 60% at var(--glass-shine-x, 50%) var(--glass-shine-y, 30%),
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.04) 40%,
+      transparent 70%
+    );
+  pointer-events: none;
+  z-index: 1;
+  transition: background 0.4s ease;
+  mix-blend-mode: overlay;
+}
+
+/* ── Shine Highlight — Moving specular reflection ── */
+.glass-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      ellipse 60% 40% at var(--glass-shine-x, 50%) calc(var(--glass-shine-y, 30%) - 10%),
+      rgba(243, 229, 171, 0.18) 0%,
+      rgba(212, 175, 55, 0.06) 40%,
+      transparent 65%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.10) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+  z-index: 2;
+  transition: background 0.3s ease;
+  mix-blend-mode: screen;
+}
+
+/* ── Edge Glow ── */
+.glass-edge-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.06),
+    inset 1px 0 0 rgba(255, 255, 255, 0.15),
+    inset -1px 0 0 rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  z-index: 3;
+  border-radius: inherit;
+}
+
+/* ── Content Layer ── */
+.glass-content {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Hover State ── */
+.luxury-glass:hover {
+  box-shadow:
+    0 16px 60px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(255, 255, 255, 0.45) inset,
+    0 -1px 4px rgba(0, 0, 0, 0.06) inset,
+    0 0 0 1px rgba(212, 175, 55, 0.3);
+}
+
+.glass-medium:hover,
+.glass-heavy:hover {
+  background: rgba(253, 251, 247, 0.42);
+}
+
+/* ── Fallback for browsers without backdrop-filter ── */
+@supports not (backdrop-filter: blur(1px)) {
+  .luxury-glass {
+    background: rgba(253, 251, 247, 0.92) !important;
+    border: 1px solid rgba(212, 175, 55, 0.3) !important;
+    transform: none !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10) !important;
+  }
+  .glass-refraction,
+  .glass-shine,
+  .glass-edge-glow {
+    display: none;
+  }
+}
+
+/* ── Dark Background Variant ── */
+.glass-dark {
+  background: rgba(26, 26, 26, 0.55) !important;
+  backdrop-filter: blur(16px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+  border-color: rgba(212, 175, 55, 0.25) !important;
+  color: #fff;
+}
+
+.glass-dark .glass-shine {
+  mix-blend-mode: soft-light;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .luxury-glass {
+    border-radius: 16px;
+    /* Reduce blur intensity on mobile for performance */
+    backdrop-filter: blur(8px) saturate(130%) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
+    /* Disable tilt on touch */
+    transform: none !important;
+    transition: box-shadow 0.3s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .luxury-glass,
+  .glass-refraction,
+  .glass-shine {
+    transition: none !important;
+    transform: none !important;
+  }
+}

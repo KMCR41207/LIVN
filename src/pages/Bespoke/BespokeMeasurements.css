@@ -1,0 +1,85 @@
+/* ===== BESPOKE MEASUREMENTS — LIVN THEME ===== */
+
+.bespoke-measurements-page { background-color: var(--color-bg-primary); }
+
+.measurements-hero {
+  background-color: var(--color-bg-secondary);
+  border-bottom: 2px solid var(--color-gold-base);
+  padding: 80px 0 60px;
+  text-align: center;
+}
+.measurements-hero h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); margin-bottom: 14px; color: var(--color-maroon-dark); letter-spacing: 3px; }
+.measurements-hero p  { font-size: 1rem; color: var(--color-text-secondary); }
+
+/* Progress Indicator */
+.progress-indicator {
+  background: var(--color-bg-primary);
+  padding: 25px 0;
+  border-bottom: 1px solid var(--color-gold-light);
+  position: sticky; top: 0; z-index: 100;
+}
+.progress-steps { display: flex; align-items: center; justify-content: center; max-width: 700px; margin: 0 auto; }
+.progress-step  { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.step-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-family: var(--font-heading); font-size: 1.1rem;
+  border: 2px solid var(--color-gold-light);
+  transition: var(--transition-smooth);
+}
+.progress-step.active   .step-circle { background: var(--gold-gradient); color: var(--color-maroon-dark); border-color: var(--color-gold-base); box-shadow: var(--shadow-gold); }
+.progress-step.completed .step-circle { background: var(--color-gold-dark); color: white; border-color: var(--color-gold-dark); }
+.progress-step span { font-size: 0.8rem; color: var(--color-text-secondary); font-weight: 600; letter-spacing: 0.5px; }
+.progress-step.active    span { color: var(--color-maroon-dark); font-weight: 700; }
+.progress-line { width: 80px; height: 1px; background: var(--color-gold-light); margin: 0 8px; }
+.progress-line.active { background: var(--color-gold-base); }
+
+/* Form Section */
+.measurements-form-section { padding: 60px 0; }
+.form-grid { display: grid; grid-template-columns: 300px 1fr; gap: 45px; align-items: start; }
+
+/* Instructions Panel */
+.instructions-panel { position: sticky; top: 120px; background: var(--color-bg-secondary); padding: 28px; border: 1px solid var(--color-gold-light); }
+.instructions-panel h3 { font-size: 1.3rem; color: var(--color-maroon-dark); margin-bottom: 18px; letter-spacing: 1px; }
+.instruction-item { margin-bottom: 22px; }
+.instruction-item img { width: 100%; margin-bottom: 14px; }
+.instruction-item h4 { font-size: 1rem; color: var(--color-maroon); margin-bottom: 8px; }
+.instruction-item ul { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.instruction-item li { font-size: 0.85rem; color: var(--color-text-secondary); list-style: disc; }
+.tip-box { background: var(--color-gold-light); padding: 16px; border-left: 3px solid var(--color-gold-base); display: flex; gap: 12px; margin-bottom: 16px; }
+.tip-box svg { color: var(--color-gold-dark); flex-shrink: 0; margin-top: 2px; }
+.tip-box h4 { font-size: 0.9rem; color: var(--color-maroon-dark); margin-bottom: 4px; }
+.tip-box p  { font-size: 0.8rem; color: var(--color-text-secondary); line-height: 1.5; }
+
+/* Form Panel */
+.form-panel { background: var(--color-bg-secondary); padding: 40px; border: 1px solid var(--color-gold-light); }
+.form-section { margin-bottom: 35px; padding-bottom: 35px; border-bottom: 1px solid var(--color-gold-light); }
+.form-section:last-of-type { border-bottom: none; }
+.form-section h3 { font-size: 1.3rem; color: var(--color-maroon-dark); margin-bottom: 22px; letter-spacing: 1px; }
+.form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-group label { font-size: 0.85rem; font-weight: 700; color: var(--color-text-primary); font-family: var(--font-heading); letter-spacing: 0.5px; }
+.form-group input,
+.form-group select,
+.form-group textarea { padding: 11px 14px; border: 1px solid #ddd; background: var(--color-bg-primary); font-size: 0.9rem; font-family: var(--font-body); transition: var(--transition-smooth); }
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { outline: none; border-color: var(--color-gold-base); box-shadow: 0 0 0 2px rgba(212,175,55,0.15); }
+.help-text { font-size: 0.75rem; color: var(--color-text-secondary); font-style: italic; }
+.form-group textarea { resize: vertical; min-height: 90px; }
+
+/* Form Actions */
+.form-actions { display: flex; justify-content: space-between; gap: 16px; margin-top: 35px; padding-top: 28px; border-top: 1px solid var(--color-gold-light); }
+.form-actions .btn { display: flex; align-items: center; gap: 8px; padding: 13px 28px; }
+
+/* Professional CTA */
+.professional-cta { background-color: var(--color-bg-secondary); padding: 60px 0; border-top: 1px solid var(--color-gold-light); }
+.cta-card { background: var(--color-bg-primary); padding: 45px; text-align: center; max-width: 650px; margin: 0 auto; border: 2px solid var(--color-gold-base); }
+.cta-card h3 { font-size: 1.8rem; color: var(--color-maroon-dark); margin-bottom: 12px; letter-spacing: 1px; }
+.cta-card p  { font-size: 0.95rem; line-height: 1.7; color: var(--color-text-secondary); margin-bottom: 28px; }
+
+/* Responsive */
+@media (max-width: 1024px) { .form-grid { grid-template-columns: 1fr; } .instructions-panel { position: static; } }
+@media (max-width: 768px) { .progress-line { width: 35px; } .form-panel { padding: 22px; } .form-row { grid-template-columns: 1fr; } .form-actions { flex-direction: column; } .form-actions .btn { width: 100%; justify-content: center; } .cta-card { padding: 28px 18px; } }

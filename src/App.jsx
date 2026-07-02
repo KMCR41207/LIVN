@@ -9,6 +9,14 @@ import NewArrivals from './pages/NewArrivals';
 import Admin from './pages/Admin';
 import TrackOrder from './pages/TrackOrder';
 import ShippingReturns from './pages/ShippingReturns';
+import BespokeLanding from './pages/Bespoke/BespokeLanding';
+import BespokeProcess from './pages/Bespoke/BespokeProcess';
+import BespokeMeasurements from './pages/Bespoke/BespokeMeasurements';
+import BespokeFabrics from './pages/Bespoke/BespokeFabrics';
+import BespokeDesign from './pages/Bespoke/BespokeDesign';
+import BespokeConsultation from './pages/Bespoke/BespokeConsultation';
+import BespokeOrderSummary from './pages/Bespoke/BespokeOrderSummary';
+import BespokeThankYou from './pages/Bespoke/BespokeThankYou';
 import { CartProvider } from './context/CartContext';
 
 import './index.css';
@@ -29,6 +37,16 @@ function App() {
               <Route path="/track-order" element={<TrackOrder />} />
               <Route path="/shipping-returns" element={<ShippingReturns />} />
               <Route path="/admin" element={<Admin />} />
+              
+              {/* Bespoke Routes */}
+              <Route path="/bespoke" element={<BespokeLanding />} />
+              <Route path="/bespoke/process" element={<BespokeProcess />} />
+              <Route path="/bespoke/measurements" element={<BespokeMeasurements />} />
+              <Route path="/bespoke/fabrics" element={<BespokeFabrics />} />
+              <Route path="/bespoke/design" element={<BespokeDesign />} />
+              <Route path="/bespoke/consultation" element={<BespokeConsultation />} />
+              <Route path="/bespoke/summary" element={<BespokeOrderSummary />} />
+              <Route path="/bespoke/thank-you" element={<BespokeThankYou />} />
             </Routes>
           </main>
           <Footer />

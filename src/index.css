@@ -1,3 +1,12 @@
+/* ===== LOCAL FONT: Playfair Display Italic (used for editorial/luxury quotes) ===== */
+@font-face {
+  font-family: "Playfair Display";
+  src: url("/assets/fonts/playfair-display.italic.ttf") format("truetype");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   /* Temple Color Palette */
   --color-bg-primary: #fdfbf7;
@@ -16,10 +25,12 @@
   
   --gold-border: 1px solid var(--color-gold-base);
 
-  /* Fonts — corporate sans-serif stack (Zebra-style) */
-  --font-heading: 'Roboto Condensed', 'Helvetica Neue', Arial, sans-serif;
-  --font-body:    Arial, Helvetica, sans-serif;
-  --font-stat:    'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
+  /* ── Fonts (restored to original) ── */
+  --font-heading:   'Cinzel', serif;          /* original site headings */
+  --font-body:      'Lora', serif;            /* original site body */
+  --font-editorial: 'Playfair Display', 'Cinzel', serif; /* luxury italic quotes & bespoke titles */
+  --font-stat:      'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
+  --font-ui:        Arial, Helvetica, sans-serif; /* buttons, nav, forms, labels */
 
   /* Shadows for depth */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -46,6 +57,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ── Headings: Cinzel (original) ── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -54,7 +66,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Responsive heading sizes */
-h1 { font-size: clamp(2rem, 5vw, 4rem);   font-weight: 800; }
+h1 { font-size: clamp(2rem, 5vw, 4rem);     font-weight: 800; }
 h2 { font-size: clamp(1.6rem, 3.5vw, 3rem); font-weight: 700; }
 h3 { font-size: clamp(1.2rem, 2.5vw, 2rem); font-weight: 700; }
 h4 { font-size: clamp(1rem, 2vw, 1.4rem);   font-weight: 700; }
@@ -65,13 +77,39 @@ p {
   line-height: 1.6;
 }
 
-/* Stat numbers — Oswald bold condensed (e.g. 83%, 85%, 92%) */
+/* ── Stat numbers ── */
 .stat-number {
   font-family: var(--font-stat);
   font-weight: 800;
   font-size: clamp(64px, 8vw, 140px);
   line-height: 1;
   letter-spacing: -2px;
+}
+
+/* ── Playfair Display: luxury italic for editorial/bespoke titles ── */
+.editorial-title,
+.luxury-quote,
+blockquote {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* ── Buttons, nav, forms stay sans-serif (clean UI) ── */
+.btn,
+button,
+input,
+select,
+textarea,
+.nav-link,
+.navbar-links a,
+.mobile-menu-content a,
+.form-group label,
+.help-text,
+.filter-buttons button,
+.option-buttons button {
+  font-family: var(--font-ui);
 }
 
 a {
@@ -84,13 +122,13 @@ ul {
   list-style: none;
 }
 
-/* Button Styles */
+/* ── Button Styles ── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 12px 28px;
-  font-family: var(--font-heading);
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -139,7 +177,7 @@ ul {
   color: #fff;
 }
 
-/* Common Layouts */
+/* ── Common Layouts ── */
 .container {
   max-width: 1400px;
   margin: 0 auto;
@@ -150,7 +188,7 @@ ul {
   padding: 80px 0;
 }
 
-/* Temple Divider */
+/* ── Temple Divider ── */
 .temple-divider {
   width: 100%;
   height: 40px;
@@ -180,7 +218,7 @@ ul {
   background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, var(--color-gold-light) 5px, var(--color-gold-light) 10px);
 }
 
-/* Premium Reveal Animations - disabled to prevent jerk on load */
+/* Premium Reveal Animations */
 @keyframes fadeInUp {
   from { opacity: 1; transform: translateY(0); }
   to   { opacity: 1; transform: translateY(0); }
@@ -191,7 +229,7 @@ ul {
   transform: translateY(0);
 }
 
-/* Layout Grid Utilities */
+/* ── Layout Grid Utilities ── */
 .grid {
   display: grid;
   gap: 30px;

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GlassCard } from '../components/GlassEffect';
 import './Home.css';
 
 const CATEGORIES = [
@@ -85,19 +86,21 @@ const Home = () => {
         <div className="bespoke-bg"></div>
         <div className="container bespoke-content grid grid-cols-2">
           <div className="bespoke-text reveal-on-scroll">
-            <h2 className="section-title" style={{color: 'var(--color-maroon-dark)'}}>Made to Measure</h2>
+            <h2 className="section-title" style={{color: 'var(--color-maroon-dark)'}}>Bespoke Tailoring</h2>
             <p className="bespoke-desc">
-              Tailoring that moves with you. Every cut, seam, and silhouette is crafted precisely to your measurements — because fit is everything.
+              Experience the pinnacle of luxury tailoring. Each garment is uniquely crafted to your exact measurements, 
+              personal style, and refined taste. From consultation to final fitting, your vision becomes reality.
             </p>
             <ul className="bespoke-features">
-              <li>✦ Perfect Fit Guarantee</li>
-              <li>✦ Premium Fabric Selection</li>
-              <li>✦ Express Delivery Available</li>
+              <li>✦ Unique Pattern Created for Your Body</li>
+              <li>✦ 5,000+ Premium Fabrics Available</li>
+              <li>✦ Multiple Fittings & Lifetime Alterations</li>
+              <li>✦ Master Craftsmen with 30+ Years Experience</li>
             </ul>
-            <Link to="/#collections" className="btn btn-primary" style={{marginTop: '20px'}}>Book a Fitting</Link>
+            <Link to="/bespoke" className="btn btn-primary" style={{marginTop: '20px'}}>Begin Your Bespoke Journey</Link>
           </div>
           <div className="bespoke-image-container reveal-on-scroll" style={{ animationDelay: '0.2s' }}>
-            <img src="/images/bespoke_model.png" alt="Custom Stitching" className="bespoke-img" style={{objectPosition: 'top'}} />
+            <img src="/images/bespoke_model.png" alt="Bespoke Tailoring" className="bespoke-img" style={{objectPosition: 'top'}} />
             <div className="gold-frame"></div>
           </div>
         </div>
@@ -116,11 +119,11 @@ const Home = () => {
             { name: "Priya R.", text: "The custom fit service is flawless. Got exactly what I envisioned on the first try." },
             { name: "Meera V.", text: "I wore their dress to a rooftop event and the compliments didn't stop. Truly premium." }
           ].map((test, index) => (
-            <div key={index} className="testimonial-card reveal-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className="quote-mark">“</div>
+            <GlassCard key={index} variant="collection" className="testimonial-card reveal-on-scroll" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div className="quote-mark">"</div>
               <p className="testimonial-text">{test.text}</p>
               <h4 className="testimonial-name">— {test.name}</h4>
-            </div>
+            </GlassCard>
           ))}
         </div>
       </section>

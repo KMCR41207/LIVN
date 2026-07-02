@@ -1,0 +1,42 @@
+/* ===== THANK YOU PAGE — LIVN THEME ===== */
+
+.bespoke-thankyou-page { background-color: var(--color-bg-primary); }
+
+.thankyou-hero { background-color: var(--color-bg-secondary); border-bottom: 2px solid var(--color-gold-base); padding: 90px 0 70px; text-align: center; }
+.success-icon { width: 100px; height: 100px; background: var(--gold-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; box-shadow: var(--shadow-gold); }
+.success-icon svg { color: var(--color-maroon-dark); }
+.thankyou-hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 16px; color: var(--color-maroon-dark); letter-spacing: 3px; }
+.hero-subtitle { font-size: 1.2rem; margin-bottom: 20px; font-style: italic; color: var(--color-text-secondary); letter-spacing: 1px; }
+.confirmation-text { font-size: 1rem; line-height: 1.7; max-width: 650px; margin: 0 auto; color: var(--color-text-secondary); }
+
+/* Next Steps */
+.next-steps-section { background-color: var(--color-bg-secondary); border-top: 1px solid var(--color-gold-light); border-bottom: 1px solid var(--color-gold-light); }
+.next-steps-section h2 { text-align: center; font-size: clamp(1.8rem, 3.5vw, 2.5rem); color: var(--color-maroon-dark); margin-bottom: 45px; letter-spacing: 2px; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+.step-card { background: var(--color-bg-primary); padding: 30px 22px; border: 1px solid var(--color-gold-light); text-align: center; transition: var(--transition-smooth); }
+.step-card:hover { transform: translateY(-5px); border-color: var(--color-gold-base); box-shadow: var(--shadow-md); }
+.step-icon { width: 55px; height: 55px; background: var(--gold-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 1.4rem; font-weight: 800; font-family: var(--font-stat); color: var(--color-maroon-dark); box-shadow: var(--shadow-gold); }
+.step-card h3 { font-size: 1.05rem; color: var(--color-maroon-dark); margin-bottom: 10px; letter-spacing: 0.5px; }
+.step-card p  { font-size: 0.85rem; line-height: 1.6; color: var(--color-text-secondary); }
+
+/* Contact */
+.contact-section { background-color: var(--color-bg-primary); }
+.contact-section h2 { text-align: center; font-size: clamp(1.8rem, 3.5vw, 2.5rem); color: var(--color-maroon-dark); margin-bottom: 45px; letter-spacing: 2px; }
+.contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; max-width: 800px; margin: 0 auto; }
+.contact-card { background: var(--color-bg-secondary); padding: 35px; border: 1px solid var(--color-gold-light); text-align: center; transition: var(--transition-smooth); }
+.contact-card:hover { border-color: var(--color-gold-base); transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.contact-card svg { color: var(--color-gold-dark); margin-bottom: 12px; }
+.contact-card h4 { font-size: 1rem; color: var(--color-maroon-dark); margin-bottom: 8px; letter-spacing: 0.5px; }
+.contact-card p  { font-size: 0.9rem; color: var(--color-text-secondary); }
+
+/* CTA */
+.cta-section { background-color: var(--color-bg-secondary); border-top: 1px solid var(--color-gold-light); }
+.cta-box { text-align: center; max-width: 650px; margin: 0 auto; }
+.cta-box h2 { font-size: clamp(1.8rem, 3.5vw, 2.5rem); color: var(--color-maroon-dark); margin-bottom: 12px; letter-spacing: 1px; }
+.cta-box p  { font-size: 1rem; color: var(--color-text-secondary); margin-bottom: 35px; }
+.cta-buttons { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+.cta-section .btn-outline { color: var(--color-maroon); border: 1px solid var(--color-maroon); }
+.cta-section .btn-outline:hover { background: var(--color-maroon); color: #fff; }
+
+@media (max-width: 1024px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .steps-grid, .contact-grid { grid-template-columns: 1fr; } .cta-buttons { flex-direction: column; align-items: center; } .cta-buttons .btn { width: 100%; max-width: 300px; justify-content: center; } }

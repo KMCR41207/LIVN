@@ -1,0 +1,58 @@
+/* ===== BESPOKE FABRICS — LIVN THEME ===== */
+
+.bespoke-fabrics-page { background-color: var(--color-bg-primary); }
+
+.fabrics-hero { background-color: var(--color-bg-secondary); border-bottom: 2px solid var(--color-gold-base); padding: 80px 0 60px; text-align: center; }
+.fabrics-hero h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); margin-bottom: 14px; color: var(--color-maroon-dark); letter-spacing: 3px; }
+.fabrics-hero p  { font-size: 1rem; color: var(--color-text-secondary); }
+
+/* Progress — reuse from measurements */
+.progress-indicator { background: var(--color-bg-primary); padding: 25px 0; border-bottom: 1px solid var(--color-gold-light); position: sticky; top: 0; z-index: 100; }
+.progress-steps { display: flex; align-items: center; justify-content: center; max-width: 700px; margin: 0 auto; }
+.progress-step  { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.step-circle { width: 44px; height: 44px; border-radius: 50%; background: var(--color-bg-secondary); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-family: var(--font-heading); font-size: 1.1rem; border: 2px solid var(--color-gold-light); transition: var(--transition-smooth); }
+.progress-step.active    .step-circle { background: var(--gold-gradient); color: var(--color-maroon-dark); border-color: var(--color-gold-base); box-shadow: var(--shadow-gold); }
+.progress-step.completed .step-circle { background: var(--color-gold-dark); color: white; border-color: var(--color-gold-dark); }
+.progress-step span { font-size: 0.8rem; color: var(--color-text-secondary); font-weight: 600; letter-spacing: 0.5px; }
+.progress-step.active span { color: var(--color-maroon-dark); font-weight: 700; }
+.progress-line { width: 80px; height: 1px; background: var(--color-gold-light); margin: 0 8px; }
+.progress-line.active { background: var(--color-gold-base); }
+
+/* Fabrics Section */
+.fabrics-section { padding: 60px 0; }
+
+.fabrics-controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 35px; flex-wrap: wrap; }
+
+.search-box { display: flex; align-items: center; gap: 10px; background: var(--color-bg-secondary); padding: 11px 18px; border: 1px solid var(--color-gold-light); flex: 1; max-width: 360px; transition: var(--transition-smooth); }
+.search-box:focus-within { border-color: var(--color-gold-base); }
+.search-box input { border: none; outline: none; flex: 1; font-size: 0.9rem; font-family: var(--font-body); background: transparent; }
+.search-box svg { color: var(--color-gold-dark); flex-shrink: 0; }
+
+.filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-buttons button { padding: 8px 18px; background: var(--color-bg-secondary); border: 1px solid var(--color-gold-light); font-family: var(--font-heading); font-weight: 600; font-size: 0.82rem; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: var(--transition-smooth); }
+.filter-buttons button:hover { border-color: var(--color-gold-base); background: var(--color-gold-light); }
+.filter-buttons button.active { background: var(--gold-gradient); border-color: var(--color-gold-base); color: var(--color-maroon-dark); }
+
+.fabric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; margin-bottom: 45px; }
+
+.fabric-card { background: var(--color-bg-secondary); border: 2px solid var(--color-gold-light); cursor: pointer; transition: var(--transition-smooth); }
+.fabric-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); border-color: var(--color-gold-base); }
+.fabric-card.selected { border-color: var(--color-gold-base); box-shadow: var(--shadow-gold); }
+
+.fabric-image { position: relative; aspect-ratio: 1; overflow: hidden; }
+.fabric-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+.fabric-card:hover .fabric-image img { transform: scale(1.08); }
+
+.selected-badge { position: absolute; top: 12px; right: 12px; background: var(--gold-gradient); color: var(--color-maroon-dark); padding: 6px 14px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+
+.fabric-info { padding: 18px; }
+.fabric-info h3 { font-size: 1.1rem; color: var(--color-maroon-dark); margin-bottom: 4px; letter-spacing: 0.5px; }
+.fabric-origin { font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 12px; }
+.fabric-details { display: flex; gap: 10px; margin-bottom: 12px; }
+.fabric-weight, .fabric-type { font-size: 0.75rem; padding: 3px 10px; background: var(--color-gold-light); border: 1px solid var(--color-gold-base); color: var(--color-maroon-dark); text-transform: capitalize; letter-spacing: 0.3px; }
+.fabric-price { font-size: 1.2rem; font-weight: 700; font-family: var(--font-stat); color: var(--color-gold-dark); letter-spacing: -0.3px; }
+
+.fabrics-actions { text-align: center; padding-top: 25px; border-top: 1px solid var(--color-gold-light); }
+.fabrics-actions .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+@media (max-width: 768px) { .fabrics-controls { flex-direction: column; align-items: stretch; } .search-box { max-width: none; } .filter-buttons { justify-content: center; } .fabric-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; } .progress-line { width: 30px; } }

@@ -23,10 +23,10 @@ const Footer = () => {
         <div className="footer-links">
           <h4>Explore</h4>
           <ul>
-            <li><Link to="/#collections">New Arrivals</Link></li>
-            <li><Link to="/#collections">Dresses</Link></li>
-            <li><Link to="/#collections">Co-ords & Sets</Link></li>
-            <li><Link to="/#custom-stitching">Custom Fit</Link></li>
+            <li><Link to="/collections">Collections</Link></li>
+            <li><Link to="/new-arrivals">New Arrivals</Link></li>
+            <li><Link to="/bespoke">Bespoke Tailoring</Link></li>
+            <li><Link to="/bespoke/process">The Process</Link></li>
           </ul>
         </div>
 

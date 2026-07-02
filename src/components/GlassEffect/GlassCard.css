@@ -1,0 +1,170 @@
+/* =====================================================
+   LIVN — GlassCard  |  Luxury Glass Refraction UI
+   Champagne-gold / Ivory / Matte-black palette
+   ===================================================== */
+
+/* ── Base Card ── */
+.gc {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  display: block;
+  transform-style: preserve-3d;
+  transform: perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transition:
+    transform      0.55s cubic-bezier(0.23,1,0.32,1),
+    box-shadow     0.55s cubic-bezier(0.23,1,0.32,1);
+  will-change: transform;
+}
+
+/* ── Light variant (for darker backgrounds) ── */
+.gc--light {
+  background: rgba(253,251,247, 0.28);
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.09),
+    0 2px 0   rgba(255,255,255,0.45) inset,
+    0 -1px 0  rgba(0,0,0,0.06)       inset;
+}
+.gc--light:hover {
+  box-shadow:
+    0 16px 56px rgba(0,0,0,0.13),
+    0 2px 0    rgba(255,255,255,0.5)  inset,
+    0 -1px 0   rgba(0,0,0,0.07)       inset;
+}
+
+/* ── Dark variant (for light/cream backgrounds) ── */
+.gc--dark {
+  background: rgba(26,26,26, 0.52);
+  color: #fff;
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.22),
+    0 2px 0   rgba(255,255,255,0.12) inset,
+    0 -1px 0  rgba(0,0,0,0.15)       inset;
+}
+.gc--dark:hover {
+  box-shadow:
+    0 16px 56px rgba(0,0,0,0.28),
+    0 2px 0    rgba(255,255,255,0.16) inset,
+    0 -1px 0   rgba(0,0,0,0.18)       inset;
+}
+
+/* ── Frosted Glass Layer ── */
+.gc__frost {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  backdrop-filter: blur(14px) saturate(145%) brightness(1.04);
+  -webkit-backdrop-filter: blur(14px) saturate(145%) brightness(1.04);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Specular Shine — moves with mouse ── */
+.gc__shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse 65% 45% at var(--gx,50%) calc(var(--gy,30%) - 8%),
+    rgba(243,229,171, 0.22) 0%,
+    rgba(212,175, 55, 0.07) 38%,
+    transparent 62%
+  );
+  z-index: 1;
+  pointer-events: none;
+  transition: background 0.25s ease;
+  mix-blend-mode: screen;
+}
+.gc--dark .gc__shine {
+  background: radial-gradient(
+    ellipse 65% 45% at var(--gx,50%) calc(var(--gy,30%) - 8%),
+    rgba(243,229,171, 0.15) 0%,
+    rgba(212,175, 55, 0.05) 40%,
+    transparent 65%
+  );
+  mix-blend-mode: soft-light;
+}
+
+/* ── Champagne-Gold Rim ── */
+.gc__rim {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid transparent;
+  background: linear-gradient(
+    135deg,
+    rgba(243,229,171, 0.75) 0%,
+    rgba(212,175, 55, 0.40) 30%,
+    rgba(153,101, 21, 0.20) 55%,
+    rgba(212,175, 55, 0.40) 80%,
+    rgba(243,229,171, 0.75) 100%
+  ) border-box;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  z-index: 3;
+  pointer-events: none;
+  /* Subtle inner edge lights */
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,0.38),
+    inset 0 -1px 0 rgba(0,0,0,0.06),
+    inset  1px 0 0 rgba(255,255,255,0.14),
+    inset -1px 0 0 rgba(255,255,255,0.07);
+}
+.gc--dark .gc__rim {
+  background: linear-gradient(
+    135deg,
+    rgba(243,229,171, 0.45) 0%,
+    rgba(212,175, 55, 0.25) 35%,
+    rgba(153,101, 21, 0.12) 55%,
+    rgba(212,175, 55, 0.25) 80%,
+    rgba(243,229,171, 0.45) 100%
+  ) border-box;
+}
+
+/* ── Content Layer ── */
+.gc__content {
+  position: relative;
+  display: block;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Variant Sizes & Padding ── */
+.gc--hero      { padding: 36px 40px; }
+.gc--cta       { padding: 32px 36px; }
+.gc--collection{ padding: 24px 28px; border-radius: 16px; }
+.gc--nav       { padding: 16px 20px; border-radius: 14px; }
+.gc--modal     { padding: 40px 44px; border-radius: 24px; }
+.gc--booking   { padding: 32px 36px; border-radius: 20px; }
+.gc--product   { padding: 20px 24px; border-radius: 16px; }
+.gc--panel     { padding: 28px 32px; border-radius: 18px; }
+
+/* ── Fallback: no backdrop-filter support ── */
+@supports not (backdrop-filter: blur(1px)) {
+  .gc--light { background: rgba(253,251,247, 0.95) !important; }
+  .gc--dark  { background: rgba(26,26,26, 0.92)    !important; }
+  .gc__frost { display: none; }
+  .gc        { transform: none !important; }
+}
+
+/* ── Mobile: reduce effects for performance ── */
+@media (max-width: 768px) {
+  .gc {
+    border-radius: 16px;
+    transform: none !important;
+    transition: box-shadow 0.3s ease;
+  }
+  .gc__frost {
+    backdrop-filter: blur(8px) saturate(130%) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(130%) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc, .gc__shine { transition: none !important; transform: none !important; }
+}
