@@ -126,3 +126,32 @@
   font-weight: 600;
   text-decoration: underline;
 }
+
+/* ── Password eye toggle ─────────────────────────────────────────────────── */
+.auth-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input-password {
+  width: 100%;
+  padding-right: 44px;
+}
+
+.auth-eye-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.auth-eye-btn:hover {
+  color: var(--color-maroon-dark, #5a0a0a);
+}

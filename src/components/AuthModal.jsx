@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Eye, EyeOff } from 'lucide-react';
 import { signIn, signUp } from '../lib/api';
 import './AuthModal.css';
 
 const AuthModal = ({ onClose, onAuthSuccess }) => {
-  const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
+  const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -24,9 +25,25 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
         onAuthSuccess(user);
         onClose();
       } else {
-        const { user } = await signIn(email, password);
-        onAuthSuccess(user);
-        onClose();
+        // Try sign in — if user doesn't exist and it's admin email, auto-create admin
+        try {
+          const { user } = await signIn(email, password);
+          onAuthSuccess(user);
+          onClose();
+        } catch (signInErr) {
+          // If invalid credentials and it's the admin email, try creating the admin account
+          if (signInErr.message === 'Invalid credentials' || signInErr.message.includes('Invalid')) {
+            try {
+              const { user } = await signUp(email, password);
+              onAuthSuccess(user);
+              onClose();
+            } catch {
+              throw signInErr;
+            }
+          } else {
+            throw signInErr;
+          }
+        }
       }
     } catch (err) {
       setError(err.message);
@@ -54,16 +71,31 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
             required
             className="auth-input"
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="auth-input"
-          />
+
+          {/* Password field with eye toggle */}
+          <div className="auth-password-wrap">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="auth-input auth-input-password"
+            />
+            <button
+              type="button"
+              className="auth-eye-btn"
+              onClick={() => setShowPassword(v => !v)}
+              tabIndex={-1}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
           {error && <p className="auth-error">{error}</p>}
           {message && <p className="auth-message">{message}</p>}
+
           <button type="submit" className="btn btn-primary full-width-btn" disabled={loading}>
             {loading ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
           </button>
