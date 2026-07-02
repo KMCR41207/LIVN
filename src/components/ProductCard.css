@@ -7,7 +7,7 @@
   box-shadow: var(--shadow-sm);
   transition: var(--transition-smooth);
   border: 1px solid rgba(212, 175, 55, 0.1);
-  height: 100%;
+  /* no height: 100% — let content dictate height */
 }
 
 .product-card:hover {
@@ -69,10 +69,10 @@
   padding: 20px 15px;
   text-align: center;
   background: var(--color-bg-primary);
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  gap: 4px;
+  /* removed flex-grow + justify-content: flex-end — was pushing card height open */
 }
 
 .product-title {
@@ -99,20 +99,33 @@
   font-weight: 600;
 }
 
-/* BorderGlow wrapper inside product card */
+/* BorderGlow wrapper inside product card — must not grow beyond the image */
 .product-glow-wrapper {
   width: 100%;
+  display: block;
+  flex-shrink: 0;          /* never stretch vertically */
   border-radius: 4px !important;
   overflow: visible;
 }
 
-.product-glow-wrapper .border-glow-inner {
-  overflow: hidden;
-  border-radius: 4px;
+/* the inner div BorderGlow renders — must match image height */
+.product-glow-wrapper .border-glow-card {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
-/* Ensure product card clips its own background/border but not the glow */
+.product-glow-wrapper .border-glow-inner {
+  overflow: hidden;
+  border-radius: 4px 4px 0 0;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .product-card .product-image-container {
   overflow: hidden;
   border-radius: 4px 4px 0 0;
+  aspect-ratio: 3/4;
+  width: 100%;
 }

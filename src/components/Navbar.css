@@ -227,3 +227,13 @@
   font-family: var(--font-heading);
   line-height: 1;
 }
+
+/* Admin inbox icon — gold tint to distinguish from regular icons */
+.inbox-btn {
+  color: var(--color-gold-dark) !important;
+  position: relative;
+}
+
+.inbox-btn:hover {
+  color: var(--color-maroon) !important;
+}
