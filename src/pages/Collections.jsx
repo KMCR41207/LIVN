@@ -21,13 +21,6 @@ const Collections = () => {
     const user = getCurrentUser();
     if (user?.role === 'admin') setAdminMode(true);
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('animate-fade-in-up');
-      });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
-
     const category = searchParams.get('category');
     if (category) {
       setTimeout(() => {
@@ -35,8 +28,6 @@ const Collections = () => {
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
-
-    return () => observer.disconnect();
   }, [searchParams]);
 
   const handleDelete = async (product) => {
@@ -51,7 +42,7 @@ const Collections = () => {
 
   return (
     <div className="collections-page">
-      <div className="collections-header reveal-on-scroll">
+      <div className="collections-header">
         <h1 className="collections-title">Kurti Collections</h1>
         <p className="collections-desc">Explore our full range of kurti styles, crafted for every mood and occasion.</p>
       </div>
@@ -61,13 +52,13 @@ const Collections = () => {
         const sectionId = category.toLowerCase().replace(/\s+/g, '-');
         return (
           <section key={category} id={sectionId} className="collection-section container">
-            <div className="collection-category-header reveal-on-scroll">
+            <div className="collection-category-header">
               <h2 className="collection-category-name">{category}</h2>
               <div className="collection-divider"></div>
             </div>
             <div className="product-grid grid grid-cols-4">
               {catProducts.map((product, index) => (
-                <div key={product._id || product.id} className="reveal-on-scroll product-card-wrapper" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div key={product._id || product.id} className="product-card-wrapper">
                   <ProductCard product={product} onClick={setDrawerProduct} />
                   {adminMode && (
                     <button
