@@ -54,7 +54,7 @@ npm run dev:all
 **Status**: ✅ Connected
 
 Your MongoDB credentials are already set up:
-- **URI**: `mongodb://qwertyasd077a_db_user:mani41207@...`
+- **URI**: `mongodb://<username>:<password>@...`
 - **Database**: Cloud-hosted on MongoDB Atlas
 - **Collections**: `users`, `orders`
 

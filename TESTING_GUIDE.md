@@ -44,7 +44,7 @@ The error `querySrv ECONNREFUSED` means:
 3. **Alternative Connection String**
    If still failing, try the standard format in `backend/.env`:
    ```env
-   MONGO_URI=mongodb://qwertyasd077a_db_user:mani41207@ac-jg6svet-shard-00-00.tkvviwk.mongodb.net:27017,ac-jg6svet-shard-00-01.tkvviwk.mongodb.net:27017,ac-jg6svet-shard-00-02.tkvviwk.mongodb.net:27017/livn_db?ssl=true&replicaSet=atlas-bjbfhw-shard-0&authSource=admin&appName=Cluster0
+   MONGO_URI=mongodb://<username>:<password>@<cluster-nodes>/livn_db?ssl=true&replicaSet=<replica-set>&authSource=admin&appName=Cluster0
    ```
 
 4. **Check Firewall/VPN**
@@ -156,7 +156,7 @@ After submitting bespoke order, check Terminal 1 (backend) for logs.
 
 2. **Connect to Database**:
    ```
-   mongodb+srv://qwertyasd077a_db_user:mani41207@cluster0.tkvviwk.mongodb.net/livn_db
+   mongodb+srv://<username>:<password>@cluster0.tkvviwk.mongodb.net/livn_db
    ```
 
 3. **Navigate to**:
