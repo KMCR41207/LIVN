@@ -73,31 +73,99 @@ const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty }) 
   );
 };
 
+// ── Pincode → City/State lookup (India Post API) ──────────────────────────────
+const fetchCityState = async (pincode, setFormData) => {
+  if (pincode.length !== 6) return;
+  try {
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const data = await res.json();
+    if (data[0]?.Status === 'Success') {
+      const info = data[0].PostOffice[0];
+      setFormData(prev => ({
+        ...prev,
+        city: info.District,
+        state: info.State,
+      }));
+    }
+  } catch { /* silent fail */ }
+};
+
 // ── Step 1: Delivery details ──────────────────────────────────────────────────
-const DetailsStep = ({ formData, onChange, onNext, onBack, hasCustomSize }) => {
+const DetailsStep = ({ formData, onChange, onNext, onBack, hasCustomSize, setFormData }) => {
   const handleSubmit = (e) => { e.preventDefault(); onNext(); };
+
+  const handlePincode = (e) => {
+    onChange(e);
+    fetchCityState(e.target.value, setFormData);
+  };
+
   return (
     <div className="details-step">
       <h2 className="step-title">Delivery Details</h2>
       <form onSubmit={handleSubmit} className="minimal-form">
-        <div className="form-group">
-          <label htmlFor="name">Full Name</label>
-          <input type="text" id="name" name="name" required value={formData.name} onChange={onChange} placeholder="E.g. Meera Sharma" />
+
+        {/* Row: Name + Phone */}
+        <div className="form-row-2">
+          <div className="form-group">
+            <label htmlFor="name">Full Name</label>
+            <input type="text" id="name" name="name" required value={formData.name} onChange={onChange} placeholder="E.g. Meera Sharma" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={onChange} placeholder="+91 XXXXX XXXXX" />
+          </div>
         </div>
+
+        {/* House / Flat No */}
         <div className="form-group">
-          <label htmlFor="phone">Phone Number</label>
-          <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={onChange} placeholder="+91" />
+          <label htmlFor="houseNo">House / Flat No.</label>
+          <input type="text" id="houseNo" name="houseNo" required value={formData.houseNo} onChange={onChange} placeholder="E.g. Flat 4B, 12/3" />
         </div>
+
+        {/* Street / Lane */}
         <div className="form-group">
-          <label htmlFor="address">Delivery Address</label>
-          <textarea id="address" name="address" required rows="3" value={formData.address} onChange={onChange} placeholder="Complete shipping address" />
+          <label htmlFor="street">Street / Lane Name</label>
+          <input type="text" id="street" name="street" required value={formData.street} onChange={onChange} placeholder="E.g. MG Road, Banjara Hills Lane 2" />
         </div>
+
+        {/* Colony / Area */}
+        <div className="form-group">
+          <label htmlFor="colony">Colony / Area / Locality</label>
+          <input type="text" id="colony" name="colony" required value={formData.colony} onChange={onChange} placeholder="E.g. Jubilee Hills, Sector 14" />
+        </div>
+
+        {/* Row: Pincode + City + State */}
+        <div className="form-row-3">
+          <div className="form-group">
+            <label htmlFor="pincode">Pincode</label>
+            <input
+              type="text"
+              id="pincode"
+              name="pincode"
+              required
+              maxLength={6}
+              value={formData.pincode}
+              onChange={handlePincode}
+              placeholder="500001"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="city">City</label>
+            <input type="text" id="city" name="city" required value={formData.city} onChange={onChange} placeholder="Auto-filled" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="state">State</label>
+            <input type="text" id="state" name="state" required value={formData.state} onChange={onChange} placeholder="Auto-filled" />
+          </div>
+        </div>
+
         {hasCustomSize && (
           <div className="form-group">
             <label htmlFor="measurements">Bespoke Measurements</label>
             <textarea id="measurements" name="measurements" rows="2" value={formData.measurements} onChange={onChange} placeholder="Bust: 34in, Waist: 28in, Hips: 38in" />
           </div>
         )}
+
         <div className="step-nav">
           <button type="button" className="btn btn-outline" onClick={onBack}>← Back</button>
           <button type="submit" className="btn btn-primary">Continue to Payment →</button>
@@ -109,7 +177,7 @@ const DetailsStep = ({ formData, onChange, onNext, onBack, hasCustomSize }) => {
 
 // ── Step 2: Payment ───────────────────────────────────────────────────────────
 const openUpiApp = (appId, upiId, amount) => {
-  const base = `pa=${upiId}&pn=LIVN&am=${amount}&cu=INR&tn=LIVN%20Order`;
+  const base = `pa=${upiId}&pn=Livaani&am=${amount}&cu=INR&tn=Livaani%20Order`;
   const links = {
     gpay:    `gpay://upi/pay?${base}`,
     phonepe: `phonepe://pay?${base}`,
@@ -282,6 +350,75 @@ const PaymentStep = ({ onBack, onConfirm, isSubmitting, totalPrice }) => {
   );
 };
 
+// ── Thank You Splash (video → order summary) ─────────────────────────────────
+const ThankYouSplash = ({ ordersPlaced, formData, totalPrice, fallbackId }) => {
+  const [showOrder, setShowOrder] = useState(false);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    // Auto-transition after 5s whether video plays or not
+    const timer = setTimeout(() => setShowOrder(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showOrder) {
+    return (
+      <div className="checkout-success container">
+        <div className="success-card animate-fade-in-up">
+          <CheckCircle2 size={80} className="success-icon" />
+          <h1 className="success-title">Order{ordersPlaced.length > 1 ? 's' : ''} Confirmed!</h1>
+          <p className="success-desc">
+            Your attire is being prepared. We will reach you at <strong>{formData.phone}</strong> with updates.
+          </p>
+          <div className="order-summary-box">
+            {ordersPlaced.map((o, i) => (
+              <p key={i}><strong>{o?.product_name || `Item ${i + 1}`}</strong> — Order #{(o?._id || fallbackId.current).toString().slice(-6).toUpperCase()}</p>
+            ))}
+            <p style={{ marginTop: 10 }}><strong>Total Paid:</strong> ₹{totalPrice > 0 ? totalPrice.toLocaleString('en-IN') : ordersPlaced.reduce((s, o) => s + (o?.price || 0), 0).toLocaleString('en-IN')}</p>
+          </div>
+          <Link to="/" className="btn btn-gold" style={{ marginTop: 24 }}>Return to Collections</Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="thankyou-splash">
+      {/* Background video */}
+      <video
+        ref={videoRef}
+        className="thankyou-video"
+        autoPlay
+        muted
+        playsInline
+        disablePictureInPicture
+        controlsList="nodownload"
+        onEnded={() => setShowOrder(true)}
+        src="/videos/thankyou.mp4"
+      >
+        <track kind="captions" default={false} />
+      </video>
+
+      {/* Overlay */}
+      <div className="thankyou-overlay">
+        <div className="thankyou-content animate-fade-in-up">
+          <div className="thankyou-ornament">✦</div>
+          <h1 className="thankyou-heading">Thank You</h1>
+          <p className="thankyou-subtext">for choosing Livaani</p>
+          <p className="thankyou-quote">"Luxury is in each detail."</p>
+          <div className="thankyou-divider"></div>
+          <button
+            className="thankyou-skip"
+            onClick={() => setShowOrder(true)}
+          >
+            Continue →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ── Main Checkout ─────────────────────────────────────────────────────────────
 const Checkout = () => {
   const { cartItems, removeFromCart, updateQty, clearCart, totalPrice } = useCart();
@@ -290,12 +427,34 @@ const Checkout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ordersPlaced, setOrdersPlaced] = useState(null);
   const navigate = useNavigate();
-  const fallbackId = useRef('LIVN-' + Math.floor(Math.random() * 90000 + 10000));
-  const [formData, setFormData] = useState({ name: '', phone: '', address: '', measurements: '' });
+  const fallbackId = useRef('Livaani-' + Math.floor(Math.random() * 90000 + 10000));
+
+  // Load saved delivery details from localStorage
+  const savedDetails = (() => {
+    try { return JSON.parse(localStorage.getItem('livn_delivery') || '{}'); } catch { return {}; }
+  })();
+
+  const [formData, setFormData] = useState({
+    name:         savedDetails.name         || '',
+    phone:        savedDetails.phone        || '',
+    houseNo:      savedDetails.houseNo      || '',
+    street:       savedDetails.street       || '',
+    colony:       savedDetails.colony       || '',
+    pincode:      savedDetails.pincode      || '',
+    city:         savedDetails.city         || '',
+    state:        savedDetails.state        || '',
+    measurements: '',
+  });
 
   const hasCustomSize = cartItems.some(i => i.size === 'Custom');
 
   useEffect(() => { window.scrollTo(0, 0); }, [step]);
+
+  // Save delivery details whenever they change
+  useEffect(() => {
+    const { measurements, ...toSave } = formData;
+    localStorage.setItem('livn_delivery', JSON.stringify(toSave));
+  }, [formData]);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -317,6 +476,7 @@ const Checkout = () => {
   // Place one order per cart item
   const handleConfirmOrder = async (paymentMethod, upiId, onAfter) => {
     setIsSubmitting(true);
+    const fullAddress = `${formData.houseNo}, ${formData.street}, ${formData.colony}, ${formData.city}, ${formData.state} - ${formData.pincode}`;
     try {
       const results = [];
       for (const item of cartItems) {
@@ -327,7 +487,7 @@ const Checkout = () => {
           customer_name:    formData.name,
           customer_phone:   formData.phone,
           customer_email:   getCurrentUser()?.email || '',
-          shipping_address: formData.address,
+          shipping_address: fullAddress,
           measurements:     formData.measurements || item.size,
           selected_size:    item.size,
           quantity:         item.qty,
@@ -348,26 +508,9 @@ const Checkout = () => {
     }
   };
 
-  // ── Success screen ──────────────────────────────────────────────────────────
+  // ── Thank you video splash → then success screen ───────────────────────────
   if (ordersPlaced) {
-    return (
-      <div className="checkout-success container">
-        <div className="success-card animate-fade-in-up">
-          <CheckCircle2 size={80} className="success-icon" />
-          <h1 className="success-title">Order{ordersPlaced.length > 1 ? 's' : ''} Confirmed!</h1>
-          <p className="success-desc">
-            Your attire is being prepared. We will reach you at <strong>{formData.phone}</strong> with updates.
-          </p>
-          <div className="order-summary-box">
-            {ordersPlaced.map((o, i) => (
-              <p key={i}><strong>{o?.product_name || `Item ${i + 1}`}</strong> — Order #{(o?._id || fallbackId.current).toString().slice(-6).toUpperCase()}</p>
-            ))}
-            <p style={{ marginTop: 10 }}><strong>Total Paid:</strong> ₹{totalPrice > 0 ? totalPrice.toLocaleString('en-IN') : ordersPlaced.reduce((s, o) => s + (o?.price || 0), 0).toLocaleString('en-IN')}</p>
-          </div>
-          <Link to="/" className="btn btn-gold" style={{ marginTop: 24 }}>Return to Collections</Link>
-        </div>
-      </div>
-    );
+    return <ThankYouSplash ordersPlaced={ordersPlaced} formData={formData} totalPrice={totalPrice} fallbackId={fallbackId} />;
   }
 
   return (
@@ -394,6 +537,7 @@ const Checkout = () => {
             <DetailsStep
               formData={formData}
               onChange={handleFormChange}
+              setFormData={setFormData}
               onNext={() => setStep(2)}
               onBack={() => setStep(0)}
               hasCustomSize={hasCustomSize}

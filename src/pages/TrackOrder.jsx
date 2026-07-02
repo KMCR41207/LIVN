@@ -20,7 +20,7 @@ const STATUS_DESC = {
   Stitching: 'Your garment is being crafted.',
   Ready:     'Your order is packed and ready to ship.',
   Sent:      'Out for delivery with our courier partner.',
-  Delivered: 'Delivered successfully. Enjoy your LIVN piece!',
+  Delivered: 'Delivered successfully. Enjoy your Livaani piece!',
 };
 
 const OrderCard = ({ order }) => {
@@ -130,7 +130,7 @@ const TrackOrder = () => {
     <div className="track-order-page container">
       <div className="track-order-header">
         <h1>Track Your Orders</h1>
-        <p>View the status of all your LIVN orders in one place.</p>
+        <p>View the status of all your Livaani orders in one place.</p>
       </div>
 
       {loading ? (

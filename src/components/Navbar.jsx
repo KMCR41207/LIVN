@@ -45,7 +45,7 @@ const Navbar = () => {
         <nav className="temple-navbar">
           <div className="navbar-logo">
             <Link to="/">
-              <div className="logo-text">LIVN</div>
+              <div className="logo-text">Livaani</div>
             </Link>
           </div>
 

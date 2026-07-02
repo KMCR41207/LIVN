@@ -39,7 +39,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-background">
-          <img src="/images/hero_banner.png" alt="LIVN Premium Collection" className="hero-bg-img" />
+          <img src="/images/hero_banner.png?v=1" alt="Livaani Premium Collection" className="hero-bg-img" />
           <div className="hero-overlay"></div>
         </div>
         <div className="hero-content container reveal-on-scroll">

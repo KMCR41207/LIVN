@@ -124,7 +124,7 @@ const ShippingReturns = () => {
           <p className="sr-text">Reach out to us and we'll sort it out quickly:</p>
           <ul className="sr-contact-list">
             <li><strong>WhatsApp / Phone:</strong> +91 98765 43210</li>
-            <li><strong>Email:</strong> namaste@LIVN.com</li>
+            <li><strong>Email:</strong> namaste@livaani.com</li>
             <li><strong>Hours:</strong> Monday – Saturday, 10 AM – 7 PM IST</li>
           </ul>
         </Section>

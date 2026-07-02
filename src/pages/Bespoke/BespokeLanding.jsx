@@ -52,7 +52,7 @@ const BespokeLanding = () => {
       name: "Priya Sharma",
       role: "Wedding Client",
       rating: 5,
-      text: "LIVN created my dream wedding saree. The craftsmanship and personalized service made me feel like royalty throughout the entire process.",
+      text: "Livaani created my dream wedding saree. The craftsmanship and personalized service made me feel like royalty throughout the entire process.",
       image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&h=150&fit=crop&q=80"
     },
     {
@@ -178,7 +178,7 @@ const BespokeLanding = () => {
       {/* Why Choose Section */}
       <section className="section-padding why-choose">
         <div className="container">
-          <h2 className="section-title">Why Choose LIVN Bespoke?</h2>
+          <h2 className="section-title">Why Choose Livaani Bespoke?</h2>
           <div className="grid grid-cols-3 why-cards">
             <div className="why-card">
               <div className="why-icon">✨</div>

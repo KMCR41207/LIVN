@@ -169,7 +169,7 @@ const BespokeProcess = () => {
       {/* What Makes Us Different */}
       <section className="section-padding what-different">
         <div className="container">
-          <h2 className="section-title">What Makes LIVN Bespoke Different</h2>
+          <h2 className="section-title">What Makes Livaani Bespoke Different</h2>
           <div className="grid grid-cols-2 different-grid">
             <div className="different-card">
               <h3>Traditional Craftsmanship</h3>

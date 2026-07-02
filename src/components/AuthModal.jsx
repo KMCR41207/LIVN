@@ -42,7 +42,7 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
 
         <h2 className="auth-title">{mode === 'signin' ? 'Welcome Back' : 'Create Account'}</h2>
         <p className="auth-subtitle">
-          {mode === 'signin' ? 'Sign in to your account' : 'Join the LIVN family'}
+          {mode === 'signin' ? 'Sign in to your account' : 'Join the Livaani family'}
         </p>
 
         <form onSubmit={handleSubmit} className="auth-form">

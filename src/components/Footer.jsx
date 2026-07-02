@@ -9,7 +9,7 @@ const Footer = () => {
       
       <div className="container footer-content grid grid-cols-4">
         <div className="footer-brand">
-          <h3 className="footer-logo">LIVN</h3>
+          <h3 className="footer-logo">Livaani</h3>
           <p className="footer-desc">
             Modern fashion for the woman who moves with intention. Clean lines, premium fabrics, effortless style.
           </p>
@@ -53,14 +53,14 @@ const Footer = () => {
             </li>
             <li>
               <Mail size={18} />
-              <span>namaste@LIVN.com</span>
+              <span>namaste@livaani.com</span>
             </li>
           </ul>
         </div>
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} LIVN. All Rights Reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Livaani. All Rights Reserved.</p>
       </div>
     </footer>
   );
