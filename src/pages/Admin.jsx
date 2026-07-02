@@ -8,8 +8,8 @@ const STATUS_OPTIONS = ['New', 'Sent', 'Stitching', 'Ready', 'Delivered'];
 const Admin = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [email, setEmail] = useState('admin@gmail.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
   // Tab navigation
@@ -236,6 +236,7 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="off"
               className="admin-input"
             />
             <input
@@ -244,6 +245,7 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="new-password"
               className="admin-input"
             />
             {loginError && <p style={{ color: '#d32f2f', fontSize: '0.9rem' }}>{loginError}</p>}
