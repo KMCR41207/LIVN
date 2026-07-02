@@ -28,29 +28,25 @@ const BespokeOrderSummary = () => {
       
       const estimatedPrice = (orderData.fabric?.price || 0) + 15000;
       
-      // Create bespoke order in database
       const bespokeOrder = {
-        order_type: 'bespoke',
-        customer_name: orderData.measurements?.fullName || 'Guest',
-        email: orderData.measurements?.email || user?.email || '',
-        phone: orderData.measurements?.phone || '',
-        user_id: user?.id || null,
-        
-        // Bespoke-specific details
-        measurements: orderData.measurements,
-        fabric: {
-          name: orderData.fabric?.name,
+        order_type:     'bespoke',
+        customer_name:  orderData.measurements?.fullName || 'Guest',
+        customer_email: orderData.measurements?.email    || user?.email || '',
+        customer_phone: orderData.measurements?.phone    || '',
+
+        measurements:  orderData.measurements,
+        fabric:        {
+          name:   orderData.fabric?.name,
           origin: orderData.fabric?.origin,
           weight: orderData.fabric?.weight,
-          price: orderData.fabric?.price,
-          image: orderData.fabric?.image
+          price:  orderData.fabric?.price,
+          image:  orderData.fabric?.image,
         },
-        design: orderData.design,
-        consultation: orderData.consultation,
-        
+        design:        orderData.design,
+        consultation:  orderData.consultation,
+
         total_amount: estimatedPrice,
-        status: 'consultation_pending',
-        created_at: new Date().toISOString()
+        status:       'consultation_pending',
       };
 
       const { data, error: orderError } = await createOrder(bespokeOrder);
