@@ -32,7 +32,6 @@ const Navbar = () => {
     setUser(u);
     if (u.role === 'admin') {
       navigate('/admin');
-      window.location.reload(); // force refresh to show admin UI
     }
   };
 

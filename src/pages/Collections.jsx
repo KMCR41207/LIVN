@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import ProductDrawer from '../components/ProductDrawer';
 import { MOCK_PRODUCTS } from '../data/products';
-import { getCurrentUser, deleteProduct } from '../lib/api';
+import { getCurrentUser, deleteProduct, getProducts } from '../lib/api';
 import { Trash2, Plus } from 'lucide-react';
 import './Collections.css';
 
@@ -12,6 +12,7 @@ const Collections = () => {
   const [drawerProduct, setDrawerProduct] = useState(null);
   const [adminMode, setAdminMode] = useState(false);
   const [products, setProducts] = useState(MOCK_PRODUCTS);
+
   const categories = [...new Set(products.map(p => p.category))];
 
   useEffect(() => {
@@ -21,18 +22,29 @@ const Collections = () => {
     const user = getCurrentUser();
     if (user?.role === 'admin') setAdminMode(true);
 
+    // Load DB products and merge with mock products
+    getProducts().then(({ data }) => {
+      if (data && data.length > 0) {
+        // Merge: DB products first, then mock products (avoid duplicates by name)
+        const dbNames = new Set(data.map(p => p.name));
+        const filteredMock = MOCK_PRODUCTS.filter(p => !dbNames.has(p.name));
+        setProducts([...data, ...filteredMock]);
+      }
+    }).catch(() => {
+      // Server not reachable — keep mock products
+    });
+
     const category = searchParams.get('category');
     if (category) {
       setTimeout(() => {
         const el = document.getElementById(category);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+      }, 300);
     }
   }, [searchParams]);
 
   const handleDelete = async (product) => {
     if (!window.confirm(`Delete "${product.name}"?`)) return;
-    // For DB products (have _id), call API; for mock products (have id), just remove from local state
     if (product._id) {
       const { error } = await deleteProduct(product._id);
       if (error) { alert('Failed to delete: ' + error); return; }
@@ -57,7 +69,7 @@ const Collections = () => {
               <div className="collection-divider"></div>
             </div>
             <div className="product-grid grid grid-cols-4">
-              {catProducts.map((product, index) => (
+              {catProducts.map((product) => (
                 <div key={product._id || product.id} className="product-card-wrapper">
                   <ProductCard product={product} onClick={setDrawerProduct} />
                   {adminMode && (
@@ -72,7 +84,6 @@ const Collections = () => {
                 </div>
               ))}
 
-              {/* Admin: Add Product button at end of each category */}
               {adminMode && (
                 <div className="admin-add-card" onClick={() => window.location.href = '/admin'}>
                   <Plus size={32} />
