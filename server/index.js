@@ -6,19 +6,23 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-const authRoutes = require('./routes/auth');
-const orderRoutes = require('./routes/orders');
+const authRoutes    = require('./routes/auth');
+const orderRoutes   = require('./routes/orders');
+const productRoutes = require('./routes/products');
 
 const app = express();
 
 // ─── Middleware ──────────────────────────────────────────────────────────────
-app.use(cors());
-app.use(express.json());
+app.use(cors({ origin: '*' }));
+app.use(express.json({ limit: '10mb' }));
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
-app.use('/api/orders', orderRoutes);
-app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+app.use('/api/auth',     authRoutes);
+app.use('/api/orders',   orderRoutes);
+app.use('/api/products', productRoutes);
+app.get('/api/health', (_req, res) =>
+  res.json({ status: 'ok', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' })
+);
 
 // ─── Serve React Build ───────────────────────────────────────────────────────
 const distPath = path.join(__dirname, '..', 'dist');
