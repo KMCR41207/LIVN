@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { getOrders, updateOrderStatus, signIn, signUp, getProducts, createProduct, deleteProduct } from '../lib/api';
+import { useNavigate } from 'react-router-dom';
+import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, getCurrentUser, signOut } from '../lib/api';
 import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2 } from 'lucide-react';
 import './Admin.css';
 
 const STATUS_OPTIONS = ['New', 'Sent', 'Stitching', 'Ready', 'Delivered'];
 
 const Admin = () => {
-  // Authentication state
+  const navigate = useNavigate();
+
+  // Check JWT from localStorage — no separate login needed
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [loginError, setLoginError] = useState('');
+  const [authChecked, setAuthChecked] = useState(false);
 
   // Tab navigation
   const [activeTab, setActiveTab] = useState('orders');
@@ -42,46 +42,31 @@ const Admin = () => {
   const [dbStats, setDbStats] = useState(null);
   const [verificationLoading, setVerificationLoading] = useState(false);
 
+  // On mount: check if already logged in as admin via JWT
   useEffect(() => {
-    if (isAuthenticated && activeTab === 'orders') {
-      fetchOrders();
+    const user = getCurrentUser();
+    if (user?.role === 'admin') {
+      setIsAuthenticated(true);
+    } else {
+      // Not logged in or not admin — redirect to home
+      navigate('/');
     }
-    if (isAuthenticated && activeTab === 'products') {
-      fetchProducts();
-    }
+    setAuthChecked(true);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'orders') fetchOrders();
+    if (isAuthenticated && activeTab === 'products') fetchProducts();
   }, [isAuthenticated, activeTab]);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoginError('');
-    try {
-      const { user } = await signIn(email, password);
-      if (user.role !== 'admin') {
-        setLoginError('Access denied. Admin account required.');
-        return;
-      }
-      setIsAuthenticated(true);
-    } catch (err) {
-      setLoginError(err.message || 'Invalid credentials.');
-    }
+  const handleLogout = () => {
+    signOut();
+    setIsAuthenticated(false);
+    navigate('/');
   };
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    setLoginError('');
-    try {
-      const { user } = await signUp(email, password);
-      if (user.role === 'admin') {
-        setIsAuthenticated(true);
-      } else {
-        setLoginError('Account created but not admin. Contact system admin.');
-      }
-    } catch (err) {
-      setLoginError(err.message || 'Sign up failed.');
-    }
-  };
-
-  const fetchOrders = async () => {
+  // Show nothing while checking auth
+  if (!authChecked) return null;
     setLoading(true);
     try {
       const { data, error } = await getOrders();
@@ -209,7 +194,8 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
   const verifyDatabaseConnectivity = async () => {
     setVerificationLoading(true);
     try {
-      const response = await fetch('/api/health');
+      const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(`${BASE_URL.replace('/api', '')}/api/health`);
       const data = await response.json();
 
       // Also fetch fresh counts
@@ -240,47 +226,6 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
   };
 
   if (!isAuthenticated) {
-    return (
-      <div className="admin-login-page container">
-        <div className="admin-login-card animate-fade-in-up">
-          <h1 className="admin-title">Livaani Admin Portal</h1>
-          <p className="admin-subtitle">{isSignUp ? 'Create admin account' : 'Sign in with your admin credentials.'}</p>
-          <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="admin-form">
-            <input
-              type="email"
-              placeholder="Admin Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="off"
-              className="admin-input"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-              className="admin-input"
-            />
-            {loginError && <p style={{ color: '#d32f2f', fontSize: '0.9rem' }}>{loginError}</p>}
-            <button type="submit" className="btn btn-primary full-width-btn">
-              {isSignUp ? 'Create Account' : 'Enter Admin Portal'}
-            </button>
-            <button 
-              type="button" 
-              onClick={() => { setIsSignUp(!isSignUp); setLoginError(''); }}
-              style={{ background: 'none', border: 'none', color: 'var(--color-gold-dark)', cursor: 'pointer', marginTop: '12px', fontSize: '0.9rem' }}
-            >
-              {isSignUp ? 'Already have account? Sign In' : 'No account? Create one'}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="admin-dashboard">
       <div className="admin-sidebar">
@@ -310,7 +255,7 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}
           </button>
         </nav>
 
-        <button className="btn btn-gold admin-logout-btn" onClick={() => setIsAuthenticated(false)}>
+        <button className="btn btn-gold admin-logout-btn" onClick={handleLogout}>
           <LogOut size={16} /> Logout
         </button>
       </div>
