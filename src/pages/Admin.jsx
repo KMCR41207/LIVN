@@ -1,18 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, getCurrentUser, signOut } from '../lib/api';
-import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2 } from 'lucide-react';
+import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut } from '../lib/api';
+import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2, Pencil, Upload } from 'lucide-react';
 import './Admin.css';
 
 const STATUS_OPTIONS = ['New', 'Sent', 'Stitching', 'Ready', 'Delivered'];
 
+const EMPTY_PRODUCT = { name: '', category: 'Bespoke', price: '', offer_price: '', image: '', description: '' };
+
 const Admin = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const editFileInputRef = useRef(null);
 
-  // Auth — reads existing JWT, no separate login form needed
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-
   const [activeTab, setActiveTab] = useState('orders');
 
   const [orders, setOrders] = useState([]);
@@ -26,9 +28,14 @@ const Admin = () => {
   const [productsLoading, setProductsLoading] = useState(false);
   const [productError, setProductError] = useState('');
   const [showAddProduct, setShowAddProduct] = useState(false);
-  const [newProduct, setNewProduct] = useState({
-    name: '', category: 'Bespoke', price: '', offer_price: '', image: '', description: ''
-  });
+  const [newProduct, setNewProduct] = useState(EMPTY_PRODUCT);
+  const [imagePreview, setImagePreview] = useState('');
+
+  // Edit state
+  const [editingProduct, setEditingProduct] = useState(null); // product being edited
+  const [editData, setEditData] = useState(EMPTY_PRODUCT);
+  const [editImagePreview, setEditImagePreview] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
 
   const [dbStats, setDbStats] = useState(null);
   const [verificationLoading, setVerificationLoading] = useState(false);
@@ -125,18 +132,66 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
         category: newProduct.category,
         price: parseFloat(newProduct.price),
         offer_price: newProduct.offer_price ? parseFloat(newProduct.offer_price) : null,
-        image: newProduct.image,
+        image: imagePreview || newProduct.image,
         description: newProduct.description,
       };
       const { data, error } = await createProduct(payload);
       if (error) throw new Error(error);
       setProducts(prev => [data, ...prev]);
-      setNewProduct({ name: '', category: 'Bespoke', price: '', offer_price: '', image: '', description: '' });
+      setNewProduct(EMPTY_PRODUCT);
+      setImagePreview('');
       setShowAddProduct(false);
     } catch (err) {
       setProductError(err.message || 'Failed to save product');
     } finally {
       setProductsLoading(false);
+    }
+  };
+
+  // Convert local file to base64
+  const handleImageFile = (file, isEdit = false) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (isEdit) setEditImagePreview(reader.result);
+      else setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const startEdit = (product) => {
+    setEditingProduct(product);
+    setEditData({
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      offer_price: product.offer_price || '',
+      image: product.image || '',
+      description: product.description || '',
+    });
+    setEditImagePreview(product.image || '');
+  };
+
+  const handleEditSave = async (e) => {
+    e.preventDefault();
+    setEditLoading(true);
+    try {
+      const payload = {
+        name: editData.name,
+        category: editData.category,
+        price: parseFloat(editData.price),
+        offer_price: editData.offer_price ? parseFloat(editData.offer_price) : null,
+        image: editImagePreview || editData.image,
+        description: editData.description,
+      };
+      const { data, error } = await updateProduct(editingProduct._id, payload);
+      if (error) throw new Error(error);
+      setProducts(prev => prev.map(p => p._id === editingProduct._id ? data : p));
+      setEditingProduct(null);
+    } catch (err) {
+      alert('Failed to update: ' + err.message);
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -326,6 +381,11 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
                     <option>Lehenga</option>
                     <option>Co-ord Set</option>
                     <option>Dress</option>
+                    <option>Sleeveless Kurti</option>
+                    <option>Full Sleeve Kurti</option>
+                    <option>Corset Kurti</option>
+                    <option>Noodle Strap Kurti</option>
+                    <option>Halter Neck Kurti</option>
                   </select>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <input type="number" placeholder="Price ₹ *" value={newProduct.price}
@@ -333,15 +393,37 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
                     <input type="number" placeholder="Offer Price ₹ (optional)" value={newProduct.offer_price}
                       onChange={(e) => setNewProduct({ ...newProduct, offer_price: e.target.value })} />
                   </div>
-                  <input type="url" placeholder="Image URL (optional)" value={newProduct.image}
-                    onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })} />
+
+                  {/* Image upload */}
+                  <div className="image-upload-group">
+                    <div className="image-upload-btn" onClick={() => fileInputRef.current.click()}>
+                      <Upload size={18} />
+                      <span>{imagePreview ? 'Change Image' : 'Upload Image from Device'}</span>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => handleImageFile(e.target.files[0])}
+                    />
+                    {imagePreview && (
+                      <div className="image-preview">
+                        <img src={imagePreview} alt="Preview" />
+                        <button type="button" className="image-preview-remove" onClick={() => setImagePreview('')}>
+                          <X size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <textarea placeholder="Description (optional)" value={newProduct.description}
                     onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button type="submit" className="btn btn-primary" disabled={productsLoading}>
                       {productsLoading ? 'Saving...' : '💾 Save to Database'}
                     </button>
-                    <button type="button" className="btn btn-outline" onClick={() => { setShowAddProduct(false); setProductError(''); }}>
+                    <button type="button" className="btn btn-outline" onClick={() => { setShowAddProduct(false); setProductError(''); setImagePreview(''); }}>
                       Cancel
                     </button>
                   </div>
@@ -375,9 +457,14 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
                     {product.description && <p className="product-desc">{product.description}</p>}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
                       <small style={{ color: 'var(--color-text-secondary)' }}>{new Date(product.createdAt).toLocaleDateString()}</small>
-                      <button className="btn-delete" onClick={() => handleDeleteProduct(product._id)} title="Delete product">
-                        <Trash2 size={14} />
-                      </button>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button className="btn-edit" onClick={() => startEdit(product)} title="Edit product">
+                          <Pencil size={14} />
+                        </button>
+                        <button className="btn-delete" onClick={() => handleDeleteProduct(product._id)} title="Delete product">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -425,6 +512,74 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
           </div>
         )}
       </div>
+
+      {/* EDIT PRODUCT MODAL */}
+      {editingProduct && (
+        <div className="modal-overlay" onClick={() => setEditingProduct(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Edit Product</h3>
+              <button className="modal-close" onClick={() => setEditingProduct(null)}><X size={20} /></button>
+            </div>
+            <div style={{ padding: '25px' }}>
+              <form onSubmit={handleEditSave} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <input type="text" placeholder="Product Name *" value={editData.name}
+                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  required style={{ padding: '12px', border: '1px solid var(--color-gold-base)', borderRadius: '4px', fontSize: '0.95rem' }} />
+                <select value={editData.category} onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+                  style={{ padding: '12px', border: '1px solid var(--color-gold-base)', borderRadius: '4px', fontSize: '0.95rem' }}>
+                  <option>Bespoke</option><option>Kurti</option><option>Saree</option><option>Lehenga</option>
+                  <option>Co-ord Set</option><option>Dress</option><option>Sleeveless Kurti</option>
+                  <option>Full Sleeve Kurti</option><option>Corset Kurti</option>
+                  <option>Noodle Strap Kurti</option><option>Halter Neck Kurti</option>
+                </select>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <input type="number" placeholder="Price ₹ *" value={editData.price}
+                    onChange={(e) => setEditData({ ...editData, price: e.target.value })}
+                    required style={{ padding: '12px', border: '1px solid var(--color-gold-base)', borderRadius: '4px', fontSize: '0.95rem' }} />
+                  <input type="number" placeholder="Offer Price ₹ (optional)" value={editData.offer_price}
+                    onChange={(e) => setEditData({ ...editData, offer_price: e.target.value })}
+                    style={{ padding: '12px', border: '1px solid var(--color-gold-base)', borderRadius: '4px', fontSize: '0.95rem' }} />
+                </div>
+
+                {/* Edit image upload */}
+                <div className="image-upload-group">
+                  <div className="image-upload-btn" onClick={() => editFileInputRef.current.click()}>
+                    <Upload size={18} />
+                    <span>{editImagePreview ? 'Change Image' : 'Upload New Image'}</span>
+                  </div>
+                  <input
+                    ref={editFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => handleImageFile(e.target.files[0], true)}
+                  />
+                  {editImagePreview && (
+                    <div className="image-preview">
+                      <img src={editImagePreview} alt="Preview" />
+                      <button type="button" className="image-preview-remove"
+                        onClick={() => setEditImagePreview('')}><X size={16} /></button>
+                    </div>
+                  )}
+                </div>
+
+                <textarea placeholder="Description (optional)" value={editData.description}
+                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                  style={{ padding: '12px', border: '1px solid var(--color-gold-base)', borderRadius: '4px', fontSize: '0.95rem', minHeight: '80px', resize: 'vertical' }} />
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button type="submit" className="btn btn-primary" disabled={editLoading}>
+                    {editLoading ? 'Saving...' : '💾 Save Changes'}
+                  </button>
+                  <button type="button" className="btn btn-outline" onClick={() => setEditingProduct(null)}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* COMMENTS MODAL */}
       {selectedOrder && (
