@@ -78,20 +78,22 @@ const ProductDrawer = ({ product, onClose }) => {
           <div className="drawer-content">
             <p className="product-meta">{product.category} Collection</p>
             <h2 className="product-name">{product.name}</h2>
-            <div className="product-price-large">₹{product.price.toLocaleString('en-IN')}</div>
+            <div className="product-price-large">₹{(product.price || 0).toLocaleString('en-IN')}</div>
 
             <div className="product-divider"><div className="carving-icon">✦</div></div>
 
             <p className="product-description">{product.description}</p>
 
-            <div className="product-features">
-              <h4 className="features-title">Garb Details</h4>
-              <ul>
-                {product.details.map((detail, index) => (
-                  <li key={index}>✦ {detail}</li>
-                ))}
-              </ul>
-            </div>
+            {product.details && product.details.length > 0 && (
+              <div className="product-features">
+                <h4 className="features-title">Garb Details</h4>
+                <ul>
+                  {product.details.map((detail, index) => (
+                    <li key={index}>✦ {detail}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="size-selector">
               <div className="size-header">

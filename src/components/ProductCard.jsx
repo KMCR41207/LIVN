@@ -9,7 +9,7 @@ const ProductCard = ({ product, onClick }) => {
       <div className="product-info">
         <h3 className="product-title">{product.name}</h3>
         <p className="product-category">{product.category}</p>
-        <p className="product-price">₹{product.price.toLocaleString('en-IN')}</p>
+        <p className="product-price">₹{(product.price || 0).toLocaleString('en-IN')}</p>
       </div>
     </div>
   );
