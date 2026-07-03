@@ -15,11 +15,7 @@ const SizeGuideModal = ({ onClose }) => (
         <table className="size-guide-table">
           <thead>
             <tr>
-              <th>Size</th>
-              <th>Chest</th>
-              <th>Waist</th>
-              <th>Hips</th>
-              <th>Length</th>
+              <th>Size</th><th>Chest</th><th>Waist</th><th>Hips</th><th>Length</th>
             </tr>
           </thead>
           <tbody>
@@ -31,7 +27,7 @@ const SizeGuideModal = ({ onClose }) => (
           </tbody>
         </table>
       </div>
-      <p className="size-guide-tip">✦ For a perfect fit, choose Custom and enter your measurements at checkout.</p>
+      <p className="size-guide-tip">✦ For a perfect fit, choose Custom and enter your measurements.</p>
     </div>
   </div>
 );
@@ -39,6 +35,14 @@ const SizeGuideModal = ({ onClose }) => (
 const ProductDrawer = ({ product, onClose }) => {
   const [selectedSize, setSelectedSize] = useState('');
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [sizeError, setSizeError] = useState(false);
+
+  // Custom measurements
+  const [measurements, setMeasurements] = useState({
+    chest: '', waist: '', hips: '', length: '', notes: ''
+  });
+  const [measureError, setMeasureError] = useState('');
+
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
@@ -54,13 +58,40 @@ const ProductDrawer = ({ product, onClose }) => {
 
   if (!product) return null;
 
+  const handleSizeSelect = (size) => {
+    setSelectedSize(size);
+    setSizeError(false);
+    setMeasureError('');
+  };
+
+  const validate = () => {
+    if (!selectedSize) {
+      setSizeError(true);
+      return false;
+    }
+    if (selectedSize === 'Custom') {
+      if (!measurements.chest || !measurements.waist || !measurements.hips || !measurements.length) {
+        setMeasureError('Please fill in all measurement fields.');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const buildMeasurementNote = () => {
+    if (selectedSize !== 'Custom') return '';
+    return `Chest:${measurements.chest}" Waist:${measurements.waist}" Hips:${measurements.hips}" Length:${measurements.length}"${measurements.notes ? ' Notes:' + measurements.notes : ''}`;
+  };
+
   const handleAddToCart = () => {
-    addToCart(product, selectedSize || 'Standard');
+    if (!validate()) return;
+    addToCart(product, selectedSize, buildMeasurementNote());
     onClose();
   };
 
   const handleOrderNow = () => {
-    addToCart(product, selectedSize || 'Standard');
+    if (!validate()) return;
+    addToCart(product, selectedSize, buildMeasurementNote());
     onClose();
     navigate('/checkout');
   };
@@ -95,13 +126,11 @@ const ProductDrawer = ({ product, onClose }) => {
               </div>
             )}
 
+            {/* ── Size Selector ── */}
             <div className="size-selector">
               <div className="size-header">
                 <span className="size-title">Select Size</span>
-                <button
-                  className="size-guide-btn"
-                  onClick={() => setShowSizeGuide(true)}
-                >
+                <button className="size-guide-btn" onClick={() => setShowSizeGuide(true)}>
                   <Ruler size={16} /> Size Guide
                 </button>
               </div>
@@ -109,21 +138,93 @@ const ProductDrawer = ({ product, onClose }) => {
                 {['XS', 'S', 'M', 'L', 'XL', 'Custom'].map(size => (
                   <button
                     key={size}
-                    className={`size-btn ${selectedSize === size ? 'active' : ''}`}
-                    onClick={() => setSelectedSize(size)}
+                    className={`size-btn ${selectedSize === size ? 'active' : ''} ${size === 'Custom' ? 'custom-btn' : ''}`}
+                    onClick={() => handleSizeSelect(size)}
                   >
                     {size}
                   </button>
                 ))}
               </div>
+              {sizeError && (
+                <p className="size-error">⚠ Please select a size before continuing.</p>
+              )}
             </div>
 
+            {/* ── Custom Measurements Form ── */}
+            {selectedSize === 'Custom' && (
+              <div className="custom-measurements">
+                <h4 className="measurements-title">✦ Your Measurements <span>(in inches)</span></h4>
+                <div className="measurements-grid">
+                  <div className="measure-field">
+                    <label>Chest *</label>
+                    <input
+                      type="number"
+                      placeholder='e.g. 36"'
+                      value={measurements.chest}
+                      onChange={(e) => { setMeasurements({ ...measurements, chest: e.target.value }); setMeasureError(''); }}
+                    />
+                  </div>
+                  <div className="measure-field">
+                    <label>Waist *</label>
+                    <input
+                      type="number"
+                      placeholder='e.g. 30"'
+                      value={measurements.waist}
+                      onChange={(e) => { setMeasurements({ ...measurements, waist: e.target.value }); setMeasureError(''); }}
+                    />
+                  </div>
+                  <div className="measure-field">
+                    <label>Hips *</label>
+                    <input
+                      type="number"
+                      placeholder='e.g. 38"'
+                      value={measurements.hips}
+                      onChange={(e) => { setMeasurements({ ...measurements, hips: e.target.value }); setMeasureError(''); }}
+                    />
+                  </div>
+                  <div className="measure-field">
+                    <label>Length *</label>
+                    <input
+                      type="number"
+                      placeholder='e.g. 42"'
+                      value={measurements.length}
+                      onChange={(e) => { setMeasurements({ ...measurements, length: e.target.value }); setMeasureError(''); }}
+                    />
+                  </div>
+                </div>
+                <div className="measure-field" style={{ marginTop: '10px' }}>
+                  <label>Special Notes (optional)</label>
+                  <textarea
+                    placeholder="e.g. Slightly loose around shoulders, prefer longer sleeves..."
+                    value={measurements.notes}
+                    onChange={(e) => setMeasurements({ ...measurements, notes: e.target.value })}
+                  />
+                </div>
+                {measureError && <p className="size-error">⚠ {measureError}</p>}
+              </div>
+            )}
+
+            {/* ── Actions ── */}
             <div className="product-actions">
               <div className="dual-action-btns">
-                <button className="btn btn-outline" onClick={handleAddToCart}>Add to Cart</button>
-                <button className="btn btn-primary" onClick={handleOrderNow}>Buy Now</button>
+                <button
+                  className={`btn btn-outline ${!selectedSize ? 'btn-disabled' : ''}`}
+                  onClick={handleAddToCart}
+                >
+                  Add to Cart
+                </button>
+                <button
+                  className={`btn btn-primary ${!selectedSize ? 'btn-disabled' : ''}`}
+                  onClick={handleOrderNow}
+                >
+                  Buy Now
+                </button>
               </div>
-              <p className="bespoke-note">For bespoke measurements, select 'Custom' and provide details during checkout.</p>
+              {!selectedSize && (
+                <p className="bespoke-note" style={{ color: 'var(--color-maroon)', fontWeight: '600' }}>
+                  ← Select a size to continue
+                </p>
+              )}
             </div>
 
             <div className="trust-badges">

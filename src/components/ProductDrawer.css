@@ -208,3 +208,111 @@
   margin-top: 18px;
   text-align: center;
 }
+
+/* ── Size Error ── */
+.size-error {
+  color: var(--color-maroon);
+  font-size: 0.78rem;
+  margin-top: 8px;
+  font-weight: 600;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* ── Custom Measurements ── */
+.custom-measurements {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-gold-light);
+  border-left: 3px solid var(--color-gold-base);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 14px 0;
+  animation: fadeSlideIn 0.25s ease;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.measurements-title {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  color: var(--color-maroon-dark);
+  margin: 0 0 14px 0;
+  letter-spacing: 1px;
+}
+
+.measurements-title span {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  font-weight: normal;
+}
+
+.measurements-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.measure-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.measure-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.measure-field input,
+.measure-field textarea {
+  padding: 9px 10px;
+  border: 1px solid var(--color-gold-base);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  background: #fff;
+  color: var(--color-text-primary);
+  transition: border-color 0.2s;
+}
+
+.measure-field input:focus,
+.measure-field textarea:focus {
+  outline: none;
+  border-color: var(--color-maroon);
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+}
+
+.measure-field textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+/* ── Custom size button highlight ── */
+.size-btn.custom-btn {
+  border-color: var(--color-gold-base);
+  color: var(--color-gold-dark);
+}
+
+.size-btn.custom-btn.active {
+  background: var(--color-gold-dark);
+  color: #fff;
+  border-color: var(--color-gold-dark);
+}
+
+/* ── Disabled action buttons ── */
+.btn-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
