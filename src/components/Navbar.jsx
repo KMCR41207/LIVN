@@ -22,11 +22,11 @@ const Navbar = () => {
     const u = getCurrentUser();
     if (u) {
       setUser(u);
-      if (u.role === 'admin') navigate('/admin');
+      // No auto-redirect here - redirect only happens in handleAuthSuccess after login
     }
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [navigate]);
+  }, []);
 
   const handleAuthSuccess = (u) => {
     setUser(u);
