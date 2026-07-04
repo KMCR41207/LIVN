@@ -36,6 +36,12 @@ const ProductDrawer = ({ product, onClose }) => {
   const [selectedSize, setSelectedSize] = useState('');
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [sizeError, setSizeError] = useState(false);
+  const [activeImg, setActiveImg] = useState(0);
+
+  // Build images array — use images[] if available, else fall back to image
+  const allImages = (product?.images && product.images.length > 0)
+    ? product.images
+    : (product?.image ? [product.image] : []);
 
   // Custom measurements
   const [measurements, setMeasurements] = useState({
@@ -103,7 +109,22 @@ const ProductDrawer = ({ product, onClose }) => {
           <button className="drawer-close" onClick={onClose}><X size={22} /></button>
 
           <div className="drawer-image-container">
-            <img src={product.image} alt={product.name} className="drawer-image" />
+            {/* Main image */}
+            <img src={allImages[activeImg] || product.image} alt={product.name} className="drawer-image" />
+            {/* Thumbnail strip */}
+            {allImages.length > 1 && (
+              <div className="drawer-thumbnails">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    className={`drawer-thumb ${activeImg === idx ? 'active' : ''}`}
+                    onClick={() => setActiveImg(idx)}
+                  >
+                    <img src={img} alt={`${product.name} ${idx + 1}`} />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="drawer-content">
