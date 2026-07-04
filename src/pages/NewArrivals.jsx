@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
-import { MOCK_PRODUCTS } from '../data/products';
+import { PRODUCTS } from '../data/products';
 import './NewArrivals.css';
+
+// Show the 12 most recently added products as "new arrivals"
+const NEW_ARRIVALS = PRODUCTS.slice(0, 12);
 
 const NewArrivals = () => {
   const navigate = useNavigate();
@@ -18,7 +21,7 @@ const NewArrivals = () => {
 
       <div className="container">
         <div className="product-grid grid grid-cols-4">
-          {MOCK_PRODUCTS.map((product) => (
+          {NEW_ARRIVALS.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
