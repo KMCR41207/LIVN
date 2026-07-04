@@ -31,3 +31,11 @@ server/.env
 
 # Root env
 .env
+
+# Temp/scratch server files
+server/token.txt
+server/seed-output.txt
+server/run-seed.ps1
+
+# Kiro spec workspace files
+.kiro/
