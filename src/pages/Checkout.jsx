@@ -481,14 +481,14 @@ const Checkout = () => {
       const results = [];
       for (const item of cartItems) {
         const payload = {
-          product_id:       item.product.id,
+          product_id:       String(item.product._id || item.product.id || ''),
           product_name:     item.product.name,
-          price:            item.product.price * item.qty,
+          price:            (item.product.offer_price || item.product.price) * item.qty,
           customer_name:    formData.name,
           customer_phone:   formData.phone,
           customer_email:   getCurrentUser()?.email || '',
           shipping_address: fullAddress,
-          measurements:     formData.measurements || item.size,
+          measurements:     formData.measurements || (item.size === 'Custom' ? item.measurements : ''),
           selected_size:    item.size,
           quantity:         item.qty,
           payment_method:   paymentMethod,
