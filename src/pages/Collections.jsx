@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import ProductDrawer from '../components/ProductDrawer';
-import { MOCK_PRODUCTS } from '../data/products';
+import { PRODUCTS } from '../data/products';
 import { getCurrentUser, deleteProduct, getProducts } from '../lib/api';
 import { Trash2, Plus, Search, X } from 'lucide-react';
 import './Collections.css';
@@ -24,7 +24,7 @@ const Collections = () => {
   const [searchParams] = useSearchParams();
   const [drawerProduct, setDrawerProduct] = useState(null);
   const [adminMode, setAdminMode] = useState(false);
-  const [products, setProducts] = useState(MOCK_PRODUCTS);
+  const [products, setProducts] = useState(PRODUCTS);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -80,8 +80,8 @@ const Collections = () => {
       .then(({ data }) => {
         if (data && data.length > 0) {
           const dbNames = new Set(data.map(p => p.name));
-          const filteredMock = MOCK_PRODUCTS.filter(p => !dbNames.has(p.name));
-          setProducts([...data, ...filteredMock]);
+          const staticOnly = PRODUCTS.filter(p => !dbNames.has(p.name));
+          setProducts([...data, ...staticOnly]);
         }
       })
       .catch(() => {})
