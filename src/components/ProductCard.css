@@ -23,6 +23,7 @@
   aspect-ratio: 3 / 4;
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
 }
 
 .product-image {
@@ -70,4 +71,44 @@
   color: var(--color-text-primary);
   font-weight: 600;
   margin: 0;
+}
+
+/* Discount badge on image */
+.product-discount-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--color-maroon, #7a1e2e);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* Price row with offer + MRP */
+.product-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.product-offer-price {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--color-maroon, #7a1e2e);
+  font-weight: 700;
+}
+
+.product-mrp {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
 }

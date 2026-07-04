@@ -3,9 +3,10 @@
   min-height: 80vh;
 }
 
+/* ── Header ── */
 .collections-header {
   text-align: center;
-  padding: 60px 20px 40px;
+  padding: 60px 20px 32px;
 }
 
 .collections-title {
@@ -22,11 +23,130 @@
   font-size: 1.05rem;
 }
 
+/* ── Controls: search + filter ── */
+.collections-controls {
+  padding: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Search */
+.collections-search-wrap {
+  position: relative;
+  max-width: 420px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.collections-search {
+  width: 100%;
+  padding: 10px 36px 10px 36px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.collections-search:focus {
+  border-color: var(--color-gold-base, #d4af37);
+}
+
+.search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+/* Filter chip bar */
+.collections-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-chip {
+  padding: 6px 16px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 20px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.filter-chip:hover {
+  border-color: var(--color-gold-base, #d4af37);
+  color: var(--color-text-primary);
+}
+
+.filter-chip.active {
+  background: var(--color-maroon, #7a1e2e);
+  border-color: var(--color-maroon, #7a1e2e);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── Loading skeletons ── */
+.collections-loading {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding-bottom: 60px;
+}
+
+.product-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+  aspect-ratio: 3 / 5;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Empty state ── */
+.collections-empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ── Section ── */
 .collection-section {
   padding: 40px 0 60px;
 }
 
-/* ensure all direct grid children don't overflow */
 .product-grid > * {
   min-width: 0;
 }
@@ -34,7 +154,7 @@
 .collection-category-header {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 14px;
   margin-bottom: 36px;
 }
 
@@ -47,16 +167,27 @@
   text-transform: uppercase;
 }
 
+.collection-category-count {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary, #f5f5f5);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 12px;
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+
 .collection-divider {
   flex: 1;
   height: 1px;
   background: #e0e0e0;
 }
 
-/* ── Admin overlay controls on product cards ── */
+/* ── Product card wrapper ── */
 .product-card-wrapper {
   position: relative;
-  min-width: 0; /* prevent grid blowout */
+  min-width: 0;
   width: 100%;
 }
 
@@ -83,7 +214,6 @@
   opacity: 1;
 }
 
-/* Admin Add Product card */
 .admin-add-card {
   display: flex;
   flex-direction: column;
@@ -106,4 +236,19 @@
   background: var(--color-gold-light);
   border-color: var(--color-maroon);
   color: var(--color-maroon);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .collections-loading { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .collections-title { font-size: 2rem; letter-spacing: 2px; }
+  .collections-loading { grid-template-columns: repeat(2, 1fr); }
+  .collections-search-wrap { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .collections-loading { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }

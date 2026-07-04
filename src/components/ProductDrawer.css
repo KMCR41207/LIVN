@@ -353,3 +353,36 @@
 .drawer-thumb:hover {
   border-color: var(--color-gold-base);
 }
+
+/* ── Offer price in drawer ── */
+.drawer-content .product-price-large {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.drawer-offer-price {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-maroon, #7a1e2e);
+}
+
+.drawer-mrp {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
+}
+
+.drawer-discount-badge {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--color-maroon, #7a1e2e);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}

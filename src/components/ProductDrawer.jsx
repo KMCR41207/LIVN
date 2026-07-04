@@ -130,7 +130,17 @@ const ProductDrawer = ({ product, onClose }) => {
           <div className="drawer-content">
             <p className="product-meta">{product.category} Collection</p>
             <h2 className="product-name">{product.name}</h2>
-            <div className="product-price-large">₹{(product.price || 0).toLocaleString('en-IN')}</div>
+            {product.offer_price && product.offer_price < product.price ? (
+              <div className="product-price-large">
+                <span className="drawer-offer-price">₹{product.offer_price.toLocaleString('en-IN')}</span>
+                <span className="drawer-mrp">₹{product.price.toLocaleString('en-IN')}</span>
+                <span className="drawer-discount-badge">
+                  {Math.round(((product.price - product.offer_price) / product.price) * 100)}% off
+                </span>
+              </div>
+            ) : (
+              <div className="product-price-large">₹{(product.price || 0).toLocaleString('en-IN')}</div>
+            )}
 
             <div className="product-divider"><div className="carving-icon">✦</div></div>
 
