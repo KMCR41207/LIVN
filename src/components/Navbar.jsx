@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, User, LogOut, ShoppingBag, Inbox } from 'lucide-react';
+import { Search, Menu, X, User, LogOut, ShoppingBag, Inbox, Package } from 'lucide-react';
 import { getCurrentUser, signOut } from '../lib/api';
 import { useCart } from '../context/CartContext';
 import AuthModal from './AuthModal';
@@ -61,6 +61,13 @@ const Navbar = () => {
             <button className="icon-btn" aria-label="Search">
               <Search size={22} />
             </button>
+
+            {/* My Orders — visible to logged-in non-admin users */}
+            {user && user.role !== 'admin' && (
+              <Link to="/track-order" className="icon-btn" aria-label="My Orders" title="My Orders">
+                <Package size={22} />
+              </Link>
+            )}
 
             {/* Admin Inbox button — only visible when admin is logged in */}
             {user?.role === 'admin' && (
