@@ -15,6 +15,25 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/products/search?q=query — search products (public)
+router.get('/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.trim().length < 1) return res.json({ data: [], error: null });
+    const regex = new RegExp(q.trim(), 'i');
+    const products = await Product.find({
+      $or: [
+        { name: regex },
+        { category: regex },
+        { description: regex },
+      ],
+    }).limit(20).sort({ createdAt: -1 });
+    res.json({ data: products, error: null });
+  } catch (err) {
+    res.status(500).json({ data: null, error: err.message });
+  }
+});
+
 // POST /api/products — create product (admin only)
 router.post('/', protect, adminOnly, async (req, res) => {
   try {
