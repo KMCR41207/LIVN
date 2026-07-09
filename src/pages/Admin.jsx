@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut } from '../lib/api';
+import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut, getCoupons, createCoupon, updateCoupon, deleteCoupon, getDiscounts, createDiscount, updateDiscount, deleteDiscount } from '../lib/api';
 import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2, Pencil, Upload } from 'lucide-react';
 import './Admin.css';
 
@@ -40,6 +40,24 @@ const Admin = () => {
   const [dbStats, setDbStats] = useState(null);
   const [verificationLoading, setVerificationLoading] = useState(false);
 
+  // Coupons state
+  const [coupons, setCoupons] = useState([]);
+  const [couponsLoading, setCouponsLoading] = useState(false);
+  const [showAddCoupon, setShowAddCoupon] = useState(false);
+  const [couponSearch, setCouponSearch] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [copiedCoupon, setCopiedCoupon] = useState(null);
+  const EMPTY_COUPON = { code: '', discountType: 'percentage', discountValue: '', minOrderAmount: '', maxDiscount: '', startDate: '', expiryDate: '', usageLimit: '', perUserLimit: 1, isActive: true, description: '' };
+  const [newCoupon, setNewCoupon] = useState(EMPTY_COUPON);
+
+  // Discounts state
+  const [discounts, setDiscounts] = useState([]);
+  const [discountsLoading, setDiscountsLoading] = useState(false);
+  const [showAddDiscount, setShowAddDiscount] = useState(false);
+  const [discountError, setDiscountError] = useState('');
+  const EMPTY_DISCOUNT = { name: '', description: '', type: 'store-wide', discountType: 'percentage', discountValue: '', applicableTo: '', minOrderAmount: '', buyQuantity: '', getQuantity: '', startDate: '', endDate: '', isActive: true };
+  const [newDiscount, setNewDiscount] = useState(EMPTY_DISCOUNT);
+
   // Check JWT on mount — redirect to home if not admin
   useEffect(() => {
     const user = getCurrentUser();
@@ -55,6 +73,8 @@ const Admin = () => {
     if (!isAuthenticated) return;
     if (activeTab === 'orders') fetchOrders();
     if (activeTab === 'products') fetchProducts();
+    if (activeTab === 'coupons') fetchCoupons();
+    if (activeTab === 'discounts') fetchDiscounts();
   }, [isAuthenticated, activeTab]);
 
   const handleLogout = () => {
@@ -206,6 +226,87 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
     }
   };
 
+  // ── Coupon functions ──────────────────────────────────────────────────────
+  const fetchCoupons = async () => {
+    setCouponsLoading(true);
+    const { data } = await getCoupons();
+    if (data) setCoupons(data);
+    setCouponsLoading(false);
+  };
+
+  const handleCreateCoupon = async (e) => {
+    e.preventDefault();
+    setCouponError('');
+    if (!newCoupon.code || !newCoupon.discountValue) { setCouponError('Code and discount value are required'); return; }
+    const { data, error } = await createCoupon(newCoupon);
+    if (error) { setCouponError(error); return; }
+    setCoupons(prev => [data, ...prev]);
+    setNewCoupon(EMPTY_COUPON);
+    setShowAddCoupon(false);
+  };
+
+  const handleToggleCoupon = async (coupon) => {
+    const { data } = await updateCoupon(coupon._id, { isActive: !coupon.isActive });
+    if (data) setCoupons(prev => prev.map(c => c._id === coupon._id ? data : c));
+  };
+
+  const handleDeleteCoupon = async (id) => {
+    if (!window.confirm('Delete this coupon?')) return;
+    await deleteCoupon(id);
+    setCoupons(prev => prev.filter(c => c._id !== id));
+  };
+
+  const handleCopyCoupon = (code) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCoupon(code);
+    setTimeout(() => setCopiedCoupon(null), 2000);
+  };
+
+  const getCouponStatus = (coupon) => {
+    const now = new Date();
+    if (!coupon.isActive) return { label: 'Inactive', color: '#9e9e9e' };
+    if (coupon.startDate && new Date(coupon.startDate) > now) return { label: 'Scheduled', color: '#1565c0' };
+    if (coupon.expiryDate && new Date(coupon.expiryDate) < now) return { label: 'Expired', color: '#d32f2f' };
+    if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) return { label: 'Used Up', color: '#e65100' };
+    return { label: 'Active', color: '#2e7d32' };
+  };
+
+  // ── Discount functions ────────────────────────────────────────────────────
+  const fetchDiscounts = async () => {
+    setDiscountsLoading(true);
+    const { data } = await getDiscounts();
+    if (data) setDiscounts(data);
+    setDiscountsLoading(false);
+  };
+
+  const handleCreateDiscount = async (e) => {
+    e.preventDefault();
+    setDiscountError('');
+    if (!newDiscount.name || !newDiscount.discountValue) { setDiscountError('Name and discount value are required'); return; }
+    const { data, error } = await createDiscount(newDiscount);
+    if (error) { setDiscountError(error); return; }
+    setDiscounts(prev => [data, ...prev]);
+    setNewDiscount(EMPTY_DISCOUNT);
+    setShowAddDiscount(false);
+  };
+
+  const handleToggleDiscount = async (discount) => {
+    const { data } = await updateDiscount(discount._id, { isActive: !discount.isActive });
+    if (data) setDiscounts(prev => prev.map(d => d._id === discount._id ? data : d));
+  };
+
+  const handleDeleteDiscount = async (id) => {
+    if (!window.confirm('Delete this discount?')) return;
+    await deleteDiscount(id);
+    setDiscounts(prev => prev.filter(d => d._id !== id));
+  };
+
+  const DISCOUNT_TYPE_LABELS = {
+    'store-wide': '🏪 Store-wide', 'category': '📁 Category', 'product': '👗 Product',
+    'buy-x-get-y': '🎁 Buy X Get Y', 'free-shipping': '🚚 Free Shipping',
+    'festival': '🎉 Festival Sale', 'flash-sale': '⚡ Flash Sale', 'limited-time': '⏱️ Limited Time',
+  };
+
   const handleAddComment = (orderId) => {
     if (!commentText.trim()) return;
     const updated = {
@@ -260,6 +361,12 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
           </button>
           <button className={`admin-nav-item ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}>
             👗 Products
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'coupons' ? 'active' : ''}`} onClick={() => setActiveTab('coupons')}>
+            🎟️ Coupons
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'discounts' ? 'active' : ''}`} onClick={() => setActiveTab('discounts')}>
+            🏷️ Discounts
           </button>
           <button className={`admin-nav-item ${activeTab === 'database' ? 'active' : ''}`} onClick={() => setActiveTab('database')}>
             💾 Database
@@ -470,6 +577,315 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {/* COUPONS TAB */}
+        {activeTab === 'coupons' && (
+          <div className="admin-section">
+            <div className="admin-section-header">
+              <div>
+                <h2>🎟️ Coupons</h2>
+                <p>Create and manage discount coupon codes</p>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  placeholder="Search coupons..."
+                  value={couponSearch}
+                  onChange={e => setCouponSearch(e.target.value)}
+                  style={{ padding: '8px 14px', border: '1px solid var(--color-gold-base)', borderRadius: '4px', fontSize: '0.85rem', width: '180px' }}
+                />
+                <button className="btn btn-gold" onClick={() => setShowAddCoupon(!showAddCoupon)}>
+                  <Plus size={16} /> Create Coupon
+                </button>
+              </div>
+            </div>
+
+            {couponError && <div className="error-banner">{couponError}</div>}
+
+            {/* Add Coupon Form */}
+            {showAddCoupon && (
+              <div className="add-product-form" style={{ marginBottom: '30px' }}>
+                <h3 style={{ margin: '0 0 20px', color: 'var(--color-maroon-dark)', fontFamily: 'var(--font-heading)', letterSpacing: '1px' }}>✦ New Coupon</h3>
+                <form onSubmit={handleCreateCoupon}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label className="form-label">Coupon Code *</label>
+                      <input type="text" placeholder="e.g. LIV10, WELCOME20" value={newCoupon.code}
+                        onChange={e => setNewCoupon({...newCoupon, code: e.target.value.toUpperCase()})} required
+                        style={{ textTransform: 'uppercase', fontWeight: '700', letterSpacing: '2px' }} />
+                    </div>
+                    <div>
+                      <label className="form-label">Description</label>
+                      <input type="text" placeholder="e.g. 10% off for new users" value={newCoupon.description}
+                        onChange={e => setNewCoupon({...newCoupon, description: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="form-label">Discount Type *</label>
+                      <select value={newCoupon.discountType} onChange={e => setNewCoupon({...newCoupon, discountType: e.target.value})}>
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (₹)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="form-label">Discount Value *</label>
+                      <input type="number" placeholder={newCoupon.discountType === 'percentage' ? 'e.g. 10' : 'e.g. 150'} value={newCoupon.discountValue}
+                        onChange={e => setNewCoupon({...newCoupon, discountValue: e.target.value})} required />
+                    </div>
+                    <div>
+                      <label className="form-label">Min Order Amount (₹)</label>
+                      <input type="number" placeholder="e.g. 500" value={newCoupon.minOrderAmount}
+                        onChange={e => setNewCoupon({...newCoupon, minOrderAmount: e.target.value})} />
+                    </div>
+                    {newCoupon.discountType === 'percentage' && (
+                      <div>
+                        <label className="form-label">Max Discount (₹)</label>
+                        <input type="number" placeholder="e.g. 500" value={newCoupon.maxDiscount}
+                          onChange={e => setNewCoupon({...newCoupon, maxDiscount: e.target.value})} />
+                      </div>
+                    )}
+                    <div>
+                      <label className="form-label">Start Date</label>
+                      <input type="datetime-local" value={newCoupon.startDate}
+                        onChange={e => setNewCoupon({...newCoupon, startDate: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="form-label">Expiry Date</label>
+                      <input type="datetime-local" value={newCoupon.expiryDate}
+                        onChange={e => setNewCoupon({...newCoupon, expiryDate: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="form-label">Total Usage Limit</label>
+                      <input type="number" placeholder="Leave blank for unlimited" value={newCoupon.usageLimit}
+                        onChange={e => setNewCoupon({...newCoupon, usageLimit: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="form-label">Per User Limit</label>
+                      <input type="number" placeholder="e.g. 1" value={newCoupon.perUserLimit}
+                        onChange={e => setNewCoupon({...newCoupon, perUserLimit: e.target.value})} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                    <button type="submit" className="btn btn-primary">💾 Save Coupon</button>
+                    <button type="button" className="btn btn-outline" onClick={() => { setShowAddCoupon(false); setCouponError(''); }}>Cancel</button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Coupons List */}
+            {couponsLoading ? (
+              <div className="empty-state"><p>Loading coupons...</p></div>
+            ) : coupons.filter(c => c.code.includes(couponSearch.toUpperCase()) || c.description?.toLowerCase().includes(couponSearch.toLowerCase())).length === 0 ? (
+              <div className="empty-state"><p>No coupons yet. Create your first coupon above.</p></div>
+            ) : (
+              <div className="coupons-grid">
+                {coupons
+                  .filter(c => c.code.includes(couponSearch.toUpperCase()) || c.description?.toLowerCase().includes(couponSearch.toLowerCase()))
+                  .map(coupon => {
+                    const status = getCouponStatus(coupon);
+                    return (
+                      <div key={coupon._id} className="coupon-card">
+                        <div className="coupon-card-top">
+                          <div className="coupon-code-wrap">
+                            <span className="coupon-code">{coupon.code}</span>
+                            <button className="coupon-copy-btn" onClick={() => handleCopyCoupon(coupon.code)} title="Copy code">
+                              {copiedCoupon === coupon.code ? <Check size={14} /> : <Copy size={14} />}
+                            </button>
+                          </div>
+                          <span className="coupon-status-badge" style={{ background: status.color + '20', color: status.color, border: `1px solid ${status.color}40` }}>
+                            {status.label}
+                          </span>
+                        </div>
+                        <p className="coupon-desc">{coupon.description || '—'}</p>
+                        <div className="coupon-details">
+                          <div className="coupon-detail-item">
+                            <label>Discount</label>
+                            <span>{coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`}</span>
+                          </div>
+                          {coupon.minOrderAmount > 0 && (
+                            <div className="coupon-detail-item">
+                              <label>Min Order</label>
+                              <span>₹{coupon.minOrderAmount}</span>
+                            </div>
+                          )}
+                          {coupon.maxDiscount && (
+                            <div className="coupon-detail-item">
+                              <label>Max Off</label>
+                              <span>₹{coupon.maxDiscount}</span>
+                            </div>
+                          )}
+                          <div className="coupon-detail-item">
+                            <label>Used</label>
+                            <span>{coupon.usedCount}{coupon.usageLimit ? `/${coupon.usageLimit}` : ''}</span>
+                          </div>
+                          {coupon.expiryDate && (
+                            <div className="coupon-detail-item">
+                              <label>Expires</label>
+                              <span>{new Date(coupon.expiryDate).toLocaleDateString()}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="coupon-card-footer">
+                          <button
+                            className={`btn btn-sm ${coupon.isActive ? 'btn-outline' : 'btn-primary'}`}
+                            onClick={() => handleToggleCoupon(coupon)}
+                            style={{ fontSize: '0.75rem' }}
+                          >
+                            {coupon.isActive ? '⏸ Deactivate' : '▶ Activate'}
+                          </button>
+                          <button className="btn-delete" onClick={() => handleDeleteCoupon(coupon._id)} title="Delete">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* DISCOUNTS TAB */}
+        {activeTab === 'discounts' && (
+          <div className="admin-section">
+            <div className="admin-section-header">
+              <div>
+                <h2>🏷️ Automatic Discounts</h2>
+                <p>Create automatic discounts — no coupon code needed</p>
+              </div>
+              <button className="btn btn-gold" onClick={() => setShowAddDiscount(!showAddDiscount)}>
+                <Plus size={16} /> Create Discount
+              </button>
+            </div>
+
+            {discountError && <div className="error-banner">{discountError}</div>}
+
+            {/* Add Discount Form */}
+            {showAddDiscount && (
+              <div className="add-product-form" style={{ marginBottom: '30px' }}>
+                <h3 style={{ margin: '0 0 20px', color: 'var(--color-maroon-dark)', fontFamily: 'var(--font-heading)', letterSpacing: '1px' }}>✦ New Discount</h3>
+                <form onSubmit={handleCreateDiscount}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label className="form-label">Discount Name *</label>
+                      <input type="text" placeholder="e.g. Diwali Sale" value={newDiscount.name}
+                        onChange={e => setNewDiscount({...newDiscount, name: e.target.value})} required />
+                    </div>
+                    <div>
+                      <label className="form-label">Discount Type</label>
+                      <select value={newDiscount.type} onChange={e => setNewDiscount({...newDiscount, type: e.target.value})}>
+                        {Object.entries(DISCOUNT_TYPE_LABELS).map(([val, label]) => (
+                          <option key={val} value={val}>{label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label className="form-label">Description</label>
+                      <input type="text" placeholder="Describe the discount" value={newDiscount.description}
+                        onChange={e => setNewDiscount({...newDiscount, description: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="form-label">Discount Value Type</label>
+                      <select value={newDiscount.discountType} onChange={e => setNewDiscount({...newDiscount, discountType: e.target.value})}>
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (₹)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="form-label">Discount Value *</label>
+                      <input type="number" placeholder={newDiscount.discountType === 'percentage' ? 'e.g. 20' : 'e.g. 200'} value={newDiscount.discountValue}
+                        onChange={e => setNewDiscount({...newDiscount, discountValue: e.target.value})} required />
+                    </div>
+                    {['category', 'product'].includes(newDiscount.type) && (
+                      <div>
+                        <label className="form-label">Applies To (Category/Product)</label>
+                        <input type="text" placeholder="e.g. Kurta Set" value={newDiscount.applicableTo}
+                          onChange={e => setNewDiscount({...newDiscount, applicableTo: e.target.value})} />
+                      </div>
+                    )}
+                    {newDiscount.type === 'buy-x-get-y' && (
+                      <>
+                        <div>
+                          <label className="form-label">Buy Quantity</label>
+                          <input type="number" placeholder="e.g. 2" value={newDiscount.buyQuantity}
+                            onChange={e => setNewDiscount({...newDiscount, buyQuantity: e.target.value})} />
+                        </div>
+                        <div>
+                          <label className="form-label">Get Quantity</label>
+                          <input type="number" placeholder="e.g. 1" value={newDiscount.getQuantity}
+                            onChange={e => setNewDiscount({...newDiscount, getQuantity: e.target.value})} />
+                        </div>
+                      </>
+                    )}
+                    <div>
+                      <label className="form-label">Min Order Amount (₹)</label>
+                      <input type="number" placeholder="0 = no minimum" value={newDiscount.minOrderAmount}
+                        onChange={e => setNewDiscount({...newDiscount, minOrderAmount: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="form-label">Start Date</label>
+                      <input type="datetime-local" value={newDiscount.startDate}
+                        onChange={e => setNewDiscount({...newDiscount, startDate: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="form-label">End Date</label>
+                      <input type="datetime-local" value={newDiscount.endDate}
+                        onChange={e => setNewDiscount({...newDiscount, endDate: e.target.value})} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                    <button type="submit" className="btn btn-primary">💾 Save Discount</button>
+                    <button type="button" className="btn btn-outline" onClick={() => { setShowAddDiscount(false); setDiscountError(''); }}>Cancel</button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Discounts List */}
+            {discountsLoading ? (
+              <div className="empty-state"><p>Loading discounts...</p></div>
+            ) : discounts.length === 0 ? (
+              <div className="empty-state"><p>No discounts yet. Create your first discount above.</p></div>
+            ) : (
+              <div className="discounts-grid">
+                {discounts.map(discount => (
+                  <div key={discount._id} className={`discount-card ${discount.isActive ? 'discount-active' : 'discount-inactive'}`}>
+                    <div className="discount-card-header">
+                      <div>
+                        <span className="discount-type-tag">{DISCOUNT_TYPE_LABELS[discount.type]}</span>
+                        <h3 className="discount-name">{discount.name}</h3>
+                      </div>
+                      <span className="discount-value-badge">
+                        {discount.discountType === 'percentage' ? `${discount.discountValue}% OFF` : `₹${discount.discountValue} OFF`}
+                      </span>
+                    </div>
+                    {discount.description && <p className="discount-desc">{discount.description}</p>}
+                    <div className="discount-meta">
+                      {discount.applicableTo && <span>📁 {discount.applicableTo}</span>}
+                      {discount.minOrderAmount > 0 && <span>Min ₹{discount.minOrderAmount}</span>}
+                      {discount.endDate && <span>⏱ Ends {new Date(discount.endDate).toLocaleDateString()}</span>}
+                      {discount.type === 'buy-x-get-y' && discount.buyQuantity && (
+                        <span>Buy {discount.buyQuantity} Get {discount.getQuantity}</span>
+                      )}
+                    </div>
+                    <div className="coupon-card-footer">
+                      <button
+                        className={`btn btn-sm ${discount.isActive ? 'btn-outline' : 'btn-primary'}`}
+                        onClick={() => handleToggleDiscount(discount)}
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        {discount.isActive ? '⏸ Deactivate' : '▶ Activate'}
+                      </button>
+                      <button className="btn-delete" onClick={() => handleDeleteDiscount(discount._id)}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

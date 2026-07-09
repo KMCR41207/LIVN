@@ -17,25 +17,27 @@
   border-color: rgba(212, 175, 55, 0.45);
 }
 
-/* Image container — natural height, no blank gap */
+/* Image container — square ratio works for all image types */
 .product-image-container {
   width: 100%;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   flex-shrink: 0;
   position: relative;
   background: #f9f6f0;
-  line-height: 0;
 }
 
 .product-image {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
   display: block;
   transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .product-card:hover .product-image {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
 /* Info section — sits directly under image, no gap */

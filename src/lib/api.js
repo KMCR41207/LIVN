@@ -140,3 +140,85 @@ export const deleteProduct = async (id) => {
   if (!res.ok) return { data: null, error: json.error };
   return { data: json.data, error: null };
 };
+
+// ─── Coupons ──────────────────────────────────────────────────────────────────
+
+export const getCoupons = async () => {
+  const res = await fetch(`${BASE_URL}/coupons`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createCoupon = async (data) => {
+  const res = await fetch(`${BASE_URL}/coupons`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateCoupon = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/coupons/${id}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deleteCoupon = async (id) => {
+  const res = await fetch(`${BASE_URL}/coupons/${id}`, {
+    method: 'DELETE', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const validateCoupon = async (code, orderAmount) => {
+  const res = await fetch(`${BASE_URL}/coupons/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, orderAmount }),
+  });
+  const json = await res.json();
+  return { data: json.data, error: json.error };
+};
+
+// ─── Discounts ────────────────────────────────────────────────────────────────
+
+export const getDiscounts = async () => {
+  const res = await fetch(`${BASE_URL}/discounts`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createDiscount = async (data) => {
+  const res = await fetch(`${BASE_URL}/discounts`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateDiscount = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/discounts/${id}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deleteDiscount = async (id) => {
+  const res = await fetch(`${BASE_URL}/discounts/${id}`, {
+    method: 'DELETE', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};

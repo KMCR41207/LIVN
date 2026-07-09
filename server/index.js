@@ -6,9 +6,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-const authRoutes    = require('./routes/auth');
-const orderRoutes   = require('./routes/orders');
-const productRoutes = require('./routes/products');
+const authRoutes     = require('./routes/auth');
+const orderRoutes    = require('./routes/orders');
+const productRoutes  = require('./routes/products');
+const couponRoutes   = require('./routes/coupons');
+const discountRoutes = require('./routes/discounts');
 
 const app = express();
 
@@ -17,9 +19,11 @@ app.use(cors({ origin: '*' }));
 app.use(express.json({ limit: '10mb' }));
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
-app.use('/api/auth',     authRoutes);
-app.use('/api/orders',   orderRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api/auth',      authRoutes);
+app.use('/api/orders',    orderRoutes);
+app.use('/api/products',  productRoutes);
+app.use('/api/coupons',   couponRoutes);
+app.use('/api/discounts', discountRoutes);
 app.get('/api/health', (_req, res) =>
   res.json({ status: 'ok', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' })
 );

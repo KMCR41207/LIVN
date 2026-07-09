@@ -764,3 +764,262 @@
   color: #fff;
   border-color: var(--color-gold-dark);
 }
+
+/* ── COUPONS & DISCOUNTS ── */
+
+.form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+
+.add-product-form input,
+.add-product-form select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Coupons Grid */
+.coupons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.coupon-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-gold-light);
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+}
+
+.coupon-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-maroon), var(--color-gold-base));
+}
+
+.coupon-card:hover {
+  border-color: var(--color-gold-base);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.coupon-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.coupon-code-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coupon-code {
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-maroon-dark);
+  letter-spacing: 2px;
+  background: var(--color-bg-secondary);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px dashed var(--color-gold-base);
+}
+
+.coupon-copy-btn {
+  background: none;
+  border: 1px solid var(--color-gold-base);
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-gold-dark);
+  transition: var(--transition-smooth);
+}
+
+.coupon-copy-btn:hover {
+  background: var(--color-gold-dark);
+  color: #fff;
+}
+
+.coupon-status-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.coupon-desc {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 14px;
+  font-style: italic;
+}
+
+.coupon-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.coupon-detail-item {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-gold-light);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.coupon-detail-item label {
+  font-size: 0.65rem;
+  color: var(--color-gold-dark);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.coupon-detail-item span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-maroon-dark);
+}
+
+.coupon-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-gold-light);
+}
+
+/* Discounts Grid */
+.discounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.discount-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-gold-light);
+  border-radius: 10px;
+  padding: 20px;
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.discount-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-gold-base), var(--color-maroon));
+}
+
+.discount-active {
+  border-color: rgba(46, 125, 50, 0.3);
+}
+
+.discount-inactive {
+  opacity: 0.65;
+  border-color: #e0e0e0;
+}
+
+.discount-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.discount-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.discount-type-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.discount-name {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--color-maroon-dark);
+  margin: 0;
+}
+
+.discount-value-badge {
+  background: linear-gradient(135deg, var(--color-maroon), #a93226);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.discount-desc {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 12px;
+  font-style: italic;
+}
+
+.discount-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.discount-meta span {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-gold-light);
+  border-radius: 12px;
+  padding: 3px 10px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
