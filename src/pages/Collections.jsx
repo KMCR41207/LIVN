@@ -88,7 +88,10 @@ const Collections = () => {
       .finally(() => setLoading(false));
 
     const category = searchParams.get('category');
-    if (category) {
+    const searchFromUrl = searchParams.get('search');
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    } else if (category) {
       setActiveCategory(category);
       setTimeout(() => {
         const el = document.getElementById(category.toLowerCase().replace(/\s+/g, '-'));
