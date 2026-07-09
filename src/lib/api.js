@@ -109,6 +109,13 @@ export const getProducts = async (category = '') => {
   return { data: json.data, error: null };
 };
 
+export const searchProducts = async (q) => {
+  const res = await fetch(`${BASE_URL}/products/search?q=${encodeURIComponent(q)}`);
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
 export const createProduct = async (productData) => {
   const res = await fetch(`${BASE_URL}/products`, {
     method: 'POST',
