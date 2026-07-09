@@ -36,10 +36,19 @@ router.get('/', protect, adminOnly, async (req, res) => {
 // PATCH /api/orders/:id/status — update order status (admin only)
 router.patch('/:id/status', protect, adminOnly, async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, note } = req.body;
     const order = await Order.findByIdAndUpdate(
       req.params.id,
-      { status },
+      {
+        status,
+        $push: {
+          statusHistory: {
+            status,
+            note: note || '',
+            updatedAt: new Date(),
+          }
+        }
+      },
       { new: true }
     );
     if (!order) return res.status(404).json({ error: 'Order not found' });
