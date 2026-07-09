@@ -4,12 +4,14 @@ import { Search, Menu, X, User, LogOut, ShoppingBag, Inbox, Package } from 'luci
 import { getCurrentUser, signOut } from '../lib/api';
 import { useCart } from '../context/CartContext';
 import AuthModal from './AuthModal';
+import SearchBar from './SearchBar';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const { totalItems } = useCart();
@@ -58,8 +60,8 @@ const Navbar = () => {
           </div>
 
           <div className="navbar-icons">
-            <button className="icon-btn" aria-label="Search">
-              <Search size={22} />
+            <button className="icon-btn" aria-label="Search" onClick={() => setShowSearch(s => !s)}>
+              {showSearch ? <X size={22} /> : <Search size={22} />}
             </button>
 
             {/* My Orders — visible to logged-in non-admin users */}
@@ -121,6 +123,14 @@ const Navbar = () => {
 
       {showAuth && (
         <AuthModal onClose={() => setShowAuth(false)} onAuthSuccess={handleAuthSuccess} />
+      )}
+
+      {showSearch && (
+        <div className="navbar-search-overlay">
+          <div className="navbar-search-inner container">
+            <SearchBar onClose={() => setShowSearch(false)} />
+          </div>
+        </div>
       )}
     </>
   );
