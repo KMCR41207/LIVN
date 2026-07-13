@@ -4,7 +4,16 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 let mongoServer;
 
 const connectTestDB = async () => {
-  mongoServer = await MongoMemoryServer.create();
+  try {
+    mongoServer = await MongoMemoryServer.create({
+      instance: {
+        storageEngine: 'wiredTiger'
+      }
+    });
+  } catch (error) {
+    console.error('Failed to start MongoMemoryServer:', error);
+    throw error;
+  }
   const mongoUri = mongoServer.getUri();
   await mongoose.connect(mongoUri);
 };
