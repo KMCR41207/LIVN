@@ -230,6 +230,78 @@ export const deleteDiscount = async (id) => {
   return { data: json.data, error: null };
 };
 
+// ─── FAQs ─────────────────────────────────────────────────────────────────────
+
+export const getFaqs = async () => {
+  const res = await fetch(`${BASE_URL}/faqs`);
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createFaq = async (data) => {
+  const res = await fetch(`${BASE_URL}/faqs`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateFaq = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/faqs/${id}`, {
+    method: 'PUT', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deleteFaq = async (id) => {
+  const res = await fetch(`${BASE_URL}/faqs/${id}`, {
+    method: 'DELETE', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+// ─── Testimonials ────────────────────────────────────────────────────────────
+
+export const getTestimonials = async () => {
+  const res = await fetch(`${BASE_URL}/testimonials`);
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createTestimonial = async (data) => {
+  const res = await fetch(`${BASE_URL}/testimonials`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateTestimonial = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/testimonials/${id}`, {
+    method: 'PUT', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deleteTestimonial = async (id) => {
+  const res = await fetch(`${BASE_URL}/testimonials/${id}`, {
+    method: 'DELETE', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
 // ─── Analytics ────────────────────────────────────────────────────────────────
 
 export const getAnalyticsDashboard = async () => {
