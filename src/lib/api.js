@@ -229,3 +229,12 @@ export const deleteDiscount = async (id) => {
   if (!res.ok) return { data: null, error: json.error };
   return { data: json.data, error: null };
 };
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+
+export const getAnalyticsDashboard = async () => {
+  const res = await fetch(`${BASE_URL}/analytics/dashboard`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
