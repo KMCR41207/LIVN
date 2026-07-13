@@ -26,6 +26,9 @@ const orderSchema = new mongoose.Schema(
     statusHistory: { type: [statusHistorySchema], default: [] },
     payment_method: { type: String, default: 'cod' },
     upi_id:         { type: String, default: '' },
+    order_notes:    { type: String, default: '' },
+    coupon_code:    { type: String, default: '' },
+    discount_amount:{ type: Number, default: 0 },
   },
   { timestamps: true }
 );
