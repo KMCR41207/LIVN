@@ -800,3 +800,153 @@ video::-webkit-media-text-track-display {
   .form-row-2 { grid-template-columns: 1fr; }
   .form-row-3 { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── Coupon Section ── */
+.coupon-section {
+  margin: 20px 0;
+  padding: 18px;
+  background: var(--color-bg-secondary);
+  border: 1px dashed var(--color-gold-base);
+  border-radius: 6px;
+}
+
+.coupon-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--color-gold-dark);
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.coupon-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.coupon-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--color-gold-base);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 700;
+  background: #fff;
+  color: var(--color-maroon-dark);
+}
+
+.coupon-input:focus {
+  outline: none;
+  border-color: var(--color-maroon);
+  box-shadow: 0 0 0 2px rgba(106,4,15,0.1);
+}
+
+.coupon-apply-btn {
+  padding: 10px 20px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.coupon-applied {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 4px;
+  padding: 10px 14px;
+}
+
+.coupon-applied-code {
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #2e7d32;
+  letter-spacing: 1px;
+}
+
+.coupon-applied-savings {
+  flex: 1;
+  font-size: 0.82rem;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.coupon-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #d32f2f;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.coupon-error {
+  color: var(--color-maroon);
+  font-size: 0.8rem;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.discount-row span:last-child {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.savings-badge {
+  text-align: center;
+  background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+  border: 1px solid #a5d6a7;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 0.82rem;
+  color: #2e7d32;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+/* ── Order Notes ── */
+.order-notes-section {
+  margin: 16px 0;
+}
+
+.order-notes-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-notes-label span {
+  font-weight: 400;
+  text-transform: none;
+  color: #aaa;
+}
+
+.order-notes-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-gold-light);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  resize: vertical;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s;
+}
+
+.order-notes-input:focus {
+  outline: none;
+  border-color: var(--color-gold-base);
+}

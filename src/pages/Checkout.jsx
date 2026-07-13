@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, ShoppingBag, CreditCard, Smartphone, Truck, Trash2, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ShoppingBag, CreditCard, Smartphone, Truck, Trash2, Plus, Minus, Tag, X as XIcon } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getCurrentUser, createOrder } from '../lib/api';
+import { getCurrentUser, createOrder, validateCoupon } from '../lib/api';
 import AuthModal from '../components/AuthModal';
 import './Checkout.css';
 
@@ -21,7 +21,37 @@ const StepBar = ({ current }) => (
 );
 
 // ── Step 0: Multi-item Cart ───────────────────────────────────────────────────
-const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty }) => {
+const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty, coupon, setCoupon, couponDiscount, setCouponDiscount, orderNotes, setOrderNotes }) => {
+  const [couponInput, setCouponInput] = useState(coupon?.code || '');
+  const [couponError, setCouponError] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponLoading(true);
+    setCouponError('');
+    const { data, error } = await validateCoupon(couponInput.trim(), totalPrice);
+    if (error) {
+      setCouponError(error);
+      setCoupon(null);
+      setCouponDiscount(0);
+    } else {
+      setCoupon(data.coupon);
+      setCouponDiscount(data.discount);
+      setCouponError('');
+    }
+    setCouponLoading(false);
+  };
+
+  const handleRemoveCoupon = () => {
+    setCoupon(null);
+    setCouponDiscount(0);
+    setCouponInput('');
+    setCouponError('');
+  };
+
+  const finalTotal = Math.max(0, totalPrice - couponDiscount);
+
   if (!cartItems.length) {
     return (
       <div className="empty-cart">
@@ -49,7 +79,7 @@ const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty }) 
                 <span>{item.qty}</span>
                 <button onClick={() => updateQty(item.product.id, item.size, item.qty + 1)}><Plus size={14} /></button>
               </div>
-              <div className="cart-item-price">₹{(item.product.price * item.qty).toLocaleString('en-IN')}</div>
+              <div className="cart-item-price">₹{((item.product.offer_price || item.product.price) * item.qty).toLocaleString('en-IN')}</div>
               <button className="cart-remove-btn" onClick={() => removeFromCart(item.product.id, item.size)} title="Remove">
                 <Trash2 size={16} />
               </button>
@@ -58,10 +88,62 @@ const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty }) 
         </div>
       ))}
 
+      {/* ── Coupon Code ── */}
+      <div className="coupon-section">
+        <div className="coupon-label"><Tag size={14} /> Have a coupon code?</div>
+        {coupon ? (
+          <div className="coupon-applied">
+            <span className="coupon-applied-code">🎟 {coupon.code}</span>
+            <span className="coupon-applied-savings">−₹{couponDiscount.toLocaleString('en-IN')} saved</span>
+            <button className="coupon-remove-btn" onClick={handleRemoveCoupon}><XIcon size={14} /></button>
+          </div>
+        ) : (
+          <div className="coupon-input-row">
+            <input
+              type="text"
+              placeholder="Enter coupon code"
+              value={couponInput}
+              onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError(''); }}
+              onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+              className="coupon-input"
+            />
+            <button className="btn btn-outline coupon-apply-btn" onClick={handleApplyCoupon} disabled={couponLoading || !couponInput.trim()}>
+              {couponLoading ? 'Checking...' : 'Apply'}
+            </button>
+          </div>
+        )}
+        {couponError && <p className="coupon-error">⚠ {couponError}</p>}
+      </div>
+
+      {/* ── Order Notes ── */}
+      <div className="order-notes-section">
+        <label className="order-notes-label">📝 Order Notes <span>(optional)</span></label>
+        <textarea
+          className="order-notes-input"
+          placeholder="Stitching preferences, gift wrapping, delivery instructions, tailoring notes..."
+          value={orderNotes}
+          onChange={e => setOrderNotes(e.target.value)}
+          rows={3}
+        />
+      </div>
+
+      {/* ── Totals ── */}
       <div className="cart-totals">
         <div className="total-row"><span>Subtotal</span><span>₹{totalPrice.toLocaleString('en-IN')}</span></div>
+        {couponDiscount > 0 && (
+          <div className="total-row discount-row">
+            <span>Coupon ({coupon?.code})</span>
+            <span>−₹{couponDiscount.toLocaleString('en-IN')}</span>
+          </div>
+        )}
         <div className="total-row"><span>Shipping</span><span>Complimentary</span></div>
-        <div className="total-row grand-total"><span>Total</span><span>₹{totalPrice.toLocaleString('en-IN')}</span></div>
+        <div className="total-row grand-total">
+          <span>Total</span>
+          <span>₹{finalTotal.toLocaleString('en-IN')}</span>
+        </div>
+        {couponDiscount > 0 && (
+          <div className="savings-badge">🎉 You save ₹{couponDiscount.toLocaleString('en-IN')} with this order!</div>
+        )}
       </div>
 
       <button className="btn btn-primary full-width-btn" onClick={onNext}>
@@ -429,6 +511,13 @@ const Checkout = () => {
   const navigate = useNavigate();
   const fallbackId = useRef('Livaani-' + Math.floor(Math.random() * 90000 + 10000));
 
+  // Coupon state
+  const [coupon, setCoupon] = useState(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+
+  // Order notes state
+  const [orderNotes, setOrderNotes] = useState('');
+
   // Load saved delivery details from localStorage
   const savedDetails = (() => {
     try { return JSON.parse(localStorage.getItem('livn_delivery') || '{}'); } catch { return {}; }
@@ -477,13 +566,17 @@ const Checkout = () => {
   const handleConfirmOrder = async (paymentMethod, upiId, onAfter) => {
     setIsSubmitting(true);
     const fullAddress = `${formData.houseNo}, ${formData.street}, ${formData.colony}, ${formData.city}, ${formData.state} - ${formData.pincode}`;
+    const finalTotal = Math.max(0, totalPrice - couponDiscount);
     try {
       const results = [];
       for (const item of cartItems) {
+        const itemPrice = (item.product.offer_price || item.product.price) * item.qty;
+        // Distribute coupon discount proportionally across items
+        const itemDiscount = totalPrice > 0 ? Math.round((itemPrice / totalPrice) * couponDiscount) : 0;
         const payload = {
           product_id:       String(item.product._id || item.product.id || ''),
           product_name:     item.product.name,
-          price:            (item.product.offer_price || item.product.price) * item.qty,
+          price:            itemPrice - itemDiscount,
           customer_name:    formData.name,
           customer_phone:   formData.phone,
           customer_email:   getCurrentUser()?.email || '',
@@ -493,6 +586,9 @@ const Checkout = () => {
           quantity:         item.qty,
           payment_method:   paymentMethod,
           upi_id:           upiId || '',
+          order_notes:      orderNotes || '',
+          coupon_code:      coupon?.code || '',
+          discount_amount:  itemDiscount,
         };
         const { data, error } = await createOrder(payload);
         if (error) throw new Error(error);
@@ -531,6 +627,12 @@ const Checkout = () => {
               onNext={handleCartNext}
               removeFromCart={removeFromCart}
               updateQty={updateQty}
+              coupon={coupon}
+              setCoupon={setCoupon}
+              couponDiscount={couponDiscount}
+              setCouponDiscount={setCouponDiscount}
+              orderNotes={orderNotes}
+              setOrderNotes={setOrderNotes}
             />
           )}
           {step === 1 && (
@@ -548,7 +650,7 @@ const Checkout = () => {
               onBack={() => setStep(1)}
               onConfirm={handleConfirmOrder}
               isSubmitting={isSubmitting}
-              totalPrice={totalPrice}
+              totalPrice={Math.max(0, totalPrice - couponDiscount)}
             />
           )}
         </div>
