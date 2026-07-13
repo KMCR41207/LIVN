@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut, getCoupons, createCoupon, updateCoupon, deleteCoupon, getDiscounts, createDiscount, updateDiscount, deleteDiscount } from '../lib/api';
+import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut, getCoupons, createCoupon, updateCoupon, deleteCoupon, getDiscounts, createDiscount, updateDiscount, deleteDiscount, getAnalyticsDashboard } from '../lib/api';
 import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2, Pencil, Upload } from 'lucide-react';
 import './Admin.css';
 
@@ -58,6 +58,11 @@ const Admin = () => {
   const EMPTY_DISCOUNT = { name: '', description: '', type: 'store-wide', discountType: 'percentage', discountValue: '', applicableTo: '', minOrderAmount: '', buyQuantity: '', getQuantity: '', startDate: '', endDate: '', isActive: true };
   const [newDiscount, setNewDiscount] = useState(EMPTY_DISCOUNT);
 
+  // Analytics state
+  const [analyticsData, setAnalyticsData]       = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsError, setAnalyticsError]     = useState('');
+
   // Check JWT on mount — redirect to home if not admin
   useEffect(() => {
     const user = getCurrentUser();
@@ -75,6 +80,7 @@ const Admin = () => {
     if (activeTab === 'products') fetchProducts();
     if (activeTab === 'coupons') fetchCoupons();
     if (activeTab === 'discounts') fetchDiscounts();
+    if (activeTab === 'analytics') fetchAnalytics();
   }, [isAuthenticated, activeTab]);
 
   const handleLogout = () => {
@@ -301,6 +307,21 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
     setDiscounts(prev => prev.filter(d => d._id !== id));
   };
 
+  // ── Analytics functions ───────────────────────────────────────────────────
+  const fetchAnalytics = async () => {
+    setAnalyticsLoading(true);
+    setAnalyticsError('');
+    try {
+      const { data, error } = await getAnalyticsDashboard();
+      if (error) setAnalyticsError(error);
+      else setAnalyticsData(data);
+    } catch (err) {
+      setAnalyticsError(err.message || 'Failed to load analytics');
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
   const DISCOUNT_TYPE_LABELS = {
     'store-wide': '🏪 Store-wide', 'category': '📁 Category', 'product': '👗 Product',
     'buy-x-get-y': '🎁 Buy X Get Y', 'free-shipping': '🚚 Free Shipping',
@@ -370,6 +391,9 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
           </button>
           <button className={`admin-nav-item ${activeTab === 'database' ? 'active' : ''}`} onClick={() => setActiveTab('database')}>
             💾 Database
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
+            📊 Analytics
           </button>
         </nav>
 
@@ -925,6 +949,133 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
                 <li>✅ Comments and notes are recorded</li>
               </ul>
             </div>
+          </div>
+        )}
+
+        {/* ANALYTICS TAB */}
+        {activeTab === 'analytics' && (
+          <div className="admin-section">
+            <div className="admin-section-header">
+              <div>
+                <h2>📊 Analytics Dashboard</h2>
+                <p>Conversion funnel from analytics events · Sales data from orders</p>
+              </div>
+              <button className="btn btn-outline" onClick={fetchAnalytics} disabled={analyticsLoading}>
+                <RefreshCw size={16} className={analyticsLoading ? 'spinning' : ''} />
+                {analyticsLoading ? 'Loading...' : 'Refresh'}
+              </button>
+            </div>
+
+            {analyticsError && <div className="error-banner">{analyticsError}</div>}
+
+            {analyticsLoading && (
+              <div className="empty-state"><p>Loading analytics data...</p></div>
+            )}
+
+            {!analyticsLoading && analyticsData && (
+              <>
+                {/* ── CONVERSION RATE ──────────────────────────────────── */}
+                <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-maroon-dark)', margin: '0 0 16px', fontSize: '1.2rem', letterSpacing: '1px' }}>
+                  Conversion Rate
+                </h3>
+                <div className="db-stats" style={{ marginBottom: '36px' }}>
+                  <div className="stat-card">
+                    <label>Visitors</label>
+                    <p className="stat-number">{analyticsData.conversionFunnel.visitors.toLocaleString('en-IN')}</p>
+                  </div>
+                  <div className="stat-card">
+                    <label>Add to Cart Rate</label>
+                    <p className="stat-number">{analyticsData.conversionFunnel.addToCartRate.toFixed(2)}%</p>
+                  </div>
+                  <div className="stat-card">
+                    <label>Checkout Rate</label>
+                    <p className="stat-number">{analyticsData.conversionFunnel.checkoutRate.toFixed(2)}%</p>
+                  </div>
+                  <div className="stat-card">
+                    <label>Purchase Rate</label>
+                    <p className="stat-number">{analyticsData.conversionFunnel.purchaseRate.toFixed(2)}%</p>
+                  </div>
+                  <div className="stat-card">
+                    <label>Overall Conversion %</label>
+                    <p className="stat-number">{analyticsData.conversionFunnel.overallConversion.toFixed(2)}%</p>
+                  </div>
+                </div>
+
+                {/* ── BEST-SELLING PRODUCTS ────────────────────────────── */}
+                <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-maroon-dark)', margin: '0 0 16px', fontSize: '1.2rem', letterSpacing: '1px' }}>
+                  Best-Selling Products
+                </h3>
+                {analyticsData.bestSellers.length === 0 ? (
+                  <div className="empty-state" style={{ marginBottom: '36px' }}><p>No sales data yet.</p></div>
+                ) : (
+                  <div style={{ overflowX: 'auto', marginBottom: '36px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                      <thead>
+                        <tr style={{ background: 'var(--color-bg-secondary)', borderBottom: '2px solid var(--color-gold-light)' }}>
+                          <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--color-gold-dark)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rank</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--color-gold-dark)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product Name</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-gold-dark)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Units Sold</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-gold-dark)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Revenue</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-gold-dark)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Avg Rating</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {analyticsData.bestSellers.map((item, idx) => (
+                          <tr key={item.productName} style={{ borderBottom: '1px solid var(--color-gold-light)', background: idx % 2 === 0 ? '#fff' : 'var(--color-bg-primary)' }}>
+                            <td style={{ padding: '12px 16px', color: 'var(--color-maroon)', fontWeight: '700', fontFamily: 'var(--font-heading)' }}>#{idx + 1}</td>
+                            <td style={{ padding: '12px 16px', color: 'var(--color-text-primary)', fontWeight: '600' }}>{item.productName || '—'}</td>
+                            <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-primary)' }}>{item.unitsSold.toLocaleString('en-IN')}</td>
+                            <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-maroon)', fontWeight: '700' }}>₹{item.revenue.toLocaleString('en-IN')}</td>
+                            <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-secondary)' }}>{item.averageRating}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* ── CATEGORY PERFORMANCE ─────────────────────────────── */}
+                <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-maroon-dark)', margin: '0 0 16px', fontSize: '1.2rem', letterSpacing: '1px' }}>
+                  Category Performance
+                </h3>
+                {analyticsData.categoryPerformance.length === 0 ? (
+                  <div className="empty-state"><p>No category data yet.</p></div>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                      <thead>
+                        <tr style={{ background: 'var(--color-bg-secondary)', borderBottom: '2px solid var(--color-gold-light)' }}>
+                          <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--color-gold-dark)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-gold-dark)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Revenue</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-gold-dark)', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Orders</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {analyticsData.categoryPerformance.map((item, idx) => {
+                          const isFirst = idx === 0;
+                          const isLast = idx === analyticsData.categoryPerformance.length - 1;
+                          return (
+                            <tr key={item.category} style={{ borderBottom: '1px solid var(--color-gold-light)', background: isFirst ? '#f0fff4' : isLast ? '#fff5f5' : idx % 2 === 0 ? '#fff' : 'var(--color-bg-primary)' }}>
+                              <td style={{ padding: '12px 16px', color: 'var(--color-text-primary)', fontWeight: '600' }}>
+                                {isFirst && <span style={{ marginRight: '6px' }}>🏆</span>}
+                                {isLast && analyticsData.categoryPerformance.length > 1 && <span style={{ marginRight: '6px' }}>⚠️</span>}
+                                {item.category}
+                              </td>
+                              <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-maroon)', fontWeight: '700' }}>₹{item.revenue.toLocaleString('en-IN')}</td>
+                              <td style={{ padding: '12px 16px', textAlign: 'right', color: 'var(--color-text-primary)' }}>{item.orderCount.toLocaleString('en-IN')}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
+
+            {!analyticsLoading && !analyticsData && !analyticsError && (
+              <div className="empty-state"><p>Click Refresh to load analytics data.</p></div>
+            )}
           </div>
         )}
       </div>
