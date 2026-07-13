@@ -9,9 +9,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-const authRoutes    = require('./routes/auth');
-const orderRoutes   = require('./routes/orders');
-const productRoutes = require('./routes/products');
+const authRoutes      = require('./routes/auth');
+const orderRoutes     = require('./routes/orders');
+const productRoutes   = require('./routes/products');
+const analyticsRoutes = require('./routes/analytics');
+const faqRoutes       = require('./routes/faqs');
+const testimonialRoutes = require('./routes/testimonials');
+const contactRoutes   = require('./routes/contact');
 
 const app = express();
 
@@ -20,9 +24,13 @@ app.use(cors({ origin: '*' }));
 app.use(express.json({ limit: '10mb' }));
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
-app.use('/api/auth',     authRoutes);
-app.use('/api/orders',   orderRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api/auth',      authRoutes);
+app.use('/api/orders',    orderRoutes);
+app.use('/api/products',  productRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/faqs',      faqRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/contact',   contactRoutes);
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
 
 // ─── Serve React Build (production) ──────────────────────────────────────────
