@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut, getCoupons, createCoupon, updateCoupon, deleteCoupon, getDiscounts, createDiscount, updateDiscount, deleteDiscount, getAnalyticsDashboard } from '../lib/api';
+import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut, getCoupons, createCoupon, updateCoupon, deleteCoupon, getDiscounts, createDiscount, updateDiscount, deleteDiscount, getAnalyticsDashboard, getFaqs, createFaq, updateFaq, deleteFaq, getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial } from '../lib/api';
 import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2, Pencil, Upload } from 'lucide-react';
 import './Admin.css';
 
@@ -63,6 +63,26 @@ const Admin = () => {
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analyticsError, setAnalyticsError]     = useState('');
 
+  // FAQs state
+  const [faqs, setFaqs] = useState([]);
+  const [faqsLoading, setFaqsLoading] = useState(false);
+  const [showAddFaq, setShowAddFaq] = useState(false);
+  const [faqError, setFaqError] = useState('');
+  const EMPTY_FAQ = { question: '', answer: '', order: 0 };
+  const [newFaq, setNewFaq] = useState(EMPTY_FAQ);
+  const [editingFaq, setEditingFaq] = useState(null);
+  const [editFaqData, setEditFaqData] = useState(EMPTY_FAQ);
+
+  // Testimonials state
+  const [testimonials, setTestimonials] = useState([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(false);
+  const [showAddTestimonial, setShowAddTestimonial] = useState(false);
+  const [testimonialError, setTestimonialError] = useState('');
+  const EMPTY_TESTIMONIAL = { author: '', content: '', rating: 5, avatar: '' };
+  const [newTestimonial, setNewTestimonial] = useState(EMPTY_TESTIMONIAL);
+  const [editingTestimonial, setEditingTestimonial] = useState(null);
+  const [editTestimonialData, setEditTestimonialData] = useState(EMPTY_TESTIMONIAL);
+
   // Check JWT on mount — redirect to home if not admin
   useEffect(() => {
     const user = getCurrentUser();
@@ -81,6 +101,8 @@ const Admin = () => {
     if (activeTab === 'coupons') fetchCoupons();
     if (activeTab === 'discounts') fetchDiscounts();
     if (activeTab === 'analytics') fetchAnalytics();
+    if (activeTab === 'faqs') fetchFaqs();
+    if (activeTab === 'testimonials') fetchTestimonials();
   }, [isAuthenticated, activeTab]);
 
   const handleLogout = () => {
@@ -322,6 +344,84 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
     }
   };
 
+  // ── FAQ functions ─────────────────────────────────────────────────────────
+  const fetchFaqs = async () => {
+    setFaqsLoading(true);
+    const { data } = await getFaqs();
+    if (data) setFaqs(data);
+    setFaqsLoading(false);
+  };
+
+  const handleCreateFaq = async (e) => {
+    e.preventDefault();
+    setFaqError('');
+    if (!newFaq.question || !newFaq.answer) { setFaqError('Question and answer are required'); return; }
+    const { data, error } = await createFaq(newFaq);
+    if (error) { setFaqError(error); return; }
+    setFaqs(prev => [data, ...prev]);
+    setNewFaq(EMPTY_FAQ);
+    setShowAddFaq(false);
+  };
+
+  const handleEditFaq = (faq) => {
+    setEditingFaq(faq);
+    setEditFaqData({ question: faq.question, answer: faq.answer, order: faq.order });
+  };
+
+  const handleSaveEditFaq = async (e) => {
+    e.preventDefault();
+    if (!editFaqData.question || !editFaqData.answer) return;
+    const { data, error } = await updateFaq(editingFaq._id, editFaqData);
+    if (error) { setFaqError(error); return; }
+    setFaqs(prev => prev.map(f => f._id === editingFaq._id ? data : f));
+    setEditingFaq(null);
+  };
+
+  const handleDeleteFaq = async (id) => {
+    if (!window.confirm('Delete this FAQ?')) return;
+    await deleteFaq(id);
+    setFaqs(prev => prev.filter(f => f._id !== id));
+  };
+
+  // ── Testimonial functions ────────────────────────────────────────────────
+  const fetchTestimonials = async () => {
+    setTestimonialsLoading(true);
+    const { data } = await getTestimonials();
+    if (data) setTestimonials(data);
+    setTestimonialsLoading(false);
+  };
+
+  const handleCreateTestimonial = async (e) => {
+    e.preventDefault();
+    setTestimonialError('');
+    if (!newTestimonial.author || !newTestimonial.content) { setTestimonialError('Author and content are required'); return; }
+    const { data, error } = await createTestimonial(newTestimonial);
+    if (error) { setTestimonialError(error); return; }
+    setTestimonials(prev => [data, ...prev]);
+    setNewTestimonial(EMPTY_TESTIMONIAL);
+    setShowAddTestimonial(false);
+  };
+
+  const handleEditTestimonial = (testimonial) => {
+    setEditingTestimonial(testimonial);
+    setEditTestimonialData({ author: testimonial.author, content: testimonial.content, rating: testimonial.rating, avatar: testimonial.avatar || '' });
+  };
+
+  const handleSaveEditTestimonial = async (e) => {
+    e.preventDefault();
+    if (!editTestimonialData.author || !editTestimonialData.content) return;
+    const { data, error } = await updateTestimonial(editingTestimonial._id, editTestimonialData);
+    if (error) { setTestimonialError(error); return; }
+    setTestimonials(prev => prev.map(t => t._id === editingTestimonial._id ? data : t));
+    setEditingTestimonial(null);
+  };
+
+  const handleDeleteTestimonial = async (id) => {
+    if (!window.confirm('Delete this testimonial?')) return;
+    await deleteTestimonial(id);
+    setTestimonials(prev => prev.filter(t => t._id !== id));
+  };
+
   const DISCOUNT_TYPE_LABELS = {
     'store-wide': '🏪 Store-wide', 'category': '📁 Category', 'product': '👗 Product',
     'buy-x-get-y': '🎁 Buy X Get Y', 'free-shipping': '🚚 Free Shipping',
@@ -388,6 +488,12 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
           </button>
           <button className={`admin-nav-item ${activeTab === 'discounts' ? 'active' : ''}`} onClick={() => setActiveTab('discounts')}>
             🏷️ Discounts
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'faqs' ? 'active' : ''}`} onClick={() => setActiveTab('faqs')}>
+            ❓ FAQs
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'testimonials' ? 'active' : ''}`} onClick={() => setActiveTab('testimonials')}>
+            ⭐ Testimonials
           </button>
           <button className={`admin-nav-item ${activeTab === 'database' ? 'active' : ''}`} onClick={() => setActiveTab('database')}>
             💾 Database
@@ -949,6 +1055,191 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
                 <li>✅ Comments and notes are recorded</li>
               </ul>
             </div>
+          </div>
+        )}
+
+        {/* FAQs TAB */}
+        {activeTab === 'faqs' && (
+          <div className="admin-section">
+            <div className="admin-section-header">
+              <div>
+                <h2>❓ FAQs Management</h2>
+                <p>Create and manage frequently asked questions</p>
+              </div>
+              <button className="btn btn-gold" onClick={() => setShowAddFaq(!showAddFaq)}>
+                <Plus size={16} /> Add FAQ
+              </button>
+            </div>
+
+            {faqError && <div className="error-banner">{faqError}</div>}
+
+            {/* Add FAQ Form */}
+            {showAddFaq && (
+              <div className="add-product-form" style={{ marginBottom: '30px' }}>
+                <h3 style={{ margin: '0 0 20px', color: 'var(--color-maroon-dark)', fontFamily: 'var(--font-heading)' }}>✦ New FAQ</h3>
+                <form onSubmit={handleCreateFaq}>
+                  <input type="text" placeholder="Question *" value={newFaq.question}
+                    onChange={e => setNewFaq({...newFaq, question: e.target.value})} required />
+                  <textarea placeholder="Answer *" value={newFaq.answer}
+                    onChange={e => setNewFaq({...newFaq, answer: e.target.value})} required style={{ minHeight: '120px' }} />
+                  <input type="number" placeholder="Display Order (0 = first)" value={newFaq.order}
+                    onChange={e => setNewFaq({...newFaq, order: parseInt(e.target.value) || 0})} />
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button type="submit" className="btn btn-primary">💾 Save FAQ</button>
+                    <button type="button" className="btn btn-outline" onClick={() => { setShowAddFaq(false); setFaqError(''); }}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* FAQs List */}
+            {faqsLoading && faqs.length === 0 ? (
+              <div className="empty-state"><p>Loading FAQs...</p></div>
+            ) : faqs.length === 0 ? (
+              <div className="empty-state"><p>No FAQs yet. Click "Add FAQ" to create one.</p></div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                {faqs.map((faq) => (
+                  <div key={faq._id} style={{ border: '1px solid var(--color-gold-base)', borderRadius: '8px', padding: '16px', backgroundColor: '#fafaf5' }}>
+                    {editingFaq?._id === faq._id ? (
+                      <form onSubmit={handleSaveEditFaq}>
+                        <input type="text" value={editFaqData.question}
+                          onChange={e => setEditFaqData({...editFaqData, question: e.target.value})} required />
+                        <textarea value={editFaqData.answer}
+                          onChange={e => setEditFaqData({...editFaqData, answer: e.target.value})} required style={{ minHeight: '100px' }} />
+                        <input type="number" value={editFaqData.order}
+                          onChange={e => setEditFaqData({...editFaqData, order: parseInt(e.target.value) || 0})} />
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                          <button type="submit" className="btn btn-primary">Save</button>
+                          <button type="button" className="btn btn-outline" onClick={() => setEditingFaq(null)}>Cancel</button>
+                        </div>
+                      </form>
+                    ) : (
+                      <>
+                        <h4 style={{ margin: '0 0 8px', color: 'var(--color-maroon-dark)' }}>Q: {faq.question}</h4>
+                        <p style={{ margin: '0 0 12px', color: '#666', lineHeight: '1.5' }}>A: {faq.answer}</p>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <button className="btn-edit" onClick={() => handleEditFaq(faq)} title="Edit">
+                            <Pencil size={14} />
+                          </button>
+                          <button className="btn-delete" onClick={() => handleDeleteFaq(faq._id)} title="Delete">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TESTIMONIALS TAB */}
+        {activeTab === 'testimonials' && (
+          <div className="admin-section">
+            <div className="admin-section-header">
+              <div>
+                <h2>⭐ Testimonials Management</h2>
+                <p>Manage customer testimonials and reviews</p>
+              </div>
+              <button className="btn btn-gold" onClick={() => setShowAddTestimonial(!showAddTestimonial)}>
+                <Plus size={16} /> Add Testimonial
+              </button>
+            </div>
+
+            {testimonialError && <div className="error-banner">{testimonialError}</div>}
+
+            {/* Add Testimonial Form */}
+            {showAddTestimonial && (
+              <div className="add-product-form" style={{ marginBottom: '30px' }}>
+                <h3 style={{ margin: '0 0 20px', color: 'var(--color-maroon-dark)', fontFamily: 'var(--font-heading)' }}>✦ New Testimonial</h3>
+                <form onSubmit={handleCreateTestimonial}>
+                  <input type="text" placeholder="Author Name *" value={newTestimonial.author}
+                    onChange={e => setNewTestimonial({...newTestimonial, author: e.target.value})} required />
+                  <textarea placeholder="Testimonial Content *" value={newTestimonial.content}
+                    onChange={e => setNewTestimonial({...newTestimonial, content: e.target.value})} required style={{ minHeight: '100px' }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label className="form-label">Rating (1-5) *</label>
+                      <select value={newTestimonial.rating}
+                        onChange={e => setNewTestimonial({...newTestimonial, rating: parseInt(e.target.value)})}>
+                        <option value={1}>⭐ 1 Star</option>
+                        <option value={2}>⭐⭐ 2 Stars</option>
+                        <option value={3}>⭐⭐⭐ 3 Stars</option>
+                        <option value={4}>⭐⭐⭐⭐ 4 Stars</option>
+                        <option value={5}>⭐⭐⭐⭐⭐ 5 Stars</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="form-label">Avatar URL (optional)</label>
+                      <input type="url" placeholder="https://..." value={newTestimonial.avatar}
+                        onChange={e => setNewTestimonial({...newTestimonial, avatar: e.target.value})} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button type="submit" className="btn btn-primary">💾 Save Testimonial</button>
+                    <button type="button" className="btn btn-outline" onClick={() => { setShowAddTestimonial(false); setTestimonialError(''); }}>
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Testimonials List */}
+            {testimonialsLoading && testimonials.length === 0 ? (
+              <div className="empty-state"><p>Loading testimonials...</p></div>
+            ) : testimonials.length === 0 ? (
+              <div className="empty-state"><p>No testimonials yet. Click "Add Testimonial" to create one.</p></div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+                {testimonials.map((testimonial) => (
+                  <div key={testimonial._id} style={{ border: '1px solid var(--color-gold-base)', borderRadius: '8px', padding: '16px', backgroundColor: '#fafaf5' }}>
+                    {editingTestimonial?._id === testimonial._id ? (
+                      <form onSubmit={handleSaveEditTestimonial} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <input type="text" value={editTestimonialData.author}
+                          onChange={e => setEditTestimonialData({...editTestimonialData, author: e.target.value})} required />
+                        <textarea value={editTestimonialData.content}
+                          onChange={e => setEditTestimonialData({...editTestimonialData, content: e.target.value})} required style={{ minHeight: '80px' }} />
+                        <select value={editTestimonialData.rating}
+                          onChange={e => setEditTestimonialData({...editTestimonialData, rating: parseInt(e.target.value)})}>
+                          <option value={1}>⭐ 1 Star</option>
+                          <option value={2}>⭐⭐ 2 Stars</option>
+                          <option value={3}>⭐⭐⭐ 3 Stars</option>
+                          <option value={4}>⭐⭐⭐⭐ 4 Stars</option>
+                          <option value={5}>⭐⭐⭐⭐⭐ 5 Stars</option>
+                        </select>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button type="submit" className="btn btn-primary">Save</button>
+                          <button type="button" className="btn btn-outline" onClick={() => setEditingTestimonial(null)}>Cancel</button>
+                        </div>
+                      </form>
+                    ) : (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                          <div>
+                            <h4 style={{ margin: '0 0 4px', color: 'var(--color-maroon-dark)' }}>{testimonial.author}</h4>
+                            <p style={{ margin: 0, color: '#d4a574', fontSize: '0.9rem' }}>{'⭐'.repeat(testimonial.rating)}</p>
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button className="btn-edit" onClick={() => handleEditTestimonial(testimonial)} title="Edit">
+                              <Pencil size={14} />
+                            </button>
+                            <button className="btn-delete" onClick={() => handleDeleteTestimonial(testimonial._id)} title="Delete">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                        <p style={{ margin: '0 0 12px', color: '#666', lineHeight: '1.5', fontSize: '0.95rem' }}>"{testimonial.content}"</p>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
