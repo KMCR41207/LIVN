@@ -1,0 +1,395 @@
+/* ── Rewards Points Page ── */
+
+.rewards-page {
+  padding-top: 80px;
+  min-height: 80vh;
+}
+
+/* Hero */
+.rewards-hero {
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-gold-light);
+}
+
+.rewards-hero-inner {
+  text-align: center;
+  max-width: 660px;
+  margin: 0 auto;
+}
+
+.rewards-hero-badge {
+  display: inline-block;
+  background: var(--color-maroon);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 16px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+}
+
+.rewards-hero-title {
+  font-family: var(--font-heading);
+  color: var(--color-maroon-dark);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.rewards-hero-desc {
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* Balance Card */
+.rewards-balance-section {
+  padding-top: 48px;
+}
+
+.rewards-balance-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  background: linear-gradient(135deg, var(--color-maroon-dark) 0%, var(--color-maroon) 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 32px 40px;
+  box-shadow: var(--shadow-lg);
+  flex-wrap: wrap;
+}
+
+.rewards-balance-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.rewards-balance-icon {
+  color: var(--color-gold-base);
+  flex-shrink: 0;
+}
+
+.rewards-balance-label {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.rewards-balance-pts {
+  font-family: var(--font-heading);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--color-gold-light);
+  letter-spacing: 1px;
+}
+
+.rewards-balance-right {
+  text-align: right;
+}
+
+.rewards-balance-eq-label {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.rewards-balance-eq-val {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-gold-light);
+}
+
+.rewards-balance-rate {
+  font-size: 0.78rem;
+  opacity: 0.65;
+  font-family: var(--font-ui);
+  margin-top: 4px;
+}
+
+/* Actions Grid */
+.rewards-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+/* Panel */
+.rewards-panel {
+  background: #fff;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.rewards-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.rewards-panel-header.earn {
+  background: rgba(37, 211, 102, 0.07);
+  color: #1a7a3a;
+}
+
+.rewards-panel-header.redeem {
+  background: rgba(106, 4, 15, 0.06);
+  color: var(--color-maroon);
+}
+
+.rewards-panel-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: inherit;
+  letter-spacing: 1px;
+}
+
+/* Earn List */
+.rewards-earn-list {
+  padding: 16px 0;
+}
+
+.rewards-earn-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 24px;
+  border-bottom: 1px solid #f5f5f5;
+  transition: background 0.15s;
+}
+
+.rewards-earn-item:last-child {
+  border-bottom: none;
+}
+
+.rewards-earn-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.rewards-earn-icon {
+  color: var(--color-maroon);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rewards-earn-body {
+  flex: 1;
+}
+
+.rewards-earn-label {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  margin-bottom: 3px;
+}
+
+.rewards-earn-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.rewards-earn-pts {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a7a3a;
+  white-space: nowrap;
+}
+
+/* Redeem */
+.rewards-redeem-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rewards-redeem-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rewards-redeem-label {
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  color: var(--color-maroon-dark);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.rewards-redeem-input {
+  height: 46px;
+  border: 1px solid var(--color-gold-base);
+  border-radius: 4px;
+  padding: 0 14px;
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 0.2s;
+  background: #fff;
+}
+
+.rewards-redeem-input:focus {
+  border-color: var(--color-maroon);
+}
+
+.rewards-redeem-error {
+  color: #c0392b;
+  font-size: 0.82rem;
+  font-family: var(--font-ui);
+}
+
+.rewards-redeem-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  padding: 10px 14px;
+  border-radius: 4px;
+}
+
+.rewards-redeem-arrow {
+  color: var(--color-maroon);
+  font-weight: 700;
+}
+
+.rewards-redeem-rupee {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-maroon-dark);
+}
+
+.rewards-apply-btn {
+  width: 100%;
+}
+
+.rewards-applied-msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1a7a3a;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  background: #e8f5e9;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.rewards-redeem-info {
+  border-top: 1px dashed #eee;
+  padding-top: 14px;
+}
+
+.rewards-redeem-info p {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+  font-family: var(--font-ui);
+}
+
+/* Section Title */
+.rewards-section-title {
+  font-family: var(--font-heading);
+  color: var(--color-maroon-dark);
+  font-size: 1.6rem;
+  letter-spacing: 1.5px;
+  margin-bottom: 24px;
+}
+
+/* History Table */
+.rewards-history-section {
+  padding-bottom: 20px;
+}
+
+.rewards-history-table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: var(--shadow-sm);
+}
+
+.rewards-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+.rewards-history-table thead tr {
+  background: var(--color-bg-secondary);
+}
+
+.rewards-history-table th {
+  text-align: left;
+  padding: 14px 20px;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  color: var(--color-maroon-dark);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--color-gold-light);
+}
+
+.rewards-history-table td {
+  padding: 14px 20px;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.rewards-history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.rewards-history-table tbody tr:hover {
+  background: var(--color-bg-secondary);
+}
+
+/* Points Badges */
+.rewards-pts-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+}
+
+.rewards-pts-badge--earn {
+  background: #e8f5e9;
+  color: #1a7a3a;
+}
+
+.rewards-pts-badge--redeem {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+@media (max-width: 900px) {
+  .rewards-actions-grid { grid-template-columns: 1fr; }
+  .rewards-balance-card { flex-direction: column; align-items: flex-start; }
+  .rewards-balance-right { text-align: left; }
+}
+
+@media (max-width: 500px) {
+  .rewards-balance-card { padding: 24px 20px; }
+  .rewards-balance-pts { font-size: 1.8rem; }
+}

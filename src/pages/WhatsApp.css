@@ -1,0 +1,233 @@
+/* ── WhatsApp Notifications Page ── */
+
+.whatsapp-page {
+  padding-top: 120px;
+  min-height: 80vh;
+}
+
+.wa-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.wa-hero svg {
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 12px rgba(37, 211, 102, 0.35));
+}
+
+.wa-title {
+  font-family: var(--font-heading);
+  color: var(--color-maroon-dark);
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+}
+
+.wa-subtitle {
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* Phone Input */
+.wa-form {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.wa-phone-group {
+  margin-bottom: 36px;
+}
+
+.wa-phone-label {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-maroon-dark);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.wa-phone-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-gold-base);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.wa-phone-prefix {
+  padding: 0 14px;
+  background: var(--color-bg-secondary);
+  border-right: 1px solid var(--color-gold-base);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  color: var(--color-maroon);
+  font-size: 0.95rem;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.wa-phone-input {
+  flex: 1;
+  height: 48px;
+  border: none;
+  outline: none;
+  padding: 0 16px;
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  background: transparent;
+}
+
+.wa-error {
+  color: #c0392b;
+  font-size: 0.83rem;
+  margin-top: 6px;
+  font-family: var(--font-ui);
+}
+
+/* Notification Cards */
+.wa-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.wa-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #fff;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 8px;
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.wa-card--active {
+  border-color: var(--color-gold-base);
+  box-shadow: 0 2px 12px rgba(212, 175, 55, 0.18);
+}
+
+.wa-card-icon {
+  color: var(--color-maroon);
+  flex-shrink: 0;
+}
+
+.wa-card--active .wa-card-icon {
+  color: #25D366;
+}
+
+.wa-card-body {
+  flex: 1;
+}
+
+.wa-card-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--color-maroon-dark);
+  margin-bottom: 4px;
+}
+
+.wa-card-desc {
+  font-size: 0.87rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Toggle Switch */
+.wa-toggle {
+  width: 50px;
+  height: 26px;
+  border-radius: 13px;
+  background: #ddd;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.25s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.wa-toggle--on {
+  background: #25D366;
+}
+
+.wa-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: left 0.25s;
+}
+
+.wa-toggle--on .wa-toggle-knob {
+  left: 27px;
+}
+
+/* Save Row */
+.wa-save-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.wa-save-btn {
+  gap: 8px;
+}
+
+.wa-saved-msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #25D366;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.wa-disclaimer {
+  max-width: 640px;
+  margin: 28px auto 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* WhatsApp share button (used in TrackOrder) */
+.whatsapp-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #25D366;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.whatsapp-share-btn:hover {
+  background: #128C7E;
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .wa-card { flex-wrap: wrap; }
+  .wa-save-row { flex-direction: column; align-items: flex-start; }
+}
