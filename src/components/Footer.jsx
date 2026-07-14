@@ -35,6 +35,10 @@ const Footer = () => {
           <ul>
             <li><Link to="/track-order">Track Order</Link></li>
             <li><Link to="/shipping-returns">Shipping & Returns</Link></li>
+            <li><Link to="/referral">Refer a Friend</Link></li>
+            <li><Link to="/loyalty">Loyalty Program</Link></li>
+            <li><Link to="/rewards">Rewards Points</Link></li>
+            <li><Link to="/whatsapp">WhatsApp Alerts</Link></li>
             <li><a href="#">Size Guide</a></li>
             <li><a href="#">Contact Us</a></li>
           </ul>

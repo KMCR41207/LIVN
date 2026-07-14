@@ -9,6 +9,10 @@ import NewArrivals from './pages/NewArrivals';
 import Admin from './pages/Admin';
 import TrackOrder from './pages/TrackOrder';
 import ShippingReturns from './pages/ShippingReturns';
+import WhatsApp from './pages/WhatsApp';
+import Referral from './pages/Referral';
+import Loyalty from './pages/Loyalty';
+import Rewards from './pages/Rewards';
 import BespokeLanding from './pages/Bespoke/BespokeLanding';
 import BespokeProcess from './pages/Bespoke/BespokeProcess';
 import BespokeMeasurements from './pages/Bespoke/BespokeMeasurements';
@@ -18,41 +22,50 @@ import BespokeConsultation from './pages/Bespoke/BespokeConsultation';
 import BespokeOrderSummary from './pages/Bespoke/BespokeOrderSummary';
 import BespokeThankYou from './pages/Bespoke/BespokeThankYou';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthProvider';
 
 import './index.css';
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <div className="app-container">
-          <Navbar />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/product/:id" element={<ProductPage />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/collections" element={<Collections />} />
-              <Route path="/new-arrivals" element={<NewArrivals />} />
-              <Route path="/track-order" element={<TrackOrder />} />
-              <Route path="/shipping-returns" element={<ShippingReturns />} />
-              <Route path="/admin" element={<Admin />} />
-              
-              {/* Bespoke Routes */}
-              <Route path="/bespoke" element={<BespokeLanding />} />
-              <Route path="/bespoke/process" element={<BespokeProcess />} />
-              <Route path="/bespoke/measurements" element={<BespokeMeasurements />} />
-              <Route path="/bespoke/fabrics" element={<BespokeFabrics />} />
-              <Route path="/bespoke/design" element={<BespokeDesign />} />
-              <Route path="/bespoke/consultation" element={<BespokeConsultation />} />
-              <Route path="/bespoke/summary" element={<BespokeOrderSummary />} />
-              <Route path="/bespoke/thank-you" element={<BespokeThankYou />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <div className="app-container">
+            <Navbar />
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/product/:id" element={<ProductPage />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/collections" element={<Collections />} />
+                <Route path="/new-arrivals" element={<NewArrivals />} />
+                <Route path="/track-order" element={<TrackOrder />} />
+                <Route path="/shipping-returns" element={<ShippingReturns />} />
+                <Route path="/admin" element={<Admin />} />
+                
+                {/* Engagement Routes */}
+                <Route path="/whatsapp" element={<WhatsApp />} />
+                <Route path="/referral" element={<Referral />} />
+                <Route path="/loyalty" element={<Loyalty />} />
+                <Route path="/rewards" element={<Rewards />} />
+
+                {/* Bespoke Routes */}
+                <Route path="/bespoke" element={<BespokeLanding />} />
+                <Route path="/bespoke/process" element={<BespokeProcess />} />
+                <Route path="/bespoke/measurements" element={<BespokeMeasurements />} />
+                <Route path="/bespoke/fabrics" element={<BespokeFabrics />} />
+                <Route path="/bespoke/design" element={<BespokeDesign />} />
+                <Route path="/bespoke/consultation" element={<BespokeConsultation />} />
+                <Route path="/bespoke/summary" element={<BespokeOrderSummary />} />
+                <Route path="/bespoke/thank-you" element={<BespokeThankYou />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 
