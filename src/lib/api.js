@@ -1,7 +1,79 @@
+import axios from 'axios';
+
 // Central API client — talks to the Express/MongoDB backend
 // In dev: VITE_API_URL points to http://localhost:5000/api
 // In production build served by Express: falls back to /api (same origin)
 const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+// ─── Axios Instance ─────────────────────────────────────────────────────
+
+export const apiClient = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// ─── Request Interceptor ────────────────────────────────────────────────
+
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('livn_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// ─── Response Interceptor ───────────────────────────────────────────────
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Handle 401 Unauthorized - attempt token refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem('livn_refresh_token');
+        if (!refreshToken) {
+          // No refresh token available, clear storage and reject
+          localStorage.removeItem('livn_token');
+          localStorage.removeItem('livn_refresh_token');
+          localStorage.removeItem('livn_auth_state');
+          return Promise.reject(error);
+        }
+
+        const response = await axios.post(`${BASE_URL}/auth/refresh`, {
+          refreshToken,
+        });
+
+        if (response.data.token) {
+          localStorage.setItem('livn_token', response.data.token);
+          if (response.data.refreshToken) {
+            localStorage.setItem('livn_refresh_token', response.data.refreshToken);
+          }
+
+          // Retry original request with new token
+          originalRequest.headers.Authorization = `Bearer ${response.data.token}`;
+          return apiClient(originalRequest);
+        }
+      } catch (refreshError) {
+        // Refresh failed, clear auth state
+        localStorage.removeItem('livn_token');
+        localStorage.removeItem('livn_refresh_token');
+        localStorage.removeItem('livn_auth_state');
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
