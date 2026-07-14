@@ -1,77 +1,40 @@
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-// Load .env from backend/ folder in local dev
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config({ path: path.join(__dirname, '.env') });
-}
+const { connectToDatabase } = require('./config/database');
+const app = require('./server');
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+// Routes
+app.use('/api/auth',         require('./routes/auth'));
+app.use('/api/orders',       require('./routes/orders'));
+app.use('/api/products',     require('./routes/products'));
+app.use('/api/analytics',    require('./routes/analytics'));
+app.use('/api/faqs',         require('./routes/faqs'));
+app.use('/api/testimonials', require('./routes/testimonials'));
+app.use('/api/contact',      require('./routes/contact'));
 
-const authRoutes      = require('./routes/auth');
-const orderRoutes     = require('./routes/orders');
-const productRoutes   = require('./routes/products');
-const analyticsRoutes = require('./routes/analytics');
-const faqRoutes       = require('./routes/faqs');
-const testimonialRoutes = require('./routes/testimonials');
-const contactRoutes   = require('./routes/contact');
-
-const app = express();
-
-// ─── Middleware ───────────────────────────────────────────────────────────────
-app.use(cors({ origin: '*' }));
-app.use(express.json({ limit: '10mb' }));
-
-// ─── API Routes ───────────────────────────────────────────────────────────────
-app.use('/api/auth',      authRoutes);
-app.use('/api/orders',    orderRoutes);
-app.use('/api/products',  productRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/faqs',      faqRoutes);
-app.use('/api/testimonials', testimonialRoutes);
-app.use('/api/contact',   contactRoutes);
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
-
-// ─── Serve React Build (production) ──────────────────────────────────────────
-const distPath = path.join(__dirname, '..', 'dist');
-app.use(express.static(distPath));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+// Global error handler
+app.use((err, req, res, _next) => {
+  console.error(err.message);
+  res.status(err.status || 500).json({ error: err.message || 'Server error' });
 });
 
-// ─── Start ────────────────────────────────────────────────────────────────────
+// Start
 const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
-async function startServer() {
-  const MONGO_URI = process.env.MONGO_URI;
-
-  if (!MONGO_URI) {
-    console.error('❌ MONGO_URI is not set in backend/.env');
-    process.exit(1);
-  }
-
-  console.log('🔄 Connecting to MongoDB Atlas...');
-
-  try {
-    await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 15000,
-      socketTimeoutMS: 45000,
-    });
-    console.log('✅ MongoDB connected');
-  } catch (err) {
-    console.error('❌ MongoDB connection failed:', err.message);
-    console.error('\n👉 Fix: Go to https://cloud.mongodb.com → Network Access → Add your IP address\n');
-    process.exit(1);
-  }
-
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
-  });
+if (!MONGO_URI) {
+  console.error('❌ No MONGO_URI in backend/.env');
+  process.exit(1);
 }
 
-startServer().catch(err => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
+connectToDatabase(MONGO_URI)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on http://localhost:${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ MongoDB failed:', err.message);
+    process.exit(1);
+  });
