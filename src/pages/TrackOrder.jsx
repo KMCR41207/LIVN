@@ -7,6 +7,7 @@ import {
 import { getCurrentUser, getMyOrders } from '../lib/api';
 import AuthModal from '../components/AuthModal';
 import './TrackOrder.css';
+import './WhatsApp.css';
 
 const STATUS_STEPS = ['New', 'Stitching', 'Ready', 'Sent', 'Delivered'];
 
@@ -136,6 +137,15 @@ const OrderCard = ({ order }) => {
           <strong>Delivering to:</strong> {order.shipping_address}
         </div>
       )}
+
+      <a
+        href={`https://wa.me/?text=My%20Livaani%20order%20%23${order._id.slice(-8).toUpperCase()}%20is%20${order.status}!`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="whatsapp-share-btn"
+      >
+        📲 Share on WhatsApp
+      </a>
     </div>
   );
 };

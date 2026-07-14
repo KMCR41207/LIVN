@@ -459,6 +459,15 @@ const ThankYouSplash = ({ ordersPlaced, formData, totalPrice, fallbackId }) => {
             <p style={{ marginTop: 10 }}><strong>Total Paid:</strong> ₹{totalPrice > 0 ? totalPrice.toLocaleString('en-IN') : ordersPlaced.reduce((s, o) => s + (o?.price || 0), 0).toLocaleString('en-IN')}</p>
           </div>
           <Link to="/" className="btn btn-gold" style={{ marginTop: 24 }}>Return to Collections</Link>
+          <a
+            href="https://wa.me/919876543210?text=My%20order%20has%20been%20placed%20at%20Livaani!"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn"
+            style={{ background: '#25D366', color: 'white', marginTop: 12 }}
+          >
+            📲 Get WhatsApp Updates
+          </a>
         </div>
       </div>
     );
