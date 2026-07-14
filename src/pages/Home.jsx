@@ -106,6 +106,17 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Refer & Earn Banner */}
+      <section className="refer-banner section-padding">
+        <div className="container refer-banner-inner">
+          <div className="refer-banner-text">
+            <h2 className="section-title">Refer a Friend</h2>
+            <p>Share Livaani with your friends and earn ₹200 for every successful referral.</p>
+          </div>
+          <Link to="/referral" className="btn btn-gold">Invite &amp; Earn →</Link>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section className="testimonials-section section-padding container">
         <div className="section-header reveal-on-scroll">

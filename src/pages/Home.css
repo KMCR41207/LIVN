@@ -352,3 +352,8 @@
   .bespoke-image-container { max-height: 400px; }
   .category-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 }
+
+/* ── Refer & Earn Banner ── */
+.refer-banner { background: var(--color-bg-secondary); border-top: 1px solid var(--color-gold-light); border-bottom: 1px solid var(--color-gold-light); }
+.refer-banner-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.refer-banner-text p { color: var(--color-text-secondary); margin-top: 8px; font-size: 1rem; }
