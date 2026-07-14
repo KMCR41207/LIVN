@@ -1,7 +1,8 @@
 .auth-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -155,3 +156,105 @@
 .auth-eye-btn:hover {
   color: var(--color-maroon-dark, #5a0a0a);
 }
+
+/* ── Back button ─────────────────────────────────────────────────────────── */
+.auth-back-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: color 0.2s;
+}
+.auth-back-btn:hover { color: var(--color-maroon-dark, #5a0a0a); }
+
+/* ── Brand header ────────────────────────────────────────────────────────── */
+.auth-brand {
+  text-align: center;
+  margin-bottom: 8px;
+}
+.auth-brand-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.18em;
+  color: var(--color-gold, #c9a84c);
+  text-transform: uppercase;
+}
+
+/* ── Provider buttons (Google / Facebook) ───────────────────────────────── */
+.auth-providers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.auth-provider-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-radius: 2px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  border: 1px solid #ddd;
+}
+.auth-provider-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.auth-provider-google {
+  background: #fff;
+  color: #3c4043;
+}
+.auth-provider-google:hover:not(:disabled) {
+  background: #f8f8f8;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.auth-provider-facebook {
+  background: #1877F2;
+  color: #fff;
+  border-color: #1877F2;
+}
+.auth-provider-facebook:hover:not(:disabled) {
+  background: #1565d8;
+  border-color: #1565d8;
+}
+
+/* ── Alt buttons (Email only) ────────────────────────────────────────────── */
+.auth-alt-btns {
+  display: flex;
+}
+
+.auth-alt-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  background: #fafafa;
+  color: #444;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+.auth-alt-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+  border-color: var(--color-gold, #c9a84c);
+}
+.auth-alt-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Full-width btn ──────────────────────────────────────────────────────── */
+.full-width-btn { width: 100%; }
