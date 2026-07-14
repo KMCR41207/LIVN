@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, User, LogOut, ShoppingBag, Inbox, Package } from 'lucide-react';
-import { getCurrentUser, signOut } from '../lib/api';
+import { Search, Menu, X, User, LogOut, ShoppingBag, Inbox, Package, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import SearchBar from './SearchBar';
 import './Navbar.css';
@@ -12,34 +12,27 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const { totalItems } = useCart();
+  const { currentUser, logout } = useAuth();
+
+  // Keep a plain `user` shape the rest of the component already uses
+  const user = currentUser;
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
-
-    // Restore session from stored JWT
-    const u = getCurrentUser();
-    if (u) {
-      setUser(u);
-      // No auto-redirect here - redirect only happens in handleAuthSuccess after login
-    }
-
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleAuthSuccess = (u) => {
-    setUser(u);
-    if (u.role === 'admin') {
-      navigate('/admin');
-    }
+    // AuthProvider already stored the user; just close modal + redirect admins
+    setShowAuth(false);
+    if (u?.role === 'admin') navigate('/admin');
   };
 
-  const handleLogout = () => {
-    signOut();
-    setUser(null);
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
@@ -68,6 +61,13 @@ const Navbar = () => {
             {user && user.role !== 'admin' && (
               <Link to="/track-order" className="icon-btn" aria-label="My Orders" title="My Orders">
                 <Package size={22} />
+              </Link>
+            )}
+
+            {/* Rewards — visible to logged-in non-admin users */}
+            {user && user.role !== 'admin' && (
+              <Link to="/rewards" className="icon-btn" aria-label="Rewards" title="My Rewards">
+                <Star size={22} />
               </Link>
             )}
 
