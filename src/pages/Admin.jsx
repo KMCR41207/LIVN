@@ -715,7 +715,6 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
         )}
 
         {/* INVENTORY TAB */}
-        {/* INVENTORY TAB */}
         {activeTab === 'inventory' && <AdminInventory />}
 
         {/* COUPONS TAB */}
