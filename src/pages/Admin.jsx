@@ -479,13 +479,10 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
 
         <nav className="admin-nav">
           <button className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-            📦 Orders
+            🛒 Orders
           </button>
           <button className={`admin-nav-item ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}>
             👗 Products
-          </button>
-          <button className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>
-            📦 Inventory
           </button>
           <button className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>
             📦 Inventory
@@ -718,10 +715,6 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
         )}
 
         {/* INVENTORY TAB */}
-        {activeTab === 'inventory' && (
-          <AdminInventory />
-        )}
-
         {/* INVENTORY TAB */}
         {activeTab === 'inventory' && <AdminInventory />}
 
