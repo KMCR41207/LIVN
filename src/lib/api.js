@@ -382,3 +382,51 @@ export const getAnalyticsDashboard = async () => {
   if (!res.ok) return { data: null, error: json.error };
   return { data: json.data, error: null };
 };
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+export const getInventory = async () => {
+  const res = await fetch(`${BASE_URL}/inventory`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const getInventorySummary = async () => {
+  const res = await fetch(`${BASE_URL}/inventory/summary`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateStock = async (productId, action, quantity, note = '') => {
+  const res = await fetch(`${BASE_URL}/inventory/${productId}/stock`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: JSON.stringify({ action, quantity, note }),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const getStockHistory = async (productId) => {
+  const res = await fetch(`${BASE_URL}/inventory/${productId}/history`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const getLowStockProducts = async () => {
+  const res = await fetch(`${BASE_URL}/inventory/low-stock`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const getOutOfStockProducts = async () => {
+  const res = await fetch(`${BASE_URL}/inventory/out-of-stock`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
