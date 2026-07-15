@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut, getCoupons, createCoupon, updateCoupon, deleteCoupon, getDiscounts, createDiscount, updateDiscount, deleteDiscount, getAnalyticsDashboard, getFaqs, createFaq, updateFaq, deleteFaq, getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial } from '../lib/api';
 import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2, Pencil, Upload } from 'lucide-react';
+import AdminInventory from './AdminInventory';
 import './Admin.css';
 
 const STATUS_OPTIONS = ['New', 'Sent', 'Stitching', 'Ready', 'Delivered'];
@@ -483,6 +484,12 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
           <button className={`admin-nav-item ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}>
             👗 Products
           </button>
+          <button className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>
+            📦 Inventory
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>
+            📦 Inventory
+          </button>
           <button className={`admin-nav-item ${activeTab === 'coupons' ? 'active' : ''}`} onClick={() => setActiveTab('coupons')}>
             🎟️ Coupons
           </button>
@@ -709,6 +716,14 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
             </div>
           </div>
         )}
+
+        {/* INVENTORY TAB */}
+        {activeTab === 'inventory' && (
+          <AdminInventory />
+        )}
+
+        {/* INVENTORY TAB */}
+        {activeTab === 'inventory' && <AdminInventory />}
 
         {/* COUPONS TAB */}
         {activeTab === 'coupons' && (
