@@ -430,3 +430,204 @@ export const getOutOfStockProducts = async () => {
   if (!res.ok) return { data: null, error: json.error };
   return { data: json.data, error: null };
 };
+
+// ─── Business Module ──────────────────────────────────────────────────────────
+
+// --- Invoices ---
+export const getInvoices = async () => {
+  const res = await fetch(`${BASE_URL}/invoices`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const getInvoiceByOrder = async (orderId) => {
+  const res = await fetch(`${BASE_URL}/invoices/order/${orderId}`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const generateInvoice = async (orderId) => {
+  const res = await fetch(`${BASE_URL}/invoices/generate/${orderId}`, {
+    method: 'POST', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const regenerateInvoice = async (invoiceId) => {
+  const res = await fetch(`${BASE_URL}/invoices/${invoiceId}/regenerate`, {
+    method: 'POST', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateInvoice = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/invoices/${id}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+// --- Returns ---
+export const getReturns = async () => {
+  const res = await fetch(`${BASE_URL}/returns`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createReturn = async (data) => {
+  const res = await fetch(`${BASE_URL}/returns`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateReturn = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/returns/${id}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deleteReturn = async (id) => {
+  const res = await fetch(`${BASE_URL}/returns/${id}`, {
+    method: 'DELETE', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+// --- Exchanges ---
+export const getExchanges = async () => {
+  const res = await fetch(`${BASE_URL}/exchanges`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createExchange = async (data) => {
+  const res = await fetch(`${BASE_URL}/exchanges`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateExchange = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/exchanges/${id}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deleteExchange = async (id) => {
+  const res = await fetch(`${BASE_URL}/exchanges/${id}`, {
+    method: 'DELETE', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+// --- Cancellations ---
+export const getCancellations = async () => {
+  const res = await fetch(`${BASE_URL}/cancellations`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createCancellation = async (data) => {
+  const res = await fetch(`${BASE_URL}/cancellations`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updateCancellation = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/cancellations/${id}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deleteCancellation = async (id) => {
+  const res = await fetch(`${BASE_URL}/cancellations/${id}`, {
+    method: 'DELETE', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+// --- Purchase Orders ---
+export const getPurchaseOrders = async () => {
+  const res = await fetch(`${BASE_URL}/purchase-orders`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const createPurchaseOrder = async (data) => {
+  const res = await fetch(`${BASE_URL}/purchase-orders`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const updatePurchaseOrder = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/purchase-orders/${id}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const deletePurchaseOrder = async (id) => {
+  const res = await fetch(`${BASE_URL}/purchase-orders/${id}`, {
+    method: 'DELETE', headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+export const receivePurchaseOrder = async (id, data) => {
+  const res = await fetch(`${BASE_URL}/purchase-orders/${id}/receive`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
+
+// --- Business KPIs ---
+export const getBusinessKPIs = async () => {
+  const res = await fetch(`${BASE_URL}/business/kpis`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) return { data: null, error: json.error };
+  return { data: json.data, error: null };
+};
