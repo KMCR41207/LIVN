@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getOrders, updateOrderStatus, getProducts, createProduct, deleteProduct, updateProduct, getCurrentUser, signOut, getCoupons, createCoupon, updateCoupon, deleteCoupon, getDiscounts, createDiscount, updateDiscount, deleteDiscount, getAnalyticsDashboard, getFaqs, createFaq, updateFaq, deleteFaq, getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial } from '../lib/api';
 import { Copy, Check, RefreshCw, LogOut, Plus, X, MessageSquare, Send, Trash2, Pencil, Upload } from 'lucide-react';
 import AdminInventory from './AdminInventory';
+import AdminBusiness from './AdminBusiness';
 import './Admin.css';
 
 const STATUS_OPTIONS = ['New', 'Sent', 'Stitching', 'Ready', 'Delivered'];
@@ -504,6 +505,9 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
           </button>
           <button className={`admin-nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
             📊 Analytics
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'business' ? 'active' : ''}`} onClick={() => setActiveTab('business')}>
+            🏢 Business
           </button>
         </nav>
 
@@ -1376,6 +1380,9 @@ Date: ${new Date(order.createdAt).toLocaleDateString()}`.trim();
             )}
           </div>
         )}
+
+        {/* BUSINESS TAB */}
+        {activeTab === 'business' && <AdminBusiness />}
       </div>
 
       {/* EDIT PRODUCT MODAL */}
