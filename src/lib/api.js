@@ -87,27 +87,57 @@ const authHeaders = () => ({
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 export const signUp = async (email, password) => {
-  const res = await fetch(`${BASE_URL}/auth/signup`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Sign up failed');
-  if (data.token) localStorage.setItem('livn_token', data.token);
-  return data;
+  try {
+    const res = await fetch(`${BASE_URL}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (!res.ok) {
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        throw new Error(data.error || `Sign up failed with status ${res.status}`);
+      } else {
+        throw new Error(`Sign up failed with status ${res.status}`);
+      }
+    }
+    
+    const data = await res.json();
+    if (data.token) localStorage.setItem('livn_token', data.token);
+    if (data.refreshToken) localStorage.setItem('livn_refresh_token', data.refreshToken);
+    return data;
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const signIn = async (email, password) => {
-  const res = await fetch(`${BASE_URL}/auth/signin`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Sign in failed');
-  if (data.token) localStorage.setItem('livn_token', data.token);
-  return data;
+  try {
+    const res = await fetch(`${BASE_URL}/auth/signin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (!res.ok) {
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        throw new Error(data.error || `Sign in failed with status ${res.status}`);
+      } else {
+        throw new Error(`Sign in failed with status ${res.status}`);
+      }
+    }
+    
+    const data = await res.json();
+    if (data.token) localStorage.setItem('livn_token', data.token);
+    if (data.refreshToken) localStorage.setItem('livn_refresh_token', data.refreshToken);
+    return data;
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const signOut = () => {

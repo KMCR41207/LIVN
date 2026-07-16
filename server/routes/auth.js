@@ -27,9 +27,14 @@ router.post('/signup', async (req, res) => {
     const user = await User.create({ email, password, role });
     const token = signToken(user);
 
-    res.status(201).json({ token, user: { id: user._id, email: user.email, role: user.role } });
+    return res.status(201).json({ 
+      token, 
+      user: { id: user._id, email: user.email, role: user.role },
+      error: null
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Sign up error:', err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -47,9 +52,14 @@ router.post('/signin', async (req, res) => {
     if (!match) return res.status(401).json({ error: 'Invalid credentials' });
 
     const token = signToken(user);
-    res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
+    return res.status(200).json({ 
+      token, 
+      user: { id: user._id, email: user.email, role: user.role },
+      error: null
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Sign in error:', err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -76,9 +86,14 @@ router.post('/google', async (req, res) => {
     }
 
     const token = signToken(user);
-    res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
+    return res.status(200).json({ 
+      token, 
+      user: { id: user._id, email: user.email, role: user.role },
+      error: null
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Google login failed' });
+    console.error('Google login error:', err);
+    return res.status(400).json({ error: err.message || 'Google login failed' });
   }
 });
 
@@ -105,9 +120,14 @@ router.post('/facebook', async (req, res) => {
     }
 
     const token = signToken(user);
-    res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
+    return res.status(200).json({ 
+      token, 
+      user: { id: user._id, email: user.email, role: user.role },
+      error: null
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message || 'Facebook login failed' });
+    console.error('Facebook login error:', err);
+    return res.status(400).json({ error: err.message || 'Facebook login failed' });
   }
 });
 

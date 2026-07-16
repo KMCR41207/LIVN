@@ -78,8 +78,18 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        console.error('JSON parse error:', parseErr);
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
+      
+      if (!res.ok) throw new Error(data?.error || data?.message || 'Login failed');
+
+      if (!data.token) throw new Error('No token in response');
 
       const payload = JSON.parse(atob(data.token.split('.')[1]));
       storeAuthState(data.user || { email }, data.token, data.refreshToken, payload.exp * 1000);
@@ -101,8 +111,18 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Sign up failed');
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        console.error('JSON parse error:', parseErr);
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
+      
+      if (!res.ok) throw new Error(data?.error || data?.message || 'Sign up failed');
+
+      if (!data.token) throw new Error('No token in response');
 
       const payload = JSON.parse(atob(data.token.split('.')[1]));
       storeAuthState(data.user || { email }, data.token, data.refreshToken, payload.exp * 1000);
@@ -124,8 +144,18 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ accessToken: accessTokenOrIdToken }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Google login failed');
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        console.error('JSON parse error:', parseErr);
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
+      
+      if (!res.ok) throw new Error(data?.error || data?.message || 'Google login failed');
+
+      if (!data.token) throw new Error('No token in response');
 
       const payload = JSON.parse(atob(data.token.split('.')[1]));
       storeAuthState(data.user, data.token, data.refreshToken, payload.exp * 1000);
@@ -147,8 +177,18 @@ export const AuthProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ accessToken: fbAccessToken }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Facebook login failed');
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        console.error('JSON parse error:', parseErr);
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
+      
+      if (!res.ok) throw new Error(data?.error || data?.message || 'Facebook login failed');
+
+      if (!data.token) throw new Error('No token in response');
 
       const payload = JSON.parse(atob(data.token.split('.')[1]));
       storeAuthState(data.user, data.token, data.refreshToken, payload.exp * 1000);
