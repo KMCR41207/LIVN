@@ -144,7 +144,8 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
               <button
                 className="auth-provider-btn auth-provider-google"
                 onClick={() => handleGoogle()}
-                disabled={loading}
+                disabled={true}
+                title="Google Sign-In is being configured. Please use Email or Facebook."
               >
                 <GoogleIcon />
                 Continue with Google
