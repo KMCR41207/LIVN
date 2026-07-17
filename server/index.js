@@ -64,16 +64,48 @@ app.get('/api/business/kpis', async (req, res) => {
       Product.find(),
     ]);
 
-    const totalSales       = orders.reduce((s, o) => s + (o.price || 0), 0);
-    const totalReturns     = returns.length;
-    const totalExchanges   = exchanges.length;
-    const cancelledOrders  = cancellations.filter(c => c.status === 'Approved').length;
-    const pendingRefunds   = returns.filter(r => r.status === 'Refund Initiated').length
-                           + cancellations.filter(c => c.status === 'Refund Processing').length;
-    const activePOs        = pos.filter(p => ['Sent', 'Confirmed', 'Partially Received'].includes(p.status)).length;
-    const inventoryValue   = products.reduce((s, p) => s + ((p.offer_price || p.price) * (p.stock || 0)), 0);
+    // Total Sales: Sum of (price * quantity) for all orders
+    const totalSales = orders.reduce((sum, order) => {
+      const orderValue = (order.price || 0) * (order.quantity || 1);
+      return sum + orderValue;
+    }, 0);
 
-    res.json({ data: { totalSales, totalReturns, totalExchanges, cancelledOrders, pendingRefunds, activePOs, inventoryValue }, error: null });
+    // Total Returns: Count of all return requests
+    const totalReturns = returns.length;
+
+    // Total Exchanges: Count of all exchange requests
+    const totalExchanges = exchanges.length;
+
+    // Cancelled Orders: Count of approved cancellation requests
+    const cancelledOrders = cancellations.filter(c => c.status === 'Approved').length;
+
+    // Pending Refunds: Count of returns and cancellations awaiting refund
+    const pendingRefunds = returns.filter(r => r.status === 'Refund Initiated').length
+                         + cancellations.filter(c => c.status === 'Refund Processing').length;
+
+    // Active Purchase Orders: Count of POs in progress
+    const activePOs = pos.filter(p => ['Sent', 'Confirmed', 'Partially Received'].includes(p.status)).length;
+
+    // Inventory Value: Sum of (price * stock) for all products
+    // Uses offer_price if available (discounted price), otherwise regular price
+    const inventoryValue = products.reduce((sum, product) => {
+      const unitPrice = product.offer_price || product.price || 0;
+      const stockValue = unitPrice * (product.stock || 0);
+      return sum + stockValue;
+    }, 0);
+
+    res.json({
+      data: {
+        totalSales,
+        totalReturns,
+        totalExchanges,
+        cancelledOrders,
+        pendingRefunds,
+        activePOs,
+        inventoryValue,
+      },
+      error: null,
+    });
   } catch (err) {
     res.status(500).json({ data: null, error: err.message });
   }
