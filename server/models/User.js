@@ -41,9 +41,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Indexes for faster queries
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
+// Indexes for faster queries (remove duplicates if fields have unique: true)
 userSchema.index({ provider: 1 });
 userSchema.index({ createdAt: 1 });
 

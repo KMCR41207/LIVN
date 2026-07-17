@@ -128,9 +128,8 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Indexes for performance
+// Indexes for performance (avoid duplicates on fields with unique constraint)
 orderSchema.index({ userId: 1, createdAt: -1 });
-orderSchema.index({ status: 1 });
 orderSchema.index({ customer_email: 1 });
 orderSchema.index({ createdAt: -1 });
 
