@@ -677,7 +677,7 @@ const Checkout = () => {
                     <h4 className="summary-product-name">{item.product.name}</h4>
                     <p className="summary-product-cat">{item.product.category}</p>
                     <p className="summary-size">Size: {item.size} {item.qty > 1 ? `× ${item.qty}` : ''}</p>
-                    <div className="summary-price">₹{(item.product.price * item.qty).toLocaleString('en-IN')}</div>
+                    <div className="summary-price">₹{((item.product.offer_price || item.product.price) * item.qty).toLocaleString('en-IN')}</div>
                   </div>
                 </div>
               ))}
