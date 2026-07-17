@@ -16,36 +16,94 @@ export const AuthProvider = ({ children }) => {
 
   const isAuthenticated = !!currentUser && !!accessToken;
 
-  // Restore session from localStorage on mount
+  // Restore session from localStorage on mount AND auto-refresh token
   useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem(TOKEN_KEY);
-      const storedState = localStorage.getItem(STORAGE_KEY);
+    const initializeAuth = async () => {
+      try {
+        const storedToken = localStorage.getItem(TOKEN_KEY);
+        const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+        const storedState = localStorage.getItem(STORAGE_KEY);
 
-      if (storedToken && storedState) {
-        try {
-          const user = JSON.parse(storedState);
-          const payload = JSON.parse(atob(storedToken.split('.')[1]));
-          if (payload.exp * 1000 > Date.now()) {
-            setAccessToken(storedToken);
-            setRefreshToken(localStorage.getItem(REFRESH_TOKEN_KEY));
-            setCurrentUser(user);
-            setTokenExpiry(payload.exp * 1000);
-          } else {
+        if (storedToken && storedState) {
+          try {
+            const user = JSON.parse(storedState);
+            const payload = JSON.parse(atob(storedToken.split('.')[1]));
+            
+            // Token still valid
+            if (payload.exp * 1000 > Date.now()) {
+              setAccessToken(storedToken);
+              setRefreshToken(storedRefreshToken);
+              setCurrentUser(user);
+              setTokenExpiry(payload.exp * 1000);
+            } 
+            // Token expired but refresh token available - try to refresh
+            else if (storedRefreshToken) {
+              try {
+                const response = await fetch(`${API}/auth/refresh`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ refreshToken: storedRefreshToken }),
+                });
+
+                if (response.ok) {
+                  const data = await response.json();
+                  if (data.token) {
+                    const newPayload = JSON.parse(atob(data.token.split('.')[1]));
+                    setAccessToken(data.token);
+                    setRefreshToken(data.refreshToken || storedRefreshToken);
+                    setCurrentUser(user);
+                    setTokenExpiry(newPayload.exp * 1000);
+                    localStorage.setItem(TOKEN_KEY, data.token);
+                    if (data.refreshToken) {
+                      localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
+                    }
+                  }
+                } else {
+                  // Refresh failed, clear auth
+                  localStorage.removeItem(TOKEN_KEY);
+                  localStorage.removeItem(REFRESH_TOKEN_KEY);
+                  localStorage.removeItem(STORAGE_KEY);
+                }
+              } catch {
+                localStorage.removeItem(TOKEN_KEY);
+                localStorage.removeItem(REFRESH_TOKEN_KEY);
+                localStorage.removeItem(STORAGE_KEY);
+              }
+            } else {
+              // No refresh token, clear auth
+              localStorage.removeItem(TOKEN_KEY);
+              localStorage.removeItem(REFRESH_TOKEN_KEY);
+              localStorage.removeItem(STORAGE_KEY);
+            }
+          } catch {
             localStorage.removeItem(TOKEN_KEY);
             localStorage.removeItem(REFRESH_TOKEN_KEY);
             localStorage.removeItem(STORAGE_KEY);
           }
-        } catch {
-          localStorage.removeItem(TOKEN_KEY);
-          localStorage.removeItem(REFRESH_TOKEN_KEY);
-          localStorage.removeItem(STORAGE_KEY);
         }
+      } finally {
+        setIsLoading(false);
       }
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    initializeAuth();
   }, []);
+
+  // Auto-refresh token 1 minute before expiry
+  useEffect(() => {
+    if (!tokenExpiry || !refreshToken) return;
+
+    const refreshInterval = setInterval(() => {
+      const now = Date.now();
+      const timeUntilExpiry = tokenExpiry - now;
+      // Refresh if less than 2 minutes remaining (120 seconds)
+      if (timeUntilExpiry < 120000 && timeUntilExpiry > 0) {
+        refreshAccessToken();
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(refreshInterval);
+  }, [tokenExpiry, refreshToken, refreshAccessToken]);
 
   const storeAuthState = useCallback((user, token, refresh, expiryTime) => {
     setCurrentUser(user);
