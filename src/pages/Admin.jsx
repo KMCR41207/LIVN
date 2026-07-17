@@ -107,6 +107,14 @@ const Admin = () => {
     if (activeTab === 'testimonials') fetchTestimonials();
   }, [isAuthenticated, activeTab]);
 
+  // Scroll main content to top when tab changes
+  useEffect(() => {
+    const mainElement = document.querySelector('.admin-main');
+    if (mainElement) {
+      mainElement.scrollTop = 0;
+    }
+  }, [activeTab]);
+
   const handleLogout = () => {
     signOut();
     setIsAuthenticated(false);

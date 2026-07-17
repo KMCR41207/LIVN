@@ -160,6 +160,26 @@
 .admin-main {
   flex: 1;
   min-width: 0;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+/* Smooth scrollbar styling for main content */
+.admin-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-main::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+.admin-main::-webkit-scrollbar-thumb {
+  background: var(--color-gold-base);
+  border-radius: 8px;
+}
+
+.admin-main::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-dark);
 }
 
 .admin-section {
