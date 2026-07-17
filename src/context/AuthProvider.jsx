@@ -105,6 +105,34 @@ export const AuthProvider = ({ children }) => {
     return () => clearInterval(refreshInterval);
   }, [tokenExpiry, refreshToken, refreshAccessToken]);
 
+  // Merge localStorage cart with database cart on login
+  const mergeCartOnLogin = useCallback(async (token) => {
+    try {
+      const LOCAL_STORAGE_KEY = 'livn_cart_local';
+      const localCartData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (!localCartData) return; // No local cart to merge
+
+      const localItems = JSON.parse(localCartData);
+      if (!Array.isArray(localItems) || localItems.length === 0) return;
+
+      // Call merge endpoint with local items
+      await fetch(`${API}/cart/merge`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ localItems }),
+      });
+
+      // Clear local cart after merge
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    } catch (err) {
+      console.error('Cart merge error:', err);
+      // Silent fail - don't disrupt login flow
+    }
+  }, []);
+
   const storeAuthState = useCallback((user, token, refresh, expiryTime) => {
     setCurrentUser(user);
     setAccessToken(token);
@@ -113,7 +141,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem(TOKEN_KEY, token);
     if (refresh) localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-  }, []);
+    
+    // Merge cart from localStorage to database
+    mergeCartOnLogin(token);
+  }, [mergeCartOnLogin]);
 
   const clearAuthState = useCallback(() => {
     setCurrentUser(null);

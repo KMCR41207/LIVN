@@ -17,6 +17,7 @@ const returnRoutes        = require('./routes/returns');
 const exchangeRoutes      = require('./routes/exchanges');
 const cancellationRoutes  = require('./routes/cancellations');
 const purchaseOrderRoutes = require('./routes/purchaseOrders');
+const cartRoutes          = require('./routes/cart');
 // Stub routes for FAQs / Testimonials / Analytics (prevent 404s)
 let faqRoutes, testimonialRoutes, analyticsRoutes;
 try { faqRoutes = require('./routes/faqs'); } catch { faqRoutes = null; }
@@ -31,6 +32,7 @@ app.use(express.json({ limit: '10mb' }));
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
 app.use('/api/auth',             authRoutes);
+app.use('/api/cart',             cartRoutes);
 app.use('/api/orders',          orderRoutes);
 app.use('/api/products',        productRoutes);
 app.use('/api/coupons',         couponRoutes);
