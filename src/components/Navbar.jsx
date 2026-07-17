@@ -87,9 +87,14 @@ const Navbar = () => {
             </Link>
 
             {user ? (
-              <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title={`Logout (${user.email})`}>
-                <LogOut size={22} />
-              </button>
+              <>
+                <Link to="/account" className="icon-btn" aria-label="My Account" title="My Account">
+                  <User size={22} />
+                </Link>
+                <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title={`Logout (${user.email})`}>
+                  <LogOut size={22} />
+                </button>
+              </>
             ) : (
               <button className="icon-btn" onClick={() => setShowAuth(true)} aria-label="Account">
                 <User size={22} />

@@ -13,6 +13,7 @@ import WhatsApp from './pages/WhatsApp';
 import Referral from './pages/Referral';
 import Loyalty from './pages/Loyalty';
 import Rewards from './pages/Rewards';
+import CustomerAccount from './pages/CustomerAccount';
 import BespokeLanding from './pages/Bespoke/BespokeLanding';
 import BespokeProcess from './pages/Bespoke/BespokeProcess';
 import BespokeMeasurements from './pages/Bespoke/BespokeMeasurements';
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/collections" element={<Collections />} />
                 <Route path="/new-arrivals" element={<NewArrivals />} />
                 <Route path="/track-order" element={<TrackOrder />} />
+                <Route path="/account" element={<CustomerAccount />} />
                 <Route path="/shipping-returns" element={<ShippingReturns />} />
                 <Route path="/admin" element={<Admin />} />
                 
