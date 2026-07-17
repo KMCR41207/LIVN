@@ -272,30 +272,30 @@ const openUpiApp = (appId, upiId, amount) => {
 const UPI_LOGOS = {
   gpay: (
     <img 
-      src="https://cdn.worldvectorlogo.com/logos/google-pay-2.svg" 
+      src="https://www.gstatic.com/images/branding/product/1x/googlepay_48dp.png" 
       alt="Google Pay" 
       style={{ width: '28px', height: '28px', objectFit: 'contain' }}
     />
   ),
   phonepe: (
     <img 
-      src="https://cdn.worldvectorlogo.com/logos/phonepe-4.svg" 
+      src="https://play-lh.googleusercontent.com/tI-4bUJlRsj7K8-5oKzl4ZSPeN8o15UF2xN_SGTC6x3O3SIQqC0kngHVqpKuwA40yvs=w240-h240-rw" 
       alt="PhonePe" 
-      style={{ width: '28px', height: '28px', objectFit: 'contain' }}
+      style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }}
     />
   ),
   paytm: (
     <img 
-      src="https://cdn.worldvectorlogo.com/logos/paytm.svg" 
+      src="https://play-lh.googleusercontent.com/QRhWVlgKzEt5EWK10s3CzW5Z0i1CJPBHO8lJnIKBPGa3s2YXjz0z1k2MfP0rxAbJ8A=w240-h240-rw" 
       alt="Paytm" 
-      style={{ width: '28px', height: '28px', objectFit: 'contain' }}
+      style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }}
     />
   ),
   bhim: (
     <img 
-      src="https://cdn.worldvectorlogo.com/logos/bhim-2.svg" 
+      src="https://play-lh.googleusercontent.com/7pHKCPUw2l8lVoRLcW9LY2nBxR4y1dPJJAMhVqb9oLKLVnH_oc1cXvVb0FvO86pOCfk=w240-h240-rw" 
       alt="BHIM" 
-      style={{ width: '28px', height: '28px', objectFit: 'contain' }}
+      style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }}
     />
   ),
 };
