@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from './AuthContext';
+import { clearAllStorage } from '../lib/secureStorage';
 
 const STORAGE_KEY = 'livn_auth_state';
 const TOKEN_KEY = 'livn_token';
@@ -15,6 +16,43 @@ export const AuthProvider = ({ children }) => {
   const [tokenExpiry, setTokenExpiry] = useState(null);
 
   const isAuthenticated = !!currentUser && !!accessToken;
+
+  // Clear auth state
+  const clearAuthState = useCallback(() => {
+    setCurrentUser(null);
+    setAccessToken(null);
+    setRefreshToken(null);
+    setTokenExpiry(null);
+    setError(null);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+  }, []);
+
+  // Token refresh - MUST be defined before useEffect that uses it
+  const refreshAccessToken = useCallback(async () => {
+    if (!refreshToken) { clearAuthState(); return; }
+    try {
+      const res = await fetch(`${API}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) { clearAuthState(); return; }
+
+      const payload = JSON.parse(atob(data.token.split('.')[1]));
+      setAccessToken(data.token);
+      setTokenExpiry(payload.exp * 1000);
+      localStorage.setItem(TOKEN_KEY, data.token);
+      if (data.refreshToken) {
+        setRefreshToken(data.refreshToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
+      }
+    } catch {
+      clearAuthState();
+    }
+  }, [refreshToken, clearAuthState]);
 
   // Restore session from localStorage on mount AND auto-refresh token
   useEffect(() => {
@@ -145,17 +183,6 @@ export const AuthProvider = ({ children }) => {
     // Merge cart from localStorage to database
     mergeCartOnLogin(token);
   }, [mergeCartOnLogin]);
-
-  const clearAuthState = useCallback(() => {
-    setCurrentUser(null);
-    setAccessToken(null);
-    setRefreshToken(null);
-    setTokenExpiry(null);
-    setError(null);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(STORAGE_KEY);
-  }, []);
 
   // Email/password login
   const login = useCallback(async (email, password) => {
@@ -305,35 +332,12 @@ export const AuthProvider = ({ children }) => {
       // silent
     } finally {
       clearAuthState();
+      // Clear all sensitive data from client-side storage
+      clearAllStorage();
     }
   }, [accessToken, clearAuthState]);
 
   // Token refresh
-  const refreshAccessToken = useCallback(async () => {
-    if (!refreshToken) { clearAuthState(); return; }
-    try {
-      const res = await fetch(`${API}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-      });
-      const data = await res.json();
-      if (!res.ok) { clearAuthState(); return; }
-
-      const payload = JSON.parse(atob(data.token.split('.')[1]));
-      setAccessToken(data.token);
-      setTokenExpiry(payload.exp * 1000);
-      localStorage.setItem(TOKEN_KEY, data.token);
-      if (data.refreshToken) {
-        setRefreshToken(data.refreshToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
-      }
-    } catch {
-      clearAuthState();
-    }
-  }, [refreshToken, clearAuthState]);
-
-  // Password reset
   const resetPassword = useCallback(async (email) => {
     setIsLoading(true);
     setError(null);

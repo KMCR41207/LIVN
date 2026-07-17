@@ -43,20 +43,38 @@ const verifyHashedToken = (token, hash) => {
 };
 
 /**
- * Create response with both tokens
+ * Set secure HTTP-only cookies for tokens
+ * Credentials cannot be accessed by JavaScript (protection against XSS)
  */
-const tokenResponse = (user) => ({
-  token: generateAccessToken(user),
-  refreshToken: generateRefreshToken(user),
-  user: {
-    id: user._id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-    profileCompleted: user.profileCompleted,
-    provider: user.provider,
-  },
-});
+const setTokenCookies = (res, accessToken, refreshToken) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  // Access token cookie (15 minutes)
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,        // Cannot be accessed by JavaScript
+    secure: isProduction,  // HTTPS only in production
+    sameSite: 'strict',    // CSRF protection
+    maxAge: 15 * 60 * 1000, // 15 minutes
+    path: '/',
+  });
+  
+  // Refresh token cookie (7 days)
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: '/',
+  });
+};
+
+/**
+ * Clear token cookies on logout
+ */
+const clearTokenCookies = (res) => {
+  res.clearCookie('accessToken', { path: '/', sameSite: 'strict' });
+  res.clearCookie('refreshToken', { path: '/', sameSite: 'strict' });
+};
 
 // ─── Middleware ─────────────────────────────────────────────────────────────
 

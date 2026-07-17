@@ -5,6 +5,10 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+
+// Security middleware
+const { applyCors, securityHeaders } = require('./middleware/securityHeaders');
 
 const authRoutes          = require('./routes/auth');
 const orderRoutes         = require('./routes/orders');
@@ -27,8 +31,49 @@ try { analyticsRoutes = require('./routes/analytics'); } catch { analyticsRoutes
 const app = express();
 
 // ─── Middleware ──────────────────────────────────────────────────────────────
-app.use(cors({ origin: '*' }));
+
+// CORS Configuration - Restrict to frontend domains only
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests from:
+    // 1. Same origin (no origin in embedded requests like <img>)
+    // 2. Localhost in development
+    // 3. Production domain
+    const allowedOrigins = [
+      'http://localhost:5173',   // Dev frontend
+      'http://localhost:3000',   // Fallback dev port
+      process.env.FRONTEND_URL || 'https://livaani.com', // Production
+    ];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
+  credentials: true, // Allow cookies
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 3600, // Cache preflight for 1 hour
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
+
+// Security Headers
+app.use((req, res, next) => {
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Enable XSS protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; script-src 'self' https://connect.facebook.net https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.googleapis.com https://graph.facebook.com;"
+  );
+  next();
+});
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
 app.use('/api/auth',             authRoutes);

@@ -526,20 +526,16 @@ const Checkout = () => {
   // Order notes state
   const [orderNotes, setOrderNotes] = useState('');
 
-  // Load saved delivery details from localStorage
-  const savedDetails = (() => {
-    try { return JSON.parse(localStorage.getItem('livn_delivery') || '{}'); } catch { return {}; }
-  })();
-
+  // Load saved delivery details ONLY FROM SERVER (not localStorage)
   const [formData, setFormData] = useState({
-    name:         savedDetails.name         || '',
-    phone:        savedDetails.phone        || '',
-    houseNo:      savedDetails.houseNo      || '',
-    street:       savedDetails.street       || '',
-    colony:       savedDetails.colony       || '',
-    pincode:      savedDetails.pincode      || '',
-    city:         savedDetails.city         || '',
-    state:        savedDetails.state        || '',
+    name:         '',
+    phone:        '',
+    houseNo:      '',
+    street:       '',
+    colony:       '',
+    pincode:      '',
+    city:         '',
+    state:        '',
     measurements: '',
   });
 
@@ -547,11 +543,10 @@ const Checkout = () => {
 
   useEffect(() => { window.scrollTo(0, 0); }, [step]);
 
-  // Save delivery details whenever they change
-  useEffect(() => {
-    const { measurements, ...toSave } = formData;
-    localStorage.setItem('livn_delivery', JSON.stringify(toSave));
-  }, [formData]);
+  // NOTE: Do NOT save delivery address to localStorage
+  // Delivery address, phone, and measurements are sensitive PII
+  // They are only stored server-side in the database
+  // Users can save their preferred address in their account profile
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;

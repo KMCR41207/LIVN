@@ -49,16 +49,17 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Send cookies with requests
 });
 
 // ─── Request Interceptor ────────────────────────────────────────────────
 
+// NOTE: HTTP-only cookies are automatically sent by the browser
+// Tokens are no longer accessed from localStorage
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('livn_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // For any additional auth headers needed (fallback support)
+    // The backend sets secure HTTP-only cookies, so this is optional
     return config;
   },
   (error) => Promise.reject(error)

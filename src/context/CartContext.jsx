@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { getTempCart, saveTempCart, clearTempCart } from '../lib/secureStorage';
 
 const CartContext = createContext(null);
-const LOCAL_STORAGE_KEY = 'livn_cart_local'; // For temporary local cart before login
 const API = import.meta.env.VITE_API_URL || '/api';
 
 const CartProvider = ({ children }) => {
@@ -40,11 +40,12 @@ const CartProvider = ({ children }) => {
     if (isAuthenticated) {
       fetchCart();
     } else {
-      // Load from local storage for unauthenticated users
+      // Load temporary cart from sessionStorage for unauthenticated users
+      // sessionStorage clears when tab is closed (more secure than localStorage)
       try {
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (saved) {
-          setCartItems(JSON.parse(saved));
+        const saved = getTempCart();
+        if (saved && Array.isArray(saved)) {
+          setCartItems(saved);
         }
       } catch {
         setCartItems([]);
@@ -52,10 +53,10 @@ const CartProvider = ({ children }) => {
     }
   }, [isAuthenticated, accessToken, fetchCart]);
 
-  // Save to localStorage when cart changes (for unauthenticated users)
+  // Save to sessionStorage when cart changes (for unauthenticated users)
   useEffect(() => {
     if (!isAuthenticated) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cartItems));
+      saveTempCart(cartItems);
     }
   }, [cartItems, isAuthenticated]);
 
