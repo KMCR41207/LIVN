@@ -88,12 +88,32 @@ const Navbar = () => {
 
             {user ? (
               <>
-                <Link to="/account" className="icon-btn" aria-label="My Account" title="My Account">
-                  <User size={22} />
-                </Link>
-                <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title={`Logout (${user.email})`}>
-                  <LogOut size={22} />
-                </button>
+                <div className="user-menu-dropdown">
+                  <button className="icon-btn user-icon" aria-label="My Account" title={`Hello, ${user.name || user.email}`}>
+                    <User size={22} />
+                  </button>
+                  <div className="dropdown-menu">
+                    <Link to="/profile" className="dropdown-item">
+                      <User size={16} />
+                      My Profile
+                    </Link>
+                    {user.role === 'admin' && (
+                      <Link to="/admin/profile" className="dropdown-item">
+                        <User size={16} />
+                        Admin Profile
+                      </Link>
+                    )}
+                    <Link to="/account" className="dropdown-item">
+                      <User size={16} />
+                      My Account
+                    </Link>
+                    <hr className="dropdown-divider" />
+                    <button className="dropdown-item logout" onClick={handleLogout}>
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </div>
+                </div>
               </>
             ) : (
               <button className="icon-btn" onClick={() => setShowAuth(true)} aria-label="Account">
