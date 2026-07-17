@@ -272,32 +272,28 @@ const openUpiApp = (appId, upiId, amount) => {
 
 const UPI_LOGOS = {
   gpay: (
-    <img 
-      src="https://www.gstatic.com/images/branding/product/1x/googlepay_48dp.png" 
-      alt="Google Pay" 
-      style={{ width: '28px', height: '28px', objectFit: 'contain' }}
-    />
+    <svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="11" fill="#4285F4"/>
+      <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold" fontFamily="Arial">G</text>
+    </svg>
   ),
   phonepe: (
-    <img 
-      src="https://play-lh.googleusercontent.com/tI-4bUJlRsj7K8-5oKzl4ZSPeN8o15UF2xN_SGTC6x3O3SIQqC0kngHVqpKuwA40yvs=w240-h240-rw" 
-      alt="PhonePe" 
-      style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }}
-    />
+    <svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <rect width="24" height="24" rx="6" fill="#5F259F"/>
+      <path fill="#fff" d="M16 8h-4L8 12v4h3v-3l2-2h2c2 0 3-1 3-3s-1-3-3-3z"/>
+    </svg>
   ),
   paytm: (
-    <img 
-      src="https://play-lh.googleusercontent.com/QRhWVlgKzEt5EWK10s3CzW5Z0i1CJPBHO8lJnIKBPGa3s2YXjz0z1k2MfP0rxAbJ8A=w240-h240-rw" 
-      alt="Paytm" 
-      style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }}
-    />
+    <svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <rect width="24" height="24" rx="4" fill="#00B9F1"/>
+      <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold" fontFamily="Arial">PTM</text>
+    </svg>
   ),
   bhim: (
-    <img 
-      src="https://play-lh.googleusercontent.com/7pHKCPUw2l8lVoRLcW9LY2nBxR4y1dPJJAMhVqb9oLKLVnH_oc1cXvVb0FvO86pOCfk=w240-h240-rw" 
-      alt="BHIM" 
-      style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }}
-    />
+    <svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <rect width="24" height="24" rx="4" fill="#00539B"/>
+      <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold" fontFamily="Arial">B</text>
+    </svg>
   ),
 };
 
