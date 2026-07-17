@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, ShoppingBag, CreditCard, Smartphone, Truck, Trash2, Plus, Minus, Tag, X as XIcon } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getCurrentUser, createOrder, validateCoupon } from '../lib/api';
+import { useAuth } from '../hooks/useAuth';
+import { createOrder, validateCoupon } from '../lib/api';
 import AuthModal from '../components/AuthModal';
 import './Checkout.css';
 
@@ -514,6 +515,7 @@ const ThankYouSplash = ({ ordersPlaced, formData, totalPrice, fallbackId }) => {
 // ── Main Checkout ─────────────────────────────────────────────────────────────
 const Checkout = () => {
   const { cartItems, removeFromCart, updateQty, clearCart, totalPrice } = useCart();
+  const { currentUser, isAuthenticated } = useAuth();
   const [step, setStep] = useState(0);
   const [showAuth, setShowAuth] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -562,8 +564,7 @@ const Checkout = () => {
 
   const handleCartNext = () => {
     if (!cartItems.length) return;
-    const currentUser = getCurrentUser();
-    if (!currentUser) { setShowAuth(true); return; }
+    if (!isAuthenticated) { setShowAuth(true); return; }
     setStep(1);
   };
 
@@ -589,7 +590,7 @@ const Checkout = () => {
           price:            itemPrice - itemDiscount,
           customer_name:    formData.name,
           customer_phone:   formData.phone,
-          customer_email:   getCurrentUser()?.email || '',
+          customer_email:   currentUser?.email || '',
           shipping_address: fullAddress,
           measurements:     formData.measurements || (item.size === 'Custom' ? item.measurements : ''),
           selected_size:    item.size,
