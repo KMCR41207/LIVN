@@ -67,12 +67,32 @@
   position: sticky;
   top: 100px;
   width: 250px;
-  height: fit-content;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
   background: #fff;
   border-radius: 8px;
   box-shadow: var(--shadow-md);
   padding: 30px 20px;
   border-left: 4px solid var(--color-maroon);
+}
+
+/* Smooth scrollbar styling */
+.admin-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+  border-radius: 8px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-gold-base);
+  border-radius: 8px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-dark);
 }
 
 .admin-sidebar-header {
