@@ -3,12 +3,49 @@ const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
   {
+    // Authentication
     email:    { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
+    phone:    { type: String, sparse: true, unique: true },
+    
+    // Profile
+    name:     String,
+    profilePhoto: String,
+    gender:   { type: String, enum: ['Male', 'Female', 'Other', ''], default: '' },
+    dob:      Date,
+    
+    // Profile completion
+    profileCompleted: { type: Boolean, default: false },
+    
+    // Session management
+    lastLogin: Date,
+    refreshToken: { type: String, select: false }, // Hashed refresh token
+    
+    // OAuth
+    provider: { type: String, enum: ['email', 'google', 'facebook', 'phone'], default: 'email' },
+    providerId: String,
+    
+    // Account
     role:     { type: String, enum: ['user', 'admin'], default: 'user' },
+    preferences: {
+      notifications: { type: Boolean, default: true },
+      emailUpdates: { type: Boolean, default: true },
+      newsletter: { type: Boolean, default: false },
+    },
+    
+    // Account status
+    isActive: { type: Boolean, default: true },
+    isEmailVerified: { type: Boolean, default: false },
+    isPhoneVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
+
+// Indexes for faster queries
+userSchema.index({ email: 1 });
+userSchema.index({ phone: 1 });
+userSchema.index({ provider: 1 });
+userSchema.index({ createdAt: 1 });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
