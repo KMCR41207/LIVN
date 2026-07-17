@@ -1,9 +1,12 @@
 const express = require('express');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const { verifyAccessToken } = require('./auth');
+const authRoutes = require('./auth');
 
 const router = express.Router();
+
+// Get verifyAccessToken middleware
+const verifyAccessToken = authRoutes.verifyAccessToken;
 
 // Middleware to verify access token on all cart routes
 router.use(verifyAccessToken);

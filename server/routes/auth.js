@@ -76,8 +76,6 @@ const verifyAccessToken = (req, res, next) => {
   }
 };
 
-module.exports.verifyAccessToken = verifyAccessToken;
-
 // ─── POST /api/auth/signup ──────────────────────────────────────────────────
 
 router.post('/signup', async (req, res) => {
@@ -395,4 +393,6 @@ router.get('/me', verifyAccessToken, async (req, res) => {
   }
 });
 
+// Export router as default, but also attach middleware for external use
+router.verifyAccessToken = verifyAccessToken;
 module.exports = router;

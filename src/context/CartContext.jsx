@@ -5,7 +5,7 @@ const CartContext = createContext(null);
 const LOCAL_STORAGE_KEY = 'livn_cart_local'; // For temporary local cart before login
 const API = import.meta.env.VITE_API_URL || '/api';
 
-export const CartProvider = ({ children }) => {
+const CartProvider = ({ children }) => {
   const { accessToken, isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -267,10 +267,12 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-export const useCart = () => {
+function useCart() {
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within CartProvider');
   }
   return context;
-};
+}
+
+export { CartProvider, useCart };
