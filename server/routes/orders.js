@@ -42,7 +42,13 @@ router.post('/', async (req, res) => {
 // GET /api/orders/my — get orders for the logged-in user
 router.get('/my', protect, async (req, res) => {
   try {
-    const orders = await Order.find({ customer_email: req.user.email }).sort({ createdAt: -1 });
+    // Match by either userId OR customer_email to cover all order types
+    const orders = await Order.find({
+      $or: [
+        { userId: req.user.id },
+        { customer_email: req.user.email },
+      ],
+    }).sort({ createdAt: -1 });
     res.json({ data: orders, error: null });
   } catch (err) {
     res.status(500).json({ data: null, error: err.message });

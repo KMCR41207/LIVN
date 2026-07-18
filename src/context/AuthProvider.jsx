@@ -296,6 +296,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     refreshAccessToken,
     completeProfile,
+    setCurrentUser, // expose so profile updates reflect in Navbar immediately
   };
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

@@ -14,6 +14,7 @@ import Referral from './pages/Referral';
 import Loyalty from './pages/Loyalty';
 import Rewards from './pages/Rewards';
 import CustomerAccount from './pages/CustomerAccount';
+import Account from './pages/Account';
 import UserProfile from './pages/UserProfile';
 import AdminProfile from './pages/AdminProfile';
 import BespokeLanding from './pages/Bespoke/BespokeLanding';
@@ -44,7 +45,8 @@ function App() {
                 <Route path="/collections" element={<Collections />} />
                 <Route path="/new-arrivals" element={<NewArrivals />} />
                 <Route path="/track-order" element={<TrackOrder />} />
-                <Route path="/account" element={<CustomerAccount />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="/old-account" element={<CustomerAccount />} />
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/admin/profile" element={<AdminProfile />} />
                 <Route path="/shipping-returns" element={<ShippingReturns />} />

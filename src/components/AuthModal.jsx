@@ -2,10 +2,7 @@ import { useState } from 'react';
 import { X, Eye, EyeOff, Mail, ArrowLeft } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../hooks/useAuth';
-import { signIn, signUp } from '../lib/api';
 import './AuthModal.css';
-
-const API = import.meta.env.VITE_API_URL || '/api';
 
 // ─── Google Icon ─────────────────────────────────────────────────────────────
 const GoogleIcon = () => (
@@ -35,29 +32,19 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  // Pull login/signup from AuthContext so the Navbar updates immediately
-  const { login, signupEmail } = useAuth();
+  // Pull ALL auth methods from context — so storeAuthState is always called
+  const { login, signupEmail, loginWithGoogle, loginWithFacebook } = useAuth();
 
   const clearMessages = () => { setError(''); setMessage(''); };
 
-  // ── Google (direct, no Firebase) ─────────────────────────────────────────
+  // ── Google — uses AuthContext so token is stored in localStorage ──────────
   const handleGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setLoading(true);
       clearMessages();
       try {
-        const res = await fetch(`${API}/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accessToken: tokenResponse.access_token }),
-        });
-        const contentType = res.headers.get('content-type') || '';
-        if (!contentType.includes('application/json')) {
-          throw new Error('Backend server is not running. Please start the server and try again.');
-        }
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Google login failed');
-        onAuthSuccess(data.user);
+        await loginWithGoogle(tokenResponse.access_token);
+        onAuthSuccess?.();
         onClose();
       } catch (err) {
         setError(err.message || 'Google login failed. Please try again.');
@@ -69,7 +56,7 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
     flow: 'implicit',
   });
 
-  // ── Facebook (Meta JS SDK popup) ─────────────────────────────────────────
+  // ── Facebook — uses AuthContext so token is stored in localStorage ────────
   const handleFacebook = () => {
     if (!window.FB) {
       setError('Facebook SDK not loaded. Please refresh and try again.');
@@ -81,18 +68,8 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
         if (response.authResponse) {
           setLoading(true);
           try {
-            const res = await fetch(`${API}/auth/facebook`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
-            });
-            const contentType = res.headers.get('content-type') || '';
-            if (!contentType.includes('application/json')) {
-              throw new Error('Backend server is not running. Please start the server and try again.');
-            }
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Facebook login failed');
-            onAuthSuccess(data.user);
+            await loginWithFacebook(response.authResponse.accessToken);
+            onAuthSuccess?.();
             onClose();
           } catch (err) {
             setError(err.message || 'Facebook login failed. Please try again.');
@@ -116,7 +93,7 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
       } else {
         await login(email, password);
       }
-      onAuthSuccess?.({});
+      onAuthSuccess?.();
       onClose();
     } catch (err) {
       setError(err.message || 'Something went wrong');
@@ -149,7 +126,7 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
             <div className="auth-providers">
               <button
                 className="auth-provider-btn auth-provider-google"
-                onClick={() => handleGoogle()}
+                onClick={handleGoogle}
                 disabled={loading}
               >
                 <GoogleIcon />

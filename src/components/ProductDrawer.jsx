@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Ruler, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { saveRecentlyViewed } from '../hooks/useRecentlyViewed';
 import './ProductDrawer.css';
 
 // ── Size Guide Modal ──────────────────────────────────────────────────────────
@@ -56,11 +57,13 @@ const ProductDrawer = ({ product, onClose }) => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKey);
     document.body.style.overflow = 'hidden';
+    // Track as recently viewed when drawer opens
+    if (product) saveRecentlyViewed(product);
     return () => {
       document.removeEventListener('keydown', handleKey);
       document.body.style.overflow = '';
     };
-  }, [onClose]);
+  }, [onClose, product]);
 
   if (!product) return null;
 

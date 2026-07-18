@@ -1,0 +1,309 @@
+/* Account Page - Amazon Style Layout */
+
+.account-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  min-height: calc(100vh - 100px);
+  background-color: #f5f5f5;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────────── */
+.account-sidebar {
+  background-color: #232f3e;
+  padding: 0;
+  border-right: 1px solid #ddd;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  background-color: #131921;
+  padding: 16px 12px;
+  border-bottom: 1px solid #3a4a5c;
+}
+
+.sidebar-header h3 {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.sidebar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-menu-item {
+  border: none;
+  background: none;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-menu-item button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: #ccc;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-menu-item button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ff9900;
+}
+
+.sidebar-menu-item button.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ff9900;
+  border-left-color: #ff9900;
+  font-weight: 500;
+}
+
+.sidebar-menu-item button svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background-color: #3a4a5c;
+  margin: 8px 0;
+}
+
+/* ─── Main Content ────────────────────────────────────────────────────────── */
+.account-main {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+}
+
+.account-header {
+  background-color: #ffffff;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 60px;
+  z-index: 50;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.account-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-header-left h1 {
+  margin: 0;
+  font-size: 22px;
+  color: #131921;
+  font-weight: 500;
+}
+
+.account-header-left p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.account-header-right {
+  display: flex;
+  gap: 12px;
+}
+
+.account-header-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background-color: #f5f5f5;
+  color: #131921;
+  font-size: 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.account-header-btn:hover {
+  background-color: #efefef;
+  border-color: #999;
+}
+
+.account-header-btn.primary {
+  background-color: #ff9900;
+  color: white;
+  border-color: #ff9900;
+}
+
+.account-header-btn.primary:hover {
+  background-color: #ffa500;
+}
+
+.account-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.account-content-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Loading & Error States */
+.account-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 14px;
+  color: #666;
+}
+
+.account-error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+/* ─── Mobile Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .account-container {
+    grid-template-columns: 1fr;
+  }
+
+  .account-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 60px;
+    height: calc(100vh - 60px);
+    width: 280px;
+    z-index: 100;
+    transition: left 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .account-sidebar.open {
+    left: 0;
+  }
+
+  .account-header {
+    padding: 12px 16px;
+  }
+
+  .account-header-left h1 {
+    font-size: 18px;
+  }
+
+  .account-header-left p {
+    display: none;
+  }
+
+  .account-content {
+    padding: 16px;
+  }
+}
+
+/* ─── Section Styles ──────────────────────────────────────────────────────── */
+.account-section-title {
+  font-size: 18px;
+  color: #131921;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.account-card {
+  background-color: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  padding: 16px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.account-card:hover {
+  border-color: #bbb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.account-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.account-list-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.account-list-item:last-child {
+  border-bottom: none;
+}
+
+/* ─── Scrollbar ────────────────────────────────────────────────────────────── */
+.account-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.account-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.account-sidebar::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 3px;
+}
+
+.account-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: #888;
+}
+
+.account-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.account-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.account-content::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.account-content::-webkit-scrollbar-thumb:hover {
+  background-color: #999;
+}

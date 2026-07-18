@@ -138,8 +138,8 @@ const Navbar = () => {
                 ) : (
                   <User size={22} />
                 )}
-                {/* Green dot if logged in */}
-                {isAuthenticated && <span className="logged-in-dot" />}
+                {/* Green dot — shows as soon as user is logged in, regardless of loading */}
+                {isAuthenticated && <span className="logged-in-dot" aria-hidden="true" />}
               </button>
 
               {/* ── ACCOUNT PANEL (shown when logged in) ── */}

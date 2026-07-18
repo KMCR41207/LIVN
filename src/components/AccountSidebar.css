@@ -1,0 +1,154 @@
+/* Account Sidebar Component */
+
+.account-sidebar {
+  background-color: #232f3e;
+  padding: 0;
+  border-right: 1px solid #ddd;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 101;
+}
+
+.account-sidebar-overlay {
+  display: none;
+}
+
+.sidebar-header {
+  background-color: #131921;
+  padding: 16px 12px;
+  border-bottom: 1px solid #3a4a5c;
+  flex-shrink: 0;
+}
+
+.sidebar-header h3 {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.sidebar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-menu-item {
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: #ccc;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  text-align: left;
+  font-family: inherit;
+}
+
+.sidebar-menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ff9900;
+}
+
+.sidebar-menu-btn.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ff9900;
+  border-left-color: #ff9900;
+  font-weight: 500;
+}
+
+.sidebar-menu-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.sidebar-menu-btn span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scrollbar */
+.sidebar-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 3px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+  background-color: #888;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .account-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 60px;
+    height: calc(100vh - 60px);
+    width: 280px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .account-sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-close-btn {
+    display: block;
+  }
+
+  .account-sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .sidebar-header {
+    padding-top: 40px;
+  }
+}

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById } from '../data/products';
 import { ArrowLeft, Ruler, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { saveRecentlyViewed } from '../hooks/useRecentlyViewed';
 import './ProductPage.css';
 
 const ProductPage = () => {
@@ -12,7 +13,13 @@ const ProductPage = () => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    // Track this product as recently viewed
+    if (product) {
+      saveRecentlyViewed(product);
+    }
+  }, [product]);
 
   const handleAddToCart = () => {
     addToCart(product, selectedSize || 'Standard');

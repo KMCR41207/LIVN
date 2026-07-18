@@ -76,6 +76,23 @@ const clearTokenCookies = (res) => {
   res.clearCookie('refreshToken', { path: '/', sameSite: 'strict' });
 };
 
+/**
+ * Generate token response object
+ * Returns both access and refresh tokens, plus user data
+ */
+const tokenResponse = (user) => ({
+  token: generateAccessToken(user),
+  refreshToken: generateRefreshToken(user),
+  user: {
+    id: user._id,
+    email: user.email,
+    name: user.name || user.email.split('@')[0],
+    role: user.role,
+    profilePhoto: user.profilePhoto || null,
+    provider: user.provider,
+  },
+});
+
 // ─── Middleware ─────────────────────────────────────────────────────────────
 
 /**
@@ -407,6 +424,151 @@ router.get('/me', verifyAccessToken, async (req, res) => {
     });
   } catch (err) {
     console.error('Get user error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── PATCH /api/auth/profile/update ─────────────────────────────────────────
+/**
+ * Update user profile
+ */
+router.patch('/profile/update', verifyAccessToken, async (req, res) => {
+  try {
+    const { name, phone, gender, dob } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (name !== undefined) user.name = name;
+    if (phone !== undefined) user.phone = phone || undefined;
+    if (gender !== undefined) user.gender = gender;
+    if (dob !== undefined) user.dob = dob ? new Date(dob) : undefined;
+    user.profileCompleted = true;
+
+    await user.save();
+
+    return res.status(200).json({
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        gender: user.gender,
+        dob: user.dob,
+        profilePhoto: user.profilePhoto,
+        profileCompleted: user.profileCompleted,
+        role: user.role,
+      },
+      error: null,
+    });
+  } catch (err) {
+    console.error('Profile update error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── GET /api/auth/addresses ─────────────────────────────────────────────────
+/**
+ * Get user's saved addresses
+ */
+router.get('/addresses', verifyAccessToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('addresses');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    return res.status(200).json({ data: user.addresses || [], error: null });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── POST /api/auth/addresses ────────────────────────────────────────────────
+/**
+ * Add a new address
+ */
+router.post('/addresses', verifyAccessToken, async (req, res) => {
+  try {
+    const { name, phone, line1, line2, city, state, pincode, country, isDefault } = req.body;
+    if (!name || !line1 || !city || !state || !pincode)
+      return res.status(400).json({ error: 'Name, address, city, state and pincode are required' });
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (!user.addresses) user.addresses = [];
+
+    // If new address is default, unset all others
+    if (isDefault) {
+      user.addresses.forEach(a => { a.isDefault = false; });
+    }
+
+    // If this is the first address, make it default
+    const makeDefault = isDefault || user.addresses.length === 0;
+
+    user.addresses.push({ name, phone, line1, line2, city, state, pincode, country: country || 'India', isDefault: makeDefault });
+    await user.save();
+
+    return res.status(201).json({ data: user.addresses, error: null });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── PATCH /api/auth/addresses/:id ───────────────────────────────────────────
+/**
+ * Update an address
+ */
+router.patch('/addresses/:id', verifyAccessToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const address = user.addresses?.id(req.params.id);
+    if (!address) return res.status(404).json({ error: 'Address not found' });
+
+    const { name, phone, line1, line2, city, state, pincode, country, isDefault } = req.body;
+
+    if (isDefault) {
+      user.addresses.forEach(a => { a.isDefault = false; });
+    }
+
+    if (name !== undefined) address.name = name;
+    if (phone !== undefined) address.phone = phone;
+    if (line1 !== undefined) address.line1 = line1;
+    if (line2 !== undefined) address.line2 = line2;
+    if (city !== undefined) address.city = city;
+    if (state !== undefined) address.state = state;
+    if (pincode !== undefined) address.pincode = pincode;
+    if (country !== undefined) address.country = country;
+    if (isDefault !== undefined) address.isDefault = isDefault;
+
+    await user.save();
+    return res.status(200).json({ data: user.addresses, error: null });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── DELETE /api/auth/addresses/:id ──────────────────────────────────────────
+/**
+ * Delete an address
+ */
+router.delete('/addresses/:id', verifyAccessToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const addr = user.addresses?.id(req.params.id);
+    if (!addr) return res.status(404).json({ error: 'Address not found' });
+
+    addr.deleteOne();
+    // If we deleted the default, make first remaining one default
+    if (user.addresses.length > 0 && !user.addresses.some(a => a.isDefault)) {
+      user.addresses[0].isDefault = true;
+    }
+    await user.save();
+
+    return res.status(200).json({ data: user.addresses, error: null });
+  } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
