@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, User, LogOut, ShoppingBag, Inbox, Package, Star } from 'lucide-react';
+import {
+  Search, Menu, X, User, LogOut, ShoppingBag,
+  Inbox, Package, Star, RotateCcw, Headphones,
+  Heart, ChevronRight, Settings, Shield
+} from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
@@ -12,12 +16,11 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showAccountPanel, setShowAccountPanel] = useState(false);
+  const panelRef = useRef(null);
   const navigate = useNavigate();
   const { totalItems } = useCart();
-  const { currentUser, logout } = useAuth();
-
-  // Keep a plain `user` shape the rest of the component already uses
-  const user = currentUser;
+  const { currentUser, isAuthenticated, isLoading, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -25,102 +28,212 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleAuthSuccess = (u) => {
-    // AuthProvider already stored the user; just close modal + redirect admins
+  // Close panel on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        setShowAccountPanel(false);
+      }
+    };
+    if (showAccountPanel) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showAccountPanel]);
+
+  // Close panel on ESC key
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setShowAccountPanel(false);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  const handleAuthSuccess = () => {
     setShowAuth(false);
-    if (u?.role === 'admin') navigate('/admin');
+    setShowAccountPanel(false);
   };
 
   const handleLogout = async () => {
+    setShowAccountPanel(false);
     await logout();
     navigate('/');
   };
+
+  const handleUserIconClick = () => {
+    if (isLoading) return;
+    if (isAuthenticated) {
+      // Logged in → show account panel
+      setShowAccountPanel(prev => !prev);
+    } else {
+      // Not logged in → show login modal
+      setShowAuth(true);
+    }
+  };
+
+  const navTo = (path) => {
+    setShowAccountPanel(false);
+    navigate(path);
+  };
+
+  const greeting = currentUser?.name
+    ? `Hi, ${currentUser.name.split(' ')[0]}!`
+    : currentUser?.email
+    ? `Hi, ${currentUser.email.split('@')[0]}!`
+    : 'My Account';
 
   return (
     <>
       <div className={`navbar-wrapper ${isScrolled ? 'scrolled' : ''}`}>
         <nav className="temple-navbar">
+          {/* Logo */}
           <div className="navbar-logo">
             <Link to="/">
               <div className="logo-text">Livaani</div>
             </Link>
           </div>
 
+          {/* Desktop Links */}
           <div className="navbar-links">
             <Link to="/" className="nav-link">Home</Link>
             <Link to="/collections" className="nav-link">Collections</Link>
             <Link to="/bespoke" className="nav-link">Bespoke</Link>
           </div>
 
+          {/* Icons */}
           <div className="navbar-icons">
+            {/* Search */}
             <button className="icon-btn" aria-label="Search" onClick={() => setShowSearch(s => !s)}>
               {showSearch ? <X size={22} /> : <Search size={22} />}
             </button>
 
-            {/* My Orders — visible to logged-in non-admin users */}
-            {user && user.role !== 'admin' && (
-              <Link to="/track-order" className="icon-btn" aria-label="My Orders" title="My Orders">
-                <Package size={22} />
-              </Link>
-            )}
-
-            {/* Rewards — visible to logged-in non-admin users */}
-            {user && user.role !== 'admin' && (
-              <Link to="/rewards" className="icon-btn" aria-label="Rewards" title="My Rewards">
-                <Star size={22} />
-              </Link>
-            )}
-
-            {/* Admin Inbox button — only visible when admin is logged in */}
-            {user?.role === 'admin' && (
-              <Link to="/admin" className="icon-btn inbox-btn" aria-label="Admin Orders Inbox" title="Orders Inbox">
+            {/* Admin Inbox */}
+            {isAuthenticated && currentUser?.role === 'admin' && (
+              <Link to="/admin" className="icon-btn inbox-btn" aria-label="Admin Inbox" title="Orders Inbox">
                 <Inbox size={22} />
               </Link>
             )}
 
-            {/* Cart icon with badge */}
+            {/* Cart */}
             <Link to="/checkout" className="icon-btn cart-icon-btn" aria-label="Cart">
               <ShoppingBag size={22} />
-              {totalItems > 0 && (
-                <span className="cart-badge">{totalItems}</span>
-              )}
+              {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
             </Link>
 
-            {user ? (
-              <>
-                <div className="user-menu-dropdown">
-                  <button className="icon-btn user-icon" aria-label="My Account" title={`Hello, ${user.name || user.email}`}>
-                    <User size={22} />
-                  </button>
-                  <div className="dropdown-menu">
-                    <Link to="/profile" className="dropdown-item">
-                      <User size={16} />
-                      My Profile
-                    </Link>
-                    {user.role === 'admin' && (
-                      <Link to="/admin/profile" className="dropdown-item">
-                        <User size={16} />
-                        Admin Profile
-                      </Link>
+            {/* Account Icon — always visible */}
+            <div className="account-icon-wrapper" ref={panelRef}>
+              <button
+                className={`icon-btn account-btn ${isAuthenticated ? 'logged-in' : ''}`}
+                aria-label={isAuthenticated ? 'My Account' : 'Sign In'}
+                title={isAuthenticated ? greeting : 'Sign In'}
+                onClick={handleUserIconClick}
+              >
+                {isAuthenticated && currentUser?.profilePhoto ? (
+                  <img
+                    src={currentUser.profilePhoto}
+                    alt="profile"
+                    className="nav-profile-photo"
+                  />
+                ) : (
+                  <User size={22} />
+                )}
+                {/* Green dot if logged in */}
+                {isAuthenticated && <span className="logged-in-dot" />}
+              </button>
+
+              {/* ── ACCOUNT PANEL (shown when logged in) ── */}
+              {showAccountPanel && isAuthenticated && (
+                <div className="account-panel animate-fade-in-up">
+                  {/* Header */}
+                  <div className="account-panel-header">
+                    <div className="account-panel-avatar">
+                      {currentUser?.profilePhoto ? (
+                        <img src={currentUser.profilePhoto} alt="" className="panel-avatar-img" />
+                      ) : (
+                        <div className="panel-avatar-placeholder">
+                          <User size={28} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="account-panel-info">
+                      <p className="panel-name">{currentUser?.name || currentUser?.email?.split('@')[0]}</p>
+                      <p className="panel-email">{currentUser?.email}</p>
+                      {currentUser?.role === 'admin' && (
+                        <span className="panel-admin-badge">
+                          <Shield size={12} /> Admin
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="account-panel-menu">
+                    <button className="panel-item" onClick={() => navTo('/profile')}>
+                      <User size={18} />
+                      <span>My Profile</span>
+                      <ChevronRight size={16} className="panel-arrow" />
+                    </button>
+
+                    <button className="panel-item" onClick={() => navTo('/account')}>
+                      <Package size={18} />
+                      <span>My Orders</span>
+                      <ChevronRight size={16} className="panel-arrow" />
+                    </button>
+
+                    <button className="panel-item" onClick={() => navTo('/account?tab=returns')}>
+                      <RotateCcw size={18} />
+                      <span>Returns & Exchanges</span>
+                      <ChevronRight size={16} className="panel-arrow" />
+                    </button>
+
+                    <button className="panel-item" onClick={() => navTo('/track-order')}>
+                      <Star size={18} />
+                      <span>Track Order</span>
+                      <ChevronRight size={16} className="panel-arrow" />
+                    </button>
+
+                    <button className="panel-item" onClick={() => navTo('/rewards')}>
+                      <Heart size={18} />
+                      <span>Rewards & Loyalty</span>
+                      <ChevronRight size={16} className="panel-arrow" />
+                    </button>
+
+                    <button className="panel-item" onClick={() => navTo('/whatsapp')}>
+                      <Headphones size={18} />
+                      <span>Customer Care</span>
+                      <ChevronRight size={16} className="panel-arrow" />
+                    </button>
+
+                    {currentUser?.role === 'admin' && (
+                      <>
+                        <div className="panel-divider" />
+                        <button className="panel-item panel-item-admin" onClick={() => navTo('/admin')}>
+                          <Settings size={18} />
+                          <span>Admin Dashboard</span>
+                          <ChevronRight size={16} className="panel-arrow" />
+                        </button>
+                        <button className="panel-item panel-item-admin" onClick={() => navTo('/admin/profile')}>
+                          <Shield size={18} />
+                          <span>Admin Profile</span>
+                          <ChevronRight size={16} className="panel-arrow" />
+                        </button>
+                      </>
                     )}
-                    <Link to="/account" className="dropdown-item">
-                      <User size={16} />
-                      My Account
-                    </Link>
-                    <hr className="dropdown-divider" />
-                    <button className="dropdown-item logout" onClick={handleLogout}>
-                      <LogOut size={16} />
-                      Logout
+                  </div>
+
+                  {/* Footer */}
+                  <div className="account-panel-footer">
+                    <button className="panel-logout-btn" onClick={handleLogout}>
+                      <LogOut size={18} />
+                      Sign Out
                     </button>
                   </div>
                 </div>
-              </>
-            ) : (
-              <button className="icon-btn" onClick={() => setShowAuth(true)} aria-label="Account">
-                <User size={22} />
-              </button>
-            )}
+              )}
+            </div>
 
+            {/* Mobile Menu Toggle */}
             <button
               className="mobile-menu-btn"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -129,6 +242,7 @@ const Navbar = () => {
             </button>
           </div>
         </nav>
+
         <div className="navbar-gopuram-base"></div>
         <div className="navbar-gopuram-base-2"></div>
       </div>
@@ -139,17 +253,41 @@ const Navbar = () => {
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
           <Link to="/collections" onClick={() => setIsMobileMenuOpen(false)}>Collections</Link>
           <Link to="/bespoke" onClick={() => setIsMobileMenuOpen(false)}>Bespoke</Link>
-          {user
-            ? <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem' }}>Logout</button>
-            : <button onClick={() => { setShowAuth(true); setIsMobileMenuOpen(false); }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem' }}>Sign In</button>
-          }
+
+          {isAuthenticated ? (
+            <>
+              <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link>
+              <Link to="/account" onClick={() => setIsMobileMenuOpen(false)}>My Orders</Link>
+              <Link to="/track-order" onClick={() => setIsMobileMenuOpen(false)}>Track Order</Link>
+              <Link to="/rewards" onClick={() => setIsMobileMenuOpen(false)}>Rewards</Link>
+              <Link to="/whatsapp" onClick={() => setIsMobileMenuOpen(false)}>Customer Care</Link>
+              {currentUser?.role === 'admin' && (
+                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>Admin</Link>
+              )}
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
+                className="mobile-logout-btn"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => { setShowAuth(true); setIsMobileMenuOpen(false); }}
+              className="mobile-signin-btn"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </div>
 
-      {showAuth && (
+      {/* Auth Modal — only when NOT logged in */}
+      {showAuth && !isAuthenticated && (
         <AuthModal onClose={() => setShowAuth(false)} onAuthSuccess={handleAuthSuccess} />
       )}
 
+      {/* Search Overlay */}
       {showSearch && (
         <div className="navbar-search-overlay">
           <div className="navbar-search-inner container">

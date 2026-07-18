@@ -46,18 +46,21 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
       setLoading(true);
       clearMessages();
       try {
-        // Send the access token to our backend to verify + upsert user
         const res = await fetch(`${API}/auth/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ accessToken: tokenResponse.access_token }),
         });
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          throw new Error('Backend server is not running. Please start the server and try again.');
+        }
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Google login failed');
         onAuthSuccess(data.user);
         onClose();
       } catch (err) {
-        setError(err.message || 'Google login failed');
+        setError(err.message || 'Google login failed. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -83,17 +86,20 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
             });
+            const contentType = res.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+              throw new Error('Backend server is not running. Please start the server and try again.');
+            }
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Facebook login failed');
             onAuthSuccess(data.user);
             onClose();
           } catch (err) {
-            setError(err.message || 'Facebook login failed');
+            setError(err.message || 'Facebook login failed. Please try again.');
           } finally {
             setLoading(false);
           }
         }
-        // user closed dialog — do nothing
       },
       { scope: 'email,public_profile' }
     );
