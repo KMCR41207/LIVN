@@ -3295,4 +3295,5 @@ export const PRODUCTS = [
   }
 ];
 
-export const getProductById = (id) => PRODUCTS.find(p => p.id === parseInt(id));
+export const getProductById = (id) =>
+  PRODUCTS.find(p => p._id === id || p.id === parseInt(id) || String(p.id) === String(id));
