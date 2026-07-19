@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Package, Truck, CheckCircle, Clock, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import './AccountPages.css';
 
 const API = import.meta.env.VITE_API_URL || '/api';
@@ -10,6 +11,8 @@ const YourOrders = ({ user }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { accessToken } = useAuth();
+  const getToken = () => accessToken || localStorage.getItem('livn_token');
 
   useEffect(() => {
     fetchOrders();
@@ -20,12 +23,12 @@ const YourOrders = ({ user }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('livn_token');
+      const token = getToken();
       if (!token) throw new Error('Not logged in');
 
       // Use /my endpoint — returns only this user's orders
       const response = await fetch(`${API}/orders/my`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
 
       if (response.status === 403) {

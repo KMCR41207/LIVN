@@ -9,13 +9,13 @@ const router = express.Router();
 // ─── Token Generation ────────────────────────────────────────────────────────
 
 /**
- * Generate short-lived access token (15 minutes)
+ * Generate short-lived access token (7 days)
  */
 const generateAccessToken = (user) =>
   jwt.sign(
     { id: user._id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: '15m' } // 15 minute access token
+    { expiresIn: '7d' } // 7 day access token
   );
 
 /**

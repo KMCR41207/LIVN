@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MapPin, Plus, Edit2, Trash2, Check, X, Save } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 import './AccountPages.css';
 
 const API = import.meta.env.VITE_API_URL || '/api';
@@ -9,7 +10,19 @@ const emptyForm = {
   city: '', state: '', pincode: '', country: 'India', isDefault: false,
 };
 
+const INDIAN_STATES = [
+  'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat',
+  'Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh',
+  'Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab',
+  'Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand',
+  'West Bengal','Delhi','Jammu & Kashmir','Ladakh','Puducherry','Chandigarh',
+];
+
 const ManageAddresses = () => {
+  const { accessToken } = useAuth();
+  // Always use fresh token: prefer context, fall back to localStorage
+  const getToken = () => accessToken || localStorage.getItem('livn_token');
+
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,16 +32,12 @@ const ManageAddresses = () => {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  const token = localStorage.getItem('livn_token');
-
-  useEffect(() => { fetchAddresses(); }, []);
-
-  const fetchAddresses = async () => {
+  const fetchAddresses = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(`${API}/auth/addresses`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load addresses');
@@ -38,7 +47,10 @@ const ManageAddresses = () => {
     } finally {
       setLoading(false);
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken]);
+
+  useEffect(() => { fetchAddresses(); }, [fetchAddresses]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -51,13 +63,10 @@ const ManageAddresses = () => {
     setError(null);
     setSuccess(null);
     try {
-      const url = editingId
-        ? `${API}/auth/addresses/${editingId}`
-        : `${API}/auth/addresses`;
-      const method = editingId ? 'PATCH' : 'POST';
+      const url = editingId ? `${API}/auth/addresses/${editingId}` : `${API}/auth/addresses`;
       const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        method: editingId ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
         body: JSON.stringify(form),
       });
       const data = await res.json();
@@ -92,7 +101,7 @@ const ManageAddresses = () => {
     try {
       const res = await fetch(`${API}/auth/addresses/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to delete');
@@ -108,7 +117,7 @@ const ManageAddresses = () => {
     try {
       const res = await fetch(`${API}/auth/addresses/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
         body: JSON.stringify({ isDefault: true }),
       });
       const data = await res.json();
@@ -120,21 +129,9 @@ const ManageAddresses = () => {
     }
   };
 
-  const resetForm = () => {
-    setForm(emptyForm);
-    setEditingId(null);
-    setShowForm(false);
-  };
+  const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
 
-  const INDIAN_STATES = [
-    'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat',
-    'Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh',
-    'Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab',
-    'Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand',
-    'West Bengal','Delhi','Jammu & Kashmir','Ladakh','Puducherry','Chandigarh',
-  ];
-
-  if (loading) return <div className="loading">Loading addresses...</div>;
+  if (loading) return <div className="loading">Loading addresses…</div>;
 
   return (
     <div className="account-page">
@@ -150,7 +147,6 @@ const ManageAddresses = () => {
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
 
-      {/* ── Add / Edit Form ── */}
       {showForm && (
         <div className="address-form-card">
           <div className="address-form-header">
@@ -209,13 +205,12 @@ const ManageAddresses = () => {
         </div>
       )}
 
-      {/* ── Address Cards ── */}
       {addresses.length === 0 && !showForm ? (
         <div className="empty-state">
           <MapPin size={48} />
           <h3>No Saved Addresses</h3>
           <p>Add a delivery address to make checkout faster.</p>
-          <button className="btn-primary" onClick={() => setShowForm(true)}>
+          <button type="button" className="btn-primary" onClick={() => { resetForm(); setShowForm(true); }}>
             <Plus size={16} /> Add Address
           </button>
         </div>
@@ -223,9 +218,7 @@ const ManageAddresses = () => {
         <div className="addresses-grid">
           {addresses.map((addr) => (
             <div key={addr._id} className={`address-card ${addr.isDefault ? 'default-address' : ''}`}>
-              {addr.isDefault && (
-                <div className="default-badge"><Check size={12} /> Default</div>
-              )}
+              {addr.isDefault && <div className="default-badge"><Check size={12} /> Default</div>}
               <div className="address-body">
                 <p className="addr-name">{addr.name}</p>
                 {addr.phone && <p className="addr-phone">{addr.phone}</p>}
@@ -236,9 +229,7 @@ const ManageAddresses = () => {
               </div>
               <div className="address-actions">
                 {!addr.isDefault && (
-                  <button className="addr-action-btn" onClick={() => handleSetDefault(addr._id)}>
-                    Set Default
-                  </button>
+                  <button className="addr-action-btn" onClick={() => handleSetDefault(addr._id)}>Set Default</button>
                 )}
                 <button className="addr-action-btn" onClick={() => handleEdit(addr)}>
                   <Edit2 size={13} /> Edit

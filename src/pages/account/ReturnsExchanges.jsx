@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RotateCcw, Package, RefreshCw, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import './AccountPages.css';
 
 const API = import.meta.env.VITE_API_URL || '/api';
@@ -12,6 +13,8 @@ const ReturnsExchanges = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeSubTab, setActiveSubTab] = useState('overview');
   const navigate = useNavigate();
+  const { accessToken } = useAuth();
+  const getToken = () => accessToken || localStorage.getItem('livn_token');
 
   useEffect(() => {
     fetchData();
@@ -20,7 +23,7 @@ const ReturnsExchanges = () => {
 
   const fetchData = async () => {
     setIsLoading(true);
-    const token = localStorage.getItem('livn_token');
+    const token = getToken();
     try {
       const [ordRes, retRes, exRes] = await Promise.allSettled([
         fetch(`${API}/orders/my`, { headers: { Authorization: `Bearer ${token}` } }),

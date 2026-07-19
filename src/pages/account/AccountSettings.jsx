@@ -42,7 +42,7 @@ const AccountSettings = () => {
     setError(null);
     setSuccess(null);
     try {
-      const token = localStorage.getItem('livn_token');
+      const token = accessToken || localStorage.getItem('livn_token');
       const res = await fetch(`${API}/auth/profile/update`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
