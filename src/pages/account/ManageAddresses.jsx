@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { MapPin, Plus, Edit2, Trash2, Check, X, Save } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import Loader from '../../components/Loader';
 import './AccountPages.css';
 
 const API = import.meta.env.VITE_API_URL || '/api';
@@ -131,7 +132,7 @@ const ManageAddresses = () => {
 
   const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
 
-  if (loading) return <div className="loading">Loading addresses…</div>;
+  if (loading) return <Loader />;
 
   return (
     <div className="account-page">

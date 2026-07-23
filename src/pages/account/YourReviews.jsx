@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MessageSquare, ShoppingBag, Star, Upload, X } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import Loader from '../../components/Loader';
 import './AccountPages.css';
 
 const API = import.meta.env.VITE_API_URL || '/api';
@@ -130,7 +131,7 @@ const YourReviews = () => {
     ? orders.filter(o => reviews.some(r => r.orderId === o._id))
     : reviewableOrders;
 
-  if (isLoading) return <div className="loading">Loading your reviews…</div>;
+  if (isLoading) return <Loader />;
 
   return (
     <div className="account-page">

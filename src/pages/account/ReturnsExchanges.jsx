@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { RotateCcw, Package, RefreshCw, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import Loader from '../../components/Loader';
 import './AccountPages.css';
 
 const API = import.meta.env.VITE_API_URL || '/api';
@@ -48,7 +49,7 @@ const ReturnsExchanges = () => {
     }
   };
 
-  if (isLoading) return <div className="loading">Loading…</div>;
+  if (isLoading) return <Loader />;
 
   return (
     <div className="account-page">

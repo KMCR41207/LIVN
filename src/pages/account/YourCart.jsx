@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ShoppingBag, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
+import Loader from '../../components/Loader';
 import './AccountPages.css';
 
 const YourCart = ({ user }) => {
@@ -24,7 +25,7 @@ const YourCart = ({ user }) => {
     await removeFromCart(item.product.id, item.size);
   };
 
-  if (isLoading) return <div className="loading">Loading cart...</div>;
+  if (isLoading) return <Loader />;
 
   if (localCart.length === 0) {
     return (

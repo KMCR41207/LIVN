@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Package, Truck, CheckCircle, Clock, AlertCircle, RefreshCw, ExternalLink } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import Loader from '../../components/Loader';
 import './AccountPages.css';
 
 const API = import.meta.env.VITE_API_URL || '/api';
@@ -84,7 +85,7 @@ const YourOrders = ({ user }) => {
     return daysDiff <= 7;
   };
 
-  if (isLoading) return <div className="loading">Loading your orders…</div>;
+  if (isLoading) return <Loader />;
 
   return (
     <div className="account-page">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { getMyOrders, getReturns, getExchanges, getCancellations, createReturn, createExchange, createCancellation, updateReturn, updateExchange, updateCancellation } from '../lib/api';
 import { LogOut, Package, RefreshCw, Zap, X, Send, AlertCircle, Check, Clock } from 'lucide-react';
+import Loader from '../components/Loader';
 import './CustomerAccount.css';
 
 const RETURN_REASONS = ['Wrong Size', 'Damaged Product', 'Wrong Item Received', 'Quality Issue', 'Changed Mind', 'Other'];
@@ -332,7 +333,7 @@ const CustomerAccount = () => {
             <div className="tab-section">
               <h2>My Orders</h2>
               {ordersLoading ? (
-                <div className="loading">Loading orders...</div>
+                <div className="loading"><Loader /></div>
               ) : orders.length === 0 ? (
                 <div className="empty-state">
                   <Package size={48} />
@@ -427,7 +428,7 @@ const CustomerAccount = () => {
               )}
 
               {returnsLoading ? (
-                <div className="loading">Loading returns...</div>
+                <div className="loading"><Loader /></div>
               ) : returns.length === 0 ? (
                 <div className="empty-state">
                   <RefreshCw size={48} />
