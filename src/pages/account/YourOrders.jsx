@@ -71,6 +71,19 @@ const YourOrders = ({ user }) => {
   const formatDate = (d) =>
     new Date(d).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
 
+  // Check if order can be tracked (not delivered)
+  const canTrackOrder = (order) => {
+    return order.status?.toLowerCase() !== 'delivered';
+  };
+
+  // Check if exchange is available (within 7 days of ordering)
+  const canExchange = (order) => {
+    const orderDate = new Date(order.createdAt);
+    const now = new Date();
+    const daysDiff = Math.floor((now - orderDate) / (1000 * 60 * 60 * 24));
+    return daysDiff <= 7;
+  };
+
   if (isLoading) return <div className="loading">Loading your orders…</div>;
 
   return (
@@ -143,18 +156,30 @@ const YourOrders = ({ user }) => {
                     <strong>₹{order.totalAmount || (order.price && order.quantity ? order.price * order.quantity : '—')}</strong>
                   </div>
                   <div className="order-actions">
-                    <button
-                      className="action-btn"
-                      onClick={() => navigate('/track-order')}
-                    >
-                      Track Order
-                    </button>
-                    <button
-                      className="action-btn"
-                      onClick={() => navigate(`/account?tab=returns`)}
-                    >
-                      Return / Exchange
-                    </button>
+                    {canTrackOrder(order) && (
+                      <button
+                        className="action-btn"
+                        onClick={() => navigate('/track-order')}
+                      >
+                        Track Order
+                      </button>
+                    )}
+                    {canExchange(order) && (
+                      <button
+                        className="action-btn"
+                        onClick={() => navigate(`/account?tab=returns`)}
+                      >
+                        Return / Exchange
+                      </button>
+                    )}
+                    {!canExchange(order) && order.status?.toLowerCase() === 'delivered' && (
+                      <button
+                        className="action-btn"
+                        onClick={() => navigate(`/account?tab=reviews`)}
+                      >
+                        Write a Review
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
