@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, Menu, X, User, LogOut, ShoppingBag,
   Inbox, Package, Star, RotateCcw, Headphones,
-  Heart, ChevronRight, Settings, Shield
+  Heart, ChevronRight, Settings, Shield, MapPin,
+  ShoppingCart, MessageSquare, Eye, Ruler, ChevronDown,
+  ChevronUp, Lock
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
@@ -17,6 +19,7 @@ const Navbar = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showAccountPanel, setShowAccountPanel] = useState(false);
+  const [showOtherItems, setShowOtherItems] = useState(false);
   const panelRef = useRef(null);
   const navigate = useNavigate();
   const { totalItems } = useCart();
@@ -74,6 +77,7 @@ const Navbar = () => {
 
   const navTo = (path) => {
     setShowAccountPanel(false);
+    setShowOtherItems(false);
     navigate(path);
   };
 
@@ -169,21 +173,16 @@ const Navbar = () => {
 
                   {/* Menu Items */}
                   <div className="account-panel-menu">
+                    {/* ── Primary items (always visible) ── */}
                     <button className="panel-item" onClick={() => navTo('/profile')}>
                       <User size={18} />
                       <span>My Profile</span>
                       <ChevronRight size={16} className="panel-arrow" />
                     </button>
 
-                    <button className="panel-item" onClick={() => navTo('/account')}>
+                    <button className="panel-item" onClick={() => navTo('/account?tab=orders')}>
                       <Package size={18} />
                       <span>My Orders</span>
-                      <ChevronRight size={16} className="panel-arrow" />
-                    </button>
-
-                    <button className="panel-item" onClick={() => navTo('/account?tab=returns')}>
-                      <RotateCcw size={18} />
-                      <span>Returns & Exchanges</span>
                       <ChevronRight size={16} className="panel-arrow" />
                     </button>
 
@@ -193,17 +192,80 @@ const Navbar = () => {
                       <ChevronRight size={16} className="panel-arrow" />
                     </button>
 
-                    <button className="panel-item" onClick={() => navTo('/rewards')}>
-                      <Heart size={18} />
-                      <span>Rewards & Loyalty</span>
+                    <button className="panel-item" onClick={() => navTo('/account?tab=cart')}>
+                      <ShoppingCart size={18} />
+                      <span>Your Cart</span>
                       <ChevronRight size={16} className="panel-arrow" />
                     </button>
 
-                    <button className="panel-item" onClick={() => navTo('/whatsapp')}>
-                      <Headphones size={18} />
-                      <span>Customer Care</span>
+                    <button className="panel-item" onClick={() => navTo('/account?tab=returns')}>
+                      <RotateCcw size={18} />
+                      <span>Returns & Exchanges</span>
                       <ChevronRight size={16} className="panel-arrow" />
                     </button>
+
+                    {/* ── Other (expandable) ── */}
+                    <button
+                      className="panel-item panel-item-other"
+                      onClick={() => setShowOtherItems(prev => !prev)}
+                    >
+                      <ChevronDown size={18} className={`other-chevron ${showOtherItems ? 'rotated' : ''}`} />
+                      <span>Other</span>
+                      {showOtherItems ? <ChevronUp size={16} className="panel-arrow" /> : <ChevronDown size={16} className="panel-arrow" />}
+                    </button>
+
+                    {/* ── Expanded "Other" items ── */}
+                    {showOtherItems && (
+                      <div className="panel-other-items">
+                        <button className="panel-item panel-item-sub" onClick={() => navTo('/account?tab=wishlist')}>
+                          <Heart size={17} />
+                          <span>Wishlist</span>
+                          <ChevronRight size={15} className="panel-arrow" />
+                        </button>
+
+                        <button className="panel-item panel-item-sub" onClick={() => navTo('/rewards')}>
+                          <Heart size={17} />
+                          <span>Rewards & Loyalty</span>
+                          <ChevronRight size={15} className="panel-arrow" />
+                        </button>
+
+                        <button className="panel-item panel-item-sub" onClick={() => navTo('/account?tab=addresses')}>
+                          <MapPin size={17} />
+                          <span>Manage Addresses</span>
+                          <ChevronRight size={15} className="panel-arrow" />
+                        </button>
+
+                        <button className="panel-item panel-item-sub" onClick={() => navTo('/account?tab=measurements')}>
+                          <Ruler size={17} />
+                          <span>Saved Measurements</span>
+                          <ChevronRight size={15} className="panel-arrow" />
+                        </button>
+
+                        <button className="panel-item panel-item-sub" onClick={() => navTo('/account?tab=recently-viewed')}>
+                          <Eye size={17} />
+                          <span>Recently Viewed</span>
+                          <ChevronRight size={15} className="panel-arrow" />
+                        </button>
+
+                        <button className="panel-item panel-item-sub" onClick={() => navTo('/account?tab=reviews')}>
+                          <MessageSquare size={17} />
+                          <span>Your Reviews</span>
+                          <ChevronRight size={15} className="panel-arrow" />
+                        </button>
+
+                        <button className="panel-item panel-item-sub" onClick={() => navTo('/account?tab=care')}>
+                          <Headphones size={17} />
+                          <span>Customer Care</span>
+                          <ChevronRight size={15} className="panel-arrow" />
+                        </button>
+
+                        <button className="panel-item panel-item-sub" onClick={() => navTo('/account?tab=settings')}>
+                          <Lock size={17} />
+                          <span>Settings & Privacy</span>
+                          <ChevronRight size={15} className="panel-arrow" />
+                        </button>
+                      </div>
+                    )}
 
                     {currentUser?.role === 'admin' && (
                       <>
