@@ -1,18 +1,23 @@
 import { useState } from 'react';
-import { Shield, Bell, Lock, LogOut, Trash2 } from 'lucide-react';
+import { Shield, Bell, Lock, LogOut, Trash2, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import './AccountPages.css';
 
+const API = import.meta.env.VITE_API_URL || '/api';
+
 const SettingsPrivacy = () => {
   const navigate = useNavigate();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, accessToken } = useAuth();
   const [notifs, setNotifs] = useState({
     orderEmails: true,
     promoEmails: true,
     smsNotifs: true,
   });
   const [saved, setSaved] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  const getToken = () => accessToken || localStorage.getItem('livn_token');
 
   const toggle = (key) => {
     setNotifs(p => ({ ...p, [key]: !p[key] }));
@@ -24,6 +29,76 @@ const SettingsPrivacy = () => {
   const handleLogoutAll = async () => {
     await logout();
     navigate('/');
+  };
+
+  const handleDownloadData = async () => {
+    setDownloading(true);
+    try {
+      const token = getToken();
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Fetch all user data in parallel
+      const [ordersRes, addressesRes, cartRes, wishlistRes, reviewsRes] = await Promise.allSettled([
+        fetch(`${API}/orders/my`, { headers }),
+        fetch(`${API}/addresses`, { headers }),
+        fetch(`${API}/cart`, { headers }),
+        fetch(`${API}/wishlist`, { headers }),
+        fetch(`${API}/reviews/my`, { headers }),
+      ]);
+
+      const safeJson = async (res) => {
+        try {
+          if (res.status === 'fulfilled' && res.value.ok) {
+            const d = await res.value.json();
+            return d.data || d;
+          }
+        } catch { /* ignore */ }
+        return [];
+      };
+
+      const [orders, addresses, cart, wishlist, reviews] = await Promise.all([
+        safeJson(ordersRes),
+        safeJson(addressesRes),
+        safeJson(cartRes),
+        safeJson(wishlistRes),
+        safeJson(reviewsRes),
+      ]);
+
+      // Build the data export object
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        profile: {
+          name: currentUser?.name || '',
+          email: currentUser?.email || '',
+          phone: currentUser?.phone || '',
+          joinedAt: currentUser?.createdAt || '',
+          provider: currentUser?.provider || 'email',
+        },
+        orders,
+        addresses,
+        cart,
+        wishlist,
+        reviews,
+      };
+
+      // Create and trigger download
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `livaani-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Failed to download data. Please try again.');
+      console.error(err);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -89,7 +164,15 @@ const SettingsPrivacy = () => {
           <button className="change-password-btn" onClick={() => navigate('/shipping-returns')}>
             View Privacy Policy
           </button>
-          <button className="change-password-btn">Download My Data</button>
+          <button
+            className="change-password-btn"
+            onClick={handleDownloadData}
+            disabled={downloading}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <Download size={14} />
+            {downloading ? 'Preparing…' : 'Download My Data'}
+          </button>
         </div>
       </div>
 
