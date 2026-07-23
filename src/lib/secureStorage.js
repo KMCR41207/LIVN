@@ -116,8 +116,6 @@ export const DEPRECATED_clearAllPII = () => {
       console.warn(`Could not remove key ${key}:`, e);
     }
   });
-
-  console.log('✅ Cleared deprecated PII storage keys');
 };
 
 /**
@@ -139,8 +137,6 @@ export const clearAllStorage = () => {
   } catch (e) {
     console.warn('Could not clear storage:', e);
   }
-
-  console.log('✅ All storage cleared on logout');
 };
 
 export default {
