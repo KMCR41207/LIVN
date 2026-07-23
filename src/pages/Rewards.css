@@ -32,13 +32,13 @@
 
 .rewards-hero-title {
   font-family: var(--font-heading);
-  color: var(--color-maroon-dark);
+  color: #fff;
   letter-spacing: 2px;
   margin-bottom: 16px;
 }
 
 .rewards-hero-desc {
-  color: var(--color-text-secondary);
+  color: #e0e0e0;
   font-size: 1.05rem;
   line-height: 1.7;
 }
