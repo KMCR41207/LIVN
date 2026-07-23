@@ -4,21 +4,42 @@ import { getProductById } from '../data/products';
 import { ArrowLeft, Ruler, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { saveRecentlyViewed } from '../hooks/useRecentlyViewed';
+import Loader from '../components/Loader';
 import './ProductPage.css';
+
+const API = import.meta.env.VITE_API_URL || '/api';
 
 const ProductPage = () => {
   const { id } = useParams();
-  const product = getProductById(id);
+  const staticProduct = getProductById(id);
+  const [product, setProduct] = useState(staticProduct || null);
+  const [loadingFromApi, setLoadingFromApi] = useState(!staticProduct);
+  const [notFound, setNotFound] = useState(false);
   const [selectedSize, setSelectedSize] = useState('');
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
+  // If static lookup failed, try the API (admin-added products)
+  useEffect(() => {
+    if (!staticProduct && id) {
+      setLoadingFromApi(true);
+      fetch(`${API}/products/${id}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.data) {
+            setProduct(data.data);
+          } else {
+            setNotFound(true);
+          }
+        })
+        .catch(() => setNotFound(true))
+        .finally(() => setLoadingFromApi(false));
+    }
+  }, [id, staticProduct]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    // Track this product as recently viewed
-    if (product) {
-      saveRecentlyViewed(product);
-    }
+    if (product) saveRecentlyViewed(product);
   }, [product]);
 
   const handleAddToCart = () => {
@@ -31,7 +52,9 @@ const ProductPage = () => {
     navigate('/checkout');
   };
 
-  if (!product) {
+  if (loadingFromApi) return <Loader />;
+
+  if (!product || notFound) {
     return (
       <div className="container" style={{ padding: '150px 0', textAlign: 'center' }}>
         <h2>Product Not Found</h2>
@@ -71,9 +94,12 @@ const ProductPage = () => {
           <div className="product-features">
             <h4 className="features-title">Garb Details</h4>
             <ul>
-              {product.details.map((detail, index) => (
-                <li key={index}>✦ {detail}</li>
-              ))}
+              {product.details && product.details.length > 0
+                ? product.details.map((detail, index) => (
+                    <li key={index}>✦ {detail}</li>
+                  ))
+                : <li>✦ Premium quality craftsmanship</li>
+              }
             </ul>
           </div>
 
