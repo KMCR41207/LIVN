@@ -55,8 +55,6 @@ const BespokeOrderSummary = () => {
         throw new Error(orderError);
       }
 
-      console.log('Bespoke order created:', data);
-      
       // Navigate to thank you page
       navigate('/bespoke/thank-you');
     } catch (err) {
