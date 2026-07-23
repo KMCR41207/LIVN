@@ -195,7 +195,10 @@ const DetailsStep = ({ formData, onChange, onNext, onBack, hasCustomSize, setFor
           </div>
           <div className="form-group">
             <label htmlFor="phone">Phone Number</label>
-            <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={onChange} placeholder="+91 XXXXX XXXXX" />
+            <input type="tel" id="phone" name="phone" required value={formData.phone} onChange={onChange} placeholder="+91 XXXXX XXXXX"
+              pattern="[6-9]\d{9}"
+              title="Enter a valid 10-digit Indian mobile number starting with 6-9"
+            />
           </div>
         </div>
 
@@ -322,6 +325,7 @@ const PaymentStep = ({ onBack, onConfirm, isSubmitting, totalPrice }) => {
     if (!method) { alert('Please select a payment method.'); return; }
     if (method === 'upi') {
       if (!upiId.trim()) { alert('Please enter your UPI ID.'); return; }
+      if (!upiId.includes('@')) { alert('Please enter a valid UPI ID (e.g. name@bank).'); return; }
       if (!selectedUpiApp) { alert('Please select a UPI app.'); return; }
       onConfirm(method, upiId, () => openUpiApp(selectedUpiApp, upiId, totalPrice));
       return;
@@ -458,7 +462,7 @@ const ThankYouSplash = ({ ordersPlaced, formData, totalPrice, fallbackId }) => {
           </div>
           <Link to="/" className="btn btn-gold" style={{ marginTop: 24 }}>Return to Collections</Link>
           <a
-            href="https://wa.me/919876543210?text=My%20order%20has%20been%20placed%20at%20Livaani!"
+            href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'}?text=My%20order%20has%20been%20placed%20at%20Livaani!`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn"
