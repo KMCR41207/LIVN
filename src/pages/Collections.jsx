@@ -135,7 +135,7 @@ const Collections = () => {
             onChange={e => setSearchQuery(e.target.value)}
           />
           {searchQuery && (
-            <button className="search-clear" onClick={() => setSearchQuery('')}>
+            <button className="search-clear" aria-label="Clear search" onClick={() => setSearchQuery('')}>
               <X size={14} />
             </button>
           )}
