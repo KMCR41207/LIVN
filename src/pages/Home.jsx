@@ -64,7 +64,7 @@ const Home = () => {
         <div className="category-grid grid grid-cols-5">
           {CATEGORIES.map((cat, index) => (
             <div
-              key={index}
+              key={cat.name}
               className="category-card reveal-on-scroll"
               style={{ animationDelay: `${index * 0.1}s`, cursor: 'pointer' }}
               onClick={() => handleCategoryClick(cat.name)}
