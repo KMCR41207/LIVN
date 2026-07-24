@@ -7,9 +7,23 @@ const ProductCard = ({ product, onClick }) => {
     : 0;
 
   return (
-    <div className="product-card" onClick={() => onClick && onClick(product)} style={{ cursor: 'pointer' }}>
+    <div
+      className="product-card"
+      onClick={() => onClick && onClick(product)}
+      style={{ cursor: 'pointer' }}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${product.name}, ₹${(product.offer_price || product.price || 0).toLocaleString('en-IN')}`}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onClick && onClick(product)}
+    >
       <div className="product-image-container">
-        <img src={product.image} alt={product.name} className="product-image" loading="lazy" />
+        <img
+          src={product.image}
+          alt={product.name}
+          className="product-image"
+          loading="lazy"
+          onError={e => { e.target.src = '/images/placeholder.jpg'; }}
+        />
         {hasDiscount && (
           <span className="product-discount-badge">{discountPct}% OFF</span>
         )}
