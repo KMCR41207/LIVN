@@ -1,0 +1,97 @@
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-option {
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  padding: 0;
+  overflow: visible;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.color-option.selected {
+  border-color: var(--color-maroon, #6a0418);
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(106, 4, 24, 0.3);
+}
+
+.color-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  animation: fadeInTooltip 0.2s ease-out forwards;
+}
+
+.color-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+@keyframes fadeInTooltip {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Special handling for common colors */
+.color-option[style*="white"],
+.color-option[style*="#FFFFFF"],
+.color-option[style*="#ffffff"] {
+  border: 2px solid #e0e0e0;
+}
+
+.color-option[style*="white"]:hover,
+.color-option[style*="#FFFFFF"]:hover,
+.color-option[style*="#ffffff"]:hover,
+.color-option[style*="white"].selected,
+.color-option[style*="#FFFFFF"].selected,
+.color-option[style*="#ffffff"].selected {
+  border-color: var(--color-maroon, #6a0418);
+}
+
+@media (max-width: 768px) {
+  .color-picker {
+    gap: 6px;
+  }
+  
+  .color-option:hover {
+    transform: scale(1.05);
+  }
+  
+  .color-option.selected {
+    transform: scale(1.1);
+  }
+}
