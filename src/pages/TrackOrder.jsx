@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { getCurrentUser, getMyOrders } from '../lib/api';
 import AuthModal from '../components/AuthModal';
+import Loader from '../components/Loader';
 import './TrackOrder.css';
 import './WhatsApp.css';
 
@@ -228,10 +229,7 @@ const TrackOrder = () => {
       </div>
 
       {loading ? (
-        <div className="track-loading">
-          <div className="track-loading-spinner" />
-          Loading your orders...
-        </div>
+        <Loader />
       ) : !user ? (
         <div className="track-auth-prompt">
           <Package size={60} className="track-empty-icon" />
