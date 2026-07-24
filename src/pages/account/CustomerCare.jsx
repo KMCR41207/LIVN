@@ -45,20 +45,25 @@ const CustomerCare = () => {
           <Phone size={24} className="care-icon" />
           <div>
             <h3>Phone Support</h3>
-            <p>+91 90000 00000</p>
+            <p>+91 {import.meta.env.VITE_WHATSAPP_NUMBER ? import.meta.env.VITE_WHATSAPP_NUMBER.replace('91','') : '90000 00000'}</p>
             <span className="care-tag">Mon–Fri, 10 AM – 6 PM IST</span>
           </div>
-          <a href="tel:+919000000000" className="care-action-btn">Call Us</a>
+          <a href={`tel:+${import.meta.env.VITE_WHATSAPP_NUMBER || '919000000000'}`} className="care-action-btn">Call Us</a>
         </div>
 
         <div className="care-card">
           <MessageCircle size={24} className="care-icon" />
           <div>
             <h3>WhatsApp Chat</h3>
-            <p>+91 90000 00000</p>
+            <p>+91 {import.meta.env.VITE_WHATSAPP_NUMBER ? import.meta.env.VITE_WHATSAPP_NUMBER.replace('91','') : '90000 00000'}</p>
             <span className="care-tag">24/7 Support</span>
           </div>
-          <button className="care-action-btn" onClick={() => navigate('/whatsapp')}>Chat Now</button>
+          <a
+            href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919000000000'}?text=Hi%20Livaani%20Support%2C%20I%20need%20help`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="care-action-btn"
+          >Chat Now</a>
         </div>
       </div>
 
