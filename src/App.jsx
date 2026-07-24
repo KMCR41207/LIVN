@@ -27,6 +27,7 @@ import BespokeOrderSummary from './pages/Bespoke/BespokeOrderSummary';
 import BespokeThankYou from './pages/Bespoke/BespokeThankYou';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthProvider';
+import BackToTop from './components/BackToTop';
 
 import './index.css';
 
@@ -70,6 +71,7 @@ function App() {
               </Routes>
             </main>
             <Footer />
+            <BackToTop />
           </div>
         </Router>
       </CartProvider>
