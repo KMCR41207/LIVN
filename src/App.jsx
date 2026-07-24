@@ -31,6 +31,7 @@ import { AuthProvider } from './context/AuthProvider';
 import BackToTop from './components/BackToTop';
 import PageTitle from './components/PageTitle';
 import ErrorBoundary from './components/ErrorBoundary';
+import ScrollToTop from './components/ScrollToTop';
 
 import './index.css';
 
@@ -39,6 +40,7 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Router>
+          <ScrollToTop />
           <div className="app-container">
             <Navbar />
             <PageTitle />
