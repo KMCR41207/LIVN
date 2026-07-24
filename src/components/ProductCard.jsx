@@ -1,10 +1,36 @@
 import './ProductCard.css';
 
+import { useState, useEffect } from 'react';
+import { Heart } from 'lucide-react';
+import './ProductCard.css';
+
+const getWishlist = () => {
+  try { return JSON.parse(localStorage.getItem('livn_wishlist') || '[]'); }
+  catch { return []; }
+};
+
 const ProductCard = ({ product, onClick }) => {
   const hasDiscount = product.offer_price && product.offer_price < product.price;
   const discountPct = hasDiscount
     ? Math.round(((product.price - product.offer_price) / product.price) * 100)
     : 0;
+
+  const productId = String(product._id || product.id);
+  const [wishlisted, setWishlisted] = useState(() => getWishlist().includes(productId));
+
+  useEffect(() => {
+    setWishlisted(getWishlist().includes(productId));
+  }, [productId]);
+
+  const toggleWishlist = (e) => {
+    e.stopPropagation();
+    const current = getWishlist();
+    const updated = wishlisted
+      ? current.filter(id => id !== productId)
+      : [...current, productId];
+    localStorage.setItem('livn_wishlist', JSON.stringify(updated));
+    setWishlisted(!wishlisted);
+  };
 
   return (
     <div
@@ -27,6 +53,14 @@ const ProductCard = ({ product, onClick }) => {
         {hasDiscount && (
           <span className="product-discount-badge">{discountPct}% OFF</span>
         )}
+        <button
+          className={`product-wishlist-btn ${wishlisted ? 'active' : ''}`}
+          onClick={toggleWishlist}
+          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          <Heart size={18} fill={wishlisted ? '#fff' : 'none'} />
+        </button>
       </div>
       <div className="product-info">
         <h3 className="product-title">{product.name}</h3>

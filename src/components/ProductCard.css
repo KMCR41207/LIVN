@@ -92,7 +92,39 @@
   pointer-events: none;
 }
 
-/* Price row with offer + MRP */
+/* Wishlist button on card */
+.product-wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.35);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s, transform 0.15s;
+  backdrop-filter: blur(4px);
+}
+
+.product-card:hover .product-wishlist-btn,
+.product-wishlist-btn.active {
+  opacity: 1;
+}
+
+.product-wishlist-btn.active {
+  background: var(--color-maroon, #7a1e2e);
+}
+
+.product-wishlist-btn:hover {
+  transform: scale(1.12);
+  background: var(--color-maroon, #7a1e2e);
+}
 .product-price-row {
   display: flex;
   align-items: baseline;
