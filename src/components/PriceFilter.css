@@ -1,0 +1,249 @@
+.price-filter {
+  position: relative;
+  display: inline-block;
+}
+
+.price-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.price-filter-toggle:hover {
+  border-color: var(--color-maroon);
+  background: #fafafa;
+}
+
+.price-filter-toggle.active {
+  border-color: var(--color-maroon);
+  background: var(--color-maroon);
+  color: white;
+}
+
+.price-filter-toggle.has-filter {
+  border-color: var(--color-maroon);
+  background: rgba(106, 4, 24, 0.1);
+}
+
+.price-filter-badge {
+  font-size: 12px;
+  color: var(--color-maroon);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+.price-filter-toggle.active .price-filter-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.price-filter-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  padding: 20px;
+  min-width: 280px;
+  z-index: 1000;
+  animation: dropIn 0.2s ease-out;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.price-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.price-filter-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.price-filter-clear {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--color-maroon);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.price-filter-clear:hover {
+  background: rgba(106, 4, 24, 0.1);
+}
+
+.price-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.price-input-group {
+  flex: 1;
+}
+
+.price-input-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+}
+
+.price-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.price-input:focus {
+  outline: none;
+  border-color: var(--color-maroon);
+}
+
+.price-input-separator {
+  color: var(--color-text-secondary);
+  font-weight: bold;
+  padding-top: 20px;
+}
+
+.price-range-sliders {
+  position: relative;
+  height: 40px;
+  margin-bottom: 16px;
+}
+
+.price-slider {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  appearance: none;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.price-slider::-webkit-slider-track {
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+}
+
+.price-slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--color-maroon);
+  cursor: pointer;
+  pointer-events: all;
+  position: relative;
+  z-index: 2;
+}
+
+.price-slider::-moz-range-track {
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  border: none;
+}
+
+.price-slider::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: var(--color-maroon);
+  cursor: pointer;
+  pointer-events: all;
+  border: none;
+}
+
+.price-slider-max {
+  z-index: 1;
+}
+
+.price-presets {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 16px;
+}
+
+.price-presets-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.price-preset {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: none;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.price-preset:hover {
+  border-color: var(--color-maroon);
+  background: rgba(106, 4, 24, 0.05);
+}
+
+.price-preset.active {
+  background: var(--color-maroon);
+  color: white;
+  border-color: var(--color-maroon);
+}
+
+@media (max-width: 768px) {
+  .price-filter-dropdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100vw - 40px);
+    max-width: 320px;
+  }
+}
