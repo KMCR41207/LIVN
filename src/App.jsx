@@ -28,6 +28,7 @@ import BespokeThankYou from './pages/Bespoke/BespokeThankYou';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthProvider';
 import BackToTop from './components/BackToTop';
+import PageTitle from './components/PageTitle';
 
 import './index.css';
 
@@ -38,6 +39,7 @@ function App() {
         <Router>
           <div className="app-container">
             <Navbar />
+            <PageTitle />
             <main className="main-content">
               <Routes>
                 <Route path="/" element={<Home />} />
