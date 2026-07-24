@@ -50,10 +50,16 @@ const Collections = () => {
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q)
-      );
+      const terms = q.split(/\s+/).filter(t => t.length > 1);
+      result = result.filter(p => {
+        const haystack = [
+          p.name, p.category, p.description,
+          (p.tags || []).join(' '),
+          (p.keywords || []).join(' '),
+          p.color, p.fabric, p.occasion, p.pattern, p.style,
+        ].join(' ').toLowerCase();
+        return terms.every(term => haystack.includes(term));
+      });
     }
     return result;
   }, [products, activeCategory, searchQuery]);

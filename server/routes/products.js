@@ -15,20 +15,58 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/products/search?q=query — search products (public)
+// GET /api/products/search?q=query — smart multi-field search (public)
 router.get('/search', async (req, res) => {
   try {
-    const { q } = req.query;
+    const { q, limit = 20 } = req.query;
     if (!q || q.trim().length < 1) return res.json({ data: [], error: null });
-    const regex = new RegExp(q.trim(), 'i');
-    const products = await Product.find({
-      $or: [
-        { name: regex },
-        { category: regex },
-        { description: regex },
-      ],
-    }).limit(20).sort({ createdAt: -1 });
-    res.json({ data: products, error: null });
+
+    const term = q.trim();
+    // Build regex variants for fuzzy-ish matching
+    const regexExact = new RegExp(term, 'i');
+    // Split into individual words for multi-word matching
+    const words = term.split(/\s+/).filter(w => w.length > 1);
+    const wordRegexes = words.map(w => new RegExp(w, 'i'));
+
+    // Score-based: exact match on name gets highest priority
+    const [exactMatches, wordMatches] = await Promise.all([
+      Product.find({
+        $or: [
+          { name: regexExact },
+          { category: regexExact },
+          { description: regexExact },
+          { tags: regexExact },
+          { keywords: regexExact },
+          { color: regexExact },
+          { fabric: regexExact },
+          { occasion: regexExact },
+          { pattern: regexExact },
+          { style: regexExact },
+        ],
+      }).limit(parseInt(limit)).lean(),
+
+      words.length > 1
+        ? Product.find({
+          $and: wordRegexes.map(wr => ({
+            $or: [
+              { name: wr }, { category: wr }, { description: wr },
+              { tags: wr }, { keywords: wr }, { color: wr },
+              { fabric: wr }, { occasion: wr }, { pattern: wr },
+            ],
+          })),
+        }).limit(parseInt(limit)).lean()
+        : Promise.resolve([]),
+    ]);
+
+    // Merge, deduplicate by _id, exact matches first
+    const seen = new Set();
+    const results = [];
+    [...exactMatches, ...wordMatches].forEach(p => {
+      const id = p._id.toString();
+      if (!seen.has(id)) { seen.add(id); results.push(p); }
+    });
+
+    res.json({ data: results.slice(0, parseInt(limit)), error: null });
   } catch (err) {
     res.status(500).json({ data: null, error: err.message });
   }
