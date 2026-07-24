@@ -14,9 +14,9 @@ const Footer = () => {
             Modern fashion for the woman who moves with intention. Clean lines, premium fabrics, effortless style.
           </p>
           <div className="social-links">
-            <a href="#" aria-label="Instagram"><Instagram /></a>
-            <a href="#" aria-label="Facebook"><Facebook /></a>
-            <a href="#" aria-label="Twitter"><Twitter /></a>
+            <a href="https://instagram.com/livaani" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram /></a>
+            <a href="https://facebook.com/livaani" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook /></a>
+            <a href="https://twitter.com/livaani" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><Twitter /></a>
           </div>
         </div>
 
@@ -53,7 +53,7 @@ const Footer = () => {
             </li>
             <li>
               <Phone size={18} />
-              <span>+91 98765 43210</span>
+              <span>+91 {import.meta.env.VITE_WHATSAPP_NUMBER ? import.meta.env.VITE_WHATSAPP_NUMBER.replace('91','') : '98765 43210'}</span>
             </li>
             <li>
               <Mail size={18} />
