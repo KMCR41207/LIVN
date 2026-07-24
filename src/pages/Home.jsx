@@ -57,7 +57,16 @@ const Home = () => {
       {/* Categories Section */}
       <section id="collections" className="categories-section section-padding container">
         <div className="section-header reveal-on-scroll">
-          <h2 className="section-title">Shop by Style</h2>
+          <div className="style-loader">
+            <p>Shop by</p>
+            <div className="style-words">
+              <span className="style-word">Style</span>
+              <span className="style-word">Fabric</span>
+              <span className="style-word">Occasion</span>
+              <span className="style-word">Mood</span>
+              <span className="style-word">Style</span>
+            </div>
+          </div>
           <p className="section-desc">Explore modern kurti styles designed for every mood and occasion.</p>
         </div>
         
