@@ -30,6 +30,7 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthProvider';
 import BackToTop from './components/BackToTop';
 import PageTitle from './components/PageTitle';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import './index.css';
 
@@ -42,6 +43,7 @@ function App() {
             <Navbar />
             <PageTitle />
             <main className="main-content">
+              <ErrorBoundary>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/product/:id" element={<ProductPage />} />
@@ -73,6 +75,7 @@ function App() {
                 <Route path="/bespoke/thank-you" element={<BespokeThankYou />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </ErrorBoundary>
             </main>
             <Footer />
             <BackToTop />
