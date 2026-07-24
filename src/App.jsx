@@ -25,6 +25,7 @@ import BespokeDesign from './pages/Bespoke/BespokeDesign';
 import BespokeConsultation from './pages/Bespoke/BespokeConsultation';
 import BespokeOrderSummary from './pages/Bespoke/BespokeOrderSummary';
 import BespokeThankYou from './pages/Bespoke/BespokeThankYou';
+import NotFound from './pages/NotFound';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthProvider';
 import BackToTop from './components/BackToTop';
@@ -70,6 +71,7 @@ function App() {
                 <Route path="/bespoke/consultation" element={<BespokeConsultation />} />
                 <Route path="/bespoke/summary" element={<BespokeOrderSummary />} />
                 <Route path="/bespoke/thank-you" element={<BespokeThankYou />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer />
