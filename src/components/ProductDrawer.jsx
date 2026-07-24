@@ -122,8 +122,9 @@ const ProductDrawer = ({ product, onClose }) => {
                     key={idx}
                     className={`drawer-thumb ${activeImg === idx ? 'active' : ''}`}
                     onClick={() => setActiveImg(idx)}
+                    aria-label={`View image ${idx + 1} of ${allImages.length}`}
                   >
-                    <img src={img} alt={`${product.name} ${idx + 1}`} />
+                    <img src={img} alt={`${product.name} view ${idx + 1}`} />
                   </button>
                 ))}
               </div>
