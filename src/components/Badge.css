@@ -1,0 +1,233 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+/* Sizes */
+.badge-small {
+  font-size: 10px;
+  padding: 2px 6px;
+  min-height: 16px;
+}
+
+.badge-medium {
+  font-size: 12px;
+  padding: 4px 8px;
+  min-height: 20px;
+}
+
+.badge-large {
+  font-size: 14px;
+  padding: 6px 12px;
+  min-height: 24px;
+}
+
+/* Shapes */
+.badge-rounded {
+  border-radius: 4px;
+}
+
+.badge-pill {
+  border-radius: 50px;
+}
+
+.badge-square {
+  border-radius: 2px;
+}
+
+/* Variants */
+.badge-default {
+  background: #f1f3f4;
+  color: #5f6368;
+}
+
+.badge-primary {
+  background: var(--color-maroon, #6a0418);
+  color: white;
+}
+
+.badge-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.badge-success {
+  background: #28a745;
+  color: white;
+}
+
+.badge-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.badge-warning {
+  background: #ffc107;
+  color: #212529;
+}
+
+.badge-info {
+  background: #17a2b8;
+  color: white;
+}
+
+.badge-light {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.badge-dark {
+  background: #343a40;
+  color: white;
+}
+
+/* Outline variants */
+.badge-outline-default {
+  background: transparent;
+  color: #6c757d;
+  border: 1px solid #6c757d;
+}
+
+.badge-outline-primary {
+  background: transparent;
+  color: var(--color-maroon, #6a0418);
+  border: 1px solid var(--color-maroon, #6a0418);
+}
+
+.badge-outline-success {
+  background: transparent;
+  color: #28a745;
+  border: 1px solid #28a745;
+}
+
+.badge-outline-danger {
+  background: transparent;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+.badge-outline-warning {
+  background: transparent;
+  color: #ffc107;
+  border: 1px solid #ffc107;
+}
+
+.badge-outline-info {
+  background: transparent;
+  color: #17a2b8;
+  border: 1px solid #17a2b8;
+}
+
+/* Clickable badges */
+.badge-clickable {
+  cursor: pointer;
+  background: none;
+  text-decoration: none;
+}
+
+.badge-clickable:hover:not(.badge-disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.badge-clickable:active:not(.badge-disabled) {
+  transform: translateY(0);
+}
+
+/* Disabled state */
+.badge-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.badge-disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Icon */
+.badge-icon {
+  display: flex;
+  align-items: center;
+}
+
+.badge-small .badge-icon {
+  font-size: 8px;
+}
+
+.badge-medium .badge-icon {
+  font-size: 10px;
+}
+
+.badge-large .badge-icon {
+  font-size: 12px;
+}
+
+/* Focus styles */
+.badge-clickable:focus-visible {
+  outline: 2px solid var(--color-maroon, #6a0418);
+  outline-offset: 2px;
+}
+
+/* Hover effects for different variants */
+.badge-clickable.badge-primary:hover:not(.badge-disabled) {
+  background: var(--color-maroon-dark, #5a0315);
+}
+
+.badge-clickable.badge-success:hover:not(.badge-disabled) {
+  background: #218838;
+}
+
+.badge-clickable.badge-danger:hover:not(.badge-disabled) {
+  background: #c82333;
+}
+
+.badge-clickable.badge-warning:hover:not(.badge-disabled) {
+  background: #e0a800;
+}
+
+.badge-clickable.badge-info:hover:not(.badge-disabled) {
+  background: #138496;
+}
+
+.badge-clickable.badge-light:hover:not(.badge-disabled) {
+  background: #e2e6ea;
+}
+
+.badge-clickable.badge-dark:hover:not(.badge-disabled) {
+  background: #23272b;
+}
+
+/* Outline hover effects */
+.badge-clickable.badge-outline-primary:hover:not(.badge-disabled) {
+  background: var(--color-maroon, #6a0418);
+  color: white;
+}
+
+.badge-clickable.badge-outline-success:hover:not(.badge-disabled) {
+  background: #28a745;
+  color: white;
+}
+
+.badge-clickable.badge-outline-danger:hover:not(.badge-disabled) {
+  background: #dc3545;
+  color: white;
+}
+
+.badge-clickable.badge-outline-warning:hover:not(.badge-disabled) {
+  background: #ffc107;
+  color: #212529;
+}
+
+.badge-clickable.badge-outline-info:hover:not(.badge-disabled) {
+  background: #17a2b8;
+  color: white;
+}
