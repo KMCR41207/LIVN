@@ -2,9 +2,11 @@ import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import ProductDrawer from '../components/ProductDrawer';
+import ProductSkeleton from '../components/ProductSkeleton';
+import PriceFilter from '../components/PriceFilter';
 import { PRODUCTS } from '../data/products';
 import { getCurrentUser, deleteProduct, getProducts } from '../lib/api';
-import { Trash2, Plus, Search, X } from 'lucide-react';
+import { Trash2, Plus, Search, X, Filter } from 'lucide-react';
 import './Collections.css';
 
 // Preferred display order for categories
@@ -28,6 +30,8 @@ const Collections = () => {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Sorted unique categories
   const categories = useMemo(() => {
@@ -61,8 +65,13 @@ const Collections = () => {
         return terms.every(term => haystack.includes(term));
       });
     }
+    // Price filter
+    result = result.filter(p => {
+      const price = p.offer_price || p.price;
+      return price >= priceRange[0] && price <= priceRange[1];
+    });
     return result;
-  }, [products, activeCategory, searchQuery]);
+  }, [products, activeCategory, searchQuery, priceRange]);
 
   // Categories shown in the filtered view
   const visibleCategories = useMemo(() => {
@@ -147,7 +156,30 @@ const Collections = () => {
           )}
         </div>
 
-        <div className="collections-filter-bar">
+        <div className="collections-filter-controls">
+          <PriceFilter
+            minPrice={0}
+            maxPrice={10000}
+            currentRange={priceRange}
+            onChange={setPriceRange}
+            className="price-filter-collections"
+          />
+          
+          <button 
+            className={`filters-toggle ${showFilters ? 'active' : ''}`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter size={16} />
+            Filters
+          </button>
+        </div>
+      </div>
+
+      {showFilters && (
+        <div className="collections-expanded-filters container">
+          <div className="filter-section">
+            <h4>Categories</h4>
+            <div className="collections-filter-bar">
           <button
             className={`filter-chip ${activeCategory === 'All' ? 'active' : ''}`}
             onClick={() => setActiveCategory('All')}
@@ -189,7 +221,11 @@ const Collections = () => {
       )}
 
       {/* ── Product Sections ── */}
-      {!loading && visibleCategories.map(category => {
+      {loading ? (
+        <div className="container">
+          <ProductSkeleton count={8} />
+        </div>
+      ) : visibleCategories.map(category => {
         const catProducts = displayProducts.filter(p => p.category === category);
         if (!catProducts.length) return null;
         const sectionId = category.toLowerCase().replace(/\s+/g, '-');
