@@ -32,13 +32,15 @@ import BackToTop from './components/BackToTop';
 import PageTitle from './components/PageTitle';
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
+import { NotificationProvider } from './components/NotificationSystem';
 
 import './index.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <CartProvider>
         <Router>
           <ScrollToTop />
           <div className="app-container">
@@ -85,6 +87,7 @@ function App() {
         </Router>
       </CartProvider>
     </AuthProvider>
+  </NotificationProvider>
   );
 }
 
