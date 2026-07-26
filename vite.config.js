@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/', // absolute paths needed when served by Express
   server: {
+    port: 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
