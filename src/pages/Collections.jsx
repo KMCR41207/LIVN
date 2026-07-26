@@ -200,6 +200,8 @@ const Collections = () => {
           })}
         </div>
       </div>
+      </div>
+    )}
 
       {/* ── Loading Skeleton ── */}
       {loading && (
