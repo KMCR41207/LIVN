@@ -34,13 +34,64 @@ const Home = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Parallax effect for elements with the .parallax-layer class
+  useEffect(() => {
+    const container = document.querySelector('.home-page');
+    if (!container) return;
+    const layers = Array.from(container.querySelectorAll('.parallax-layer'));
+    if (!layers.length) return;
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    let mouseX = 0;
+    let mouseY = 0;
+    let scrollY = window.scrollY || 0;
+    let rafId = null;
+
+    const update = () => {
+      layers.forEach(layer => {
+        const speed = parseFloat(layer.dataset.speed) || 0.08;
+        const tx = mouseX * speed * 60; // horizontal movement
+        const ty = mouseY * speed * 40 + scrollY * speed * -0.12; // vertical + scroll react
+        layer.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+      });
+      rafId = null;
+    };
+
+    const requestTick = () => { if (!rafId) rafId = requestAnimationFrame(update); };
+
+    const onMouseMove = (e) => {
+      mouseX = (e.clientX - width / 2) / width;
+      mouseY = (e.clientY - height / 2) / height;
+      requestTick();
+    };
+
+    const onScroll = () => { scrollY = window.scrollY || 0; requestTick(); };
+    const onResize = () => { width = window.innerWidth; height = window.innerHeight; };
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+
+    // initial update
+    requestTick();
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      if (rafId) cancelAnimationFrame(rafId);
+      layers.forEach(layer => { layer.style.transform = ''; });
+    };
+  }, []);
+
   return (
     <div className="home-page">
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-background">
-          <img src="/images/hero_banner.png?v=1" alt="Livaani Premium Collection" className="hero-bg-img" />
-          <div className="hero-overlay"></div>
+          <img src="/images/hero_banner.png?v=1" alt="Livaani Premium Collection" className="hero-bg-img parallax-layer" data-speed={0.25} />
+          <div className="hero-overlay parallax-layer" data-speed={0.08}></div>
         </div>
         <div className="hero-content container reveal-on-scroll">
           <h1 className="hero-title">Dress the Part</h1>
@@ -79,7 +130,7 @@ const Home = () => {
               onClick={() => handleCategoryClick(cat.name)}
             >
               <div className="category-img-container">
-                <img src={cat.image} alt={cat.name} className="category-img" loading="lazy" />
+                <img src={cat.image} alt={cat.name} className="category-img parallax-layer" loading="lazy" data-speed={0.08 + index * 0.02} />
                 <div className="category-border"></div>
               </div>
               <h3 className="category-name">{cat.name}</h3>
@@ -109,7 +160,7 @@ const Home = () => {
             <Link to="/bespoke" className="btn btn-primary" style={{marginTop: '20px'}}>Begin Your Bespoke Journey</Link>
           </div>
           <div className="bespoke-image-container reveal-on-scroll" style={{ animationDelay: '0.2s' }}>
-            <img src="/images/bespoke_model.png" alt="Bespoke Tailoring" className="bespoke-img" style={{objectPosition: 'top'}} />
+            <img src="/images/bespoke_model.png" alt="Bespoke Tailoring" className="bespoke-img parallax-layer" data-speed={0.12} style={{objectPosition: 'top'}} />
             <div className="gold-frame"></div>
           </div>
         </div>

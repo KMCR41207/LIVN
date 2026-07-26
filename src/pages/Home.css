@@ -33,6 +33,13 @@
   left: 0;
 }
 
+/* Parallax layer helper */
+.parallax-layer {
+  will-change: transform;
+  transition: transform 120ms linear;
+  transform: translate3d(0,0,0);
+}
+
 /* @keyframes subtleZoom removed for sharper image */
 
 .hero-overlay {
