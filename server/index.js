@@ -23,6 +23,13 @@ const cancellationRoutes  = require('./routes/cancellations');
 const purchaseOrderRoutes = require('./routes/purchaseOrders');
 const cartRoutes          = require('./routes/cart');
 const reviewRoutes        = require('./routes/reviews');
+// New feature routes
+const wishlistRoutes        = require('./routes/wishlist');
+const recentlyViewedRoutes  = require('./routes/recentlyViewed');
+const notificationRoutes    = require('./routes/notifications');
+const measurementRoutes     = require('./routes/savedMeasurements');
+const addressRoutes         = require('./routes/addresses');
+
 // Stub routes for FAQs / Testimonials / Analytics (prevent 404s)
 let faqRoutes, testimonialRoutes, analyticsRoutes;
 try { faqRoutes = require('./routes/faqs'); } catch { faqRoutes = null; }
@@ -93,6 +100,12 @@ app.use('/api/purchase-orders', purchaseOrderRoutes);
 if (faqRoutes)         app.use('/api/faqs',         faqRoutes);
 if (testimonialRoutes) app.use('/api/testimonials',  testimonialRoutes);
 if (analyticsRoutes)   app.use('/api/analytics',     analyticsRoutes);
+
+app.use('/api/wishlist',         wishlistRoutes);
+app.use('/api/recently-viewed',  recentlyViewedRoutes);
+app.use('/api/notifications',    notificationRoutes);
+app.use('/api/measurements',     measurementRoutes);
+app.use('/api/addresses',        addressRoutes);
 
 // Business KPI summary endpoint
 app.get('/api/business/kpis', async (req, res) => {
