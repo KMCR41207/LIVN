@@ -6,7 +6,7 @@ import './UserProfile.css';
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated, logout } = useAuth();
+  const { currentUser, isAuthenticated, isLoading, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -41,12 +41,20 @@ const UserProfile = () => {
     }
   }, [currentUser]);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated (wait for auth to finish loading first)
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       navigate('/');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <p style={{ color: '#8b6914', fontFamily: 'serif', fontSize: '1.1rem' }}>Loading your profile...</p>
+      </div>
+    );
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
