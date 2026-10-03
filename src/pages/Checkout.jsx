@@ -67,12 +67,15 @@ const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty, co
     <div className="cart-step">
       <h2 className="step-title">Your Cart ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})</h2>
 
-      {cartItems.map((item) => (
+      {cartItems.map((item) => {
+        if (!item || !item.product) return null; // guard against malformed items
+        const displayPrice = (item.product.offer_price || item.product.price || 0);
+        return (
         <div key={`${item.product.id}-${item.size}`} className="cart-item-card">
-          <img src={item.product.image} alt={item.product.name} className="cart-item-img" />
+          <img src={item.product.image || ''} alt={item.product.name || 'Product'} className="cart-item-img" />
           <div className="cart-item-info">
-            <h3 className="cart-item-name">{item.product.name}</h3>
-            <p className="cart-item-cat">{item.product.category}</p>
+            <h3 className="cart-item-name">{item.product.name || 'Product'}</h3>
+            <p className="cart-item-cat">{item.product.category || ''}</p>
             <p className="cart-item-size">Size: <strong>{item.size}</strong></p>
             <div className="cart-item-bottom">
               <div className="qty-control">
@@ -80,14 +83,15 @@ const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty, co
                 <span>{item.qty}</span>
                 <button onClick={() => updateQty(item.product.id, item.size, item.qty + 1)}><Plus size={14} /></button>
               </div>
-              <div className="cart-item-price">₹{((item.product.offer_price || item.product.price) * item.qty).toLocaleString('en-IN')}</div>
+              <div className="cart-item-price">₹{(displayPrice * item.qty).toLocaleString('en-IN')}</div>
               <button className="cart-remove-btn" onClick={() => removeFromCart(item.product.id, item.size)} title="Remove">
                 <Trash2 size={16} />
               </button>
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
 
       {/* ── Coupon Code ── */}
       <div className="coupon-section">
@@ -667,17 +671,21 @@ const Checkout = () => {
             <div className="summary-card">
               <h3 className="summary-title">Order Summary</h3>
               <div className="temple-divider" style={{ margin: '15px 0' }}></div>
-              {cartItems.map((item) => (
+              {cartItems.map((item) => {
+                if (!item || !item.product) return null;
+                const displayPrice = (item.product.offer_price || item.product.price || 0);
+                return (
                 <div key={`${item.product.id}-${item.size}`} className="summary-product">
-                  <img src={item.product.image} alt={item.product.name} className="summary-image" />
+                  <img src={item.product.image || ''} alt={item.product.name || 'Product'} className="summary-image" />
                   <div className="summary-details">
-                    <h4 className="summary-product-name">{item.product.name}</h4>
-                    <p className="summary-product-cat">{item.product.category}</p>
+                    <h4 className="summary-product-name">{item.product.name || 'Product'}</h4>
+                    <p className="summary-product-cat">{item.product.category || ''}</p>
                     <p className="summary-size">Size: {item.size} {item.qty > 1 ? `× ${item.qty}` : ''}</p>
-                    <div className="summary-price">₹{((item.product.offer_price || item.product.price) * item.qty).toLocaleString('en-IN')}</div>
+                    <div className="summary-price">₹{(displayPrice * item.qty).toLocaleString('en-IN')}</div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
               <div className="summary-totals">
                 <div className="total-row"><span>Subtotal</span><span>₹{totalPrice.toLocaleString('en-IN')}</span></div>
                 <div className="total-row"><span>Shipping</span><span>Complimentary</span></div>
