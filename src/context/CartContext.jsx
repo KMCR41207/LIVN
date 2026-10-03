@@ -230,23 +230,25 @@ const CartProvider = ({ children }) => {
   // Convert cart items to format expected by Checkout
   // Each cartItem from DB has productId, name, price, offerPrice, quantity, size, image
   // We need to return items in format: { product: { id, name, price, offer_price, image, ... }, size, qty }
-  const formattedCartItems = cartItems.map(item => {
-    const price = Number(item.price) || 0;
-    const offerPrice = item.offerPrice != null ? Number(item.offerPrice) : null;
-    return {
-      product: {
-        id: item.productId,
-        name: item.name || 'Product',
-        price,
-        offer_price: offerPrice,
-        image: item.image || '',
-        category: item.category || 'Uncategorized',
-      },
-      size: item.size || 'Standard',
-      qty: Number(item.quantity) || 1,
-      _id: item._id, // Keep the MongoDB ID for API calls
-    };
-  });
+  const formattedCartItems = cartItems
+    .filter(item => item && item.productId) // skip malformed/stale items
+    .map(item => {
+      const price = Number(item.price) || 0;
+      const offerPrice = item.offerPrice != null ? Number(item.offerPrice) : null;
+      return {
+        product: {
+          id: item.productId,
+          name: item.name || 'Product',
+          price,
+          offer_price: offerPrice,
+          image: item.image || '',
+          category: item.category || 'Uncategorized',
+        },
+        size: item.size || 'Standard',
+        qty: Number(item.quantity) || 1,
+        _id: item._id, // Keep the MongoDB ID for API calls
+      };
+    });
 
   const totalItems = cartItems.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
   const totalPrice = cartItems.reduce((sum, i) => {
