@@ -271,7 +271,7 @@ const BespokeProcess = () => {
               of perfect tailoring
             </p>
             <div className="cta-buttons">
-              <Link to="/bespoke/consultation" className="btn btn-gold btn-large">
+              <Link to="/bespoke/measurements" className="btn btn-gold btn-large">
                 Book Consultation
                 <ArrowRight size={20} />
               </Link>

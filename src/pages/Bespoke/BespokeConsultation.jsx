@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Calendar, Clock, MapPin } from 'lucide-react';
 import './BespokeConsultation.css';
 
 const BespokeConsultation = () => {
   const navigate = useNavigate();
+
+  // Check which prior steps were completed
+  const hasMeasurements = !!localStorage.getItem('bespokeMeasurements');
+  const hasFabric      = !!localStorage.getItem('bespokeFabric');
+  const hasDesign      = !!localStorage.getItem('bespokeDesign');
+
   const [booking, setBooking] = useState({
     date: '',
     time: '',
@@ -12,6 +18,14 @@ const BespokeConsultation = () => {
     consultationType: 'virtual',
     notes: ''
   });
+
+  // Restore any saved consultation draft
+  useEffect(() => {
+    const saved = localStorage.getItem('bespokeConsultation');
+    if (saved) {
+      try { setBooking(JSON.parse(saved)); } catch { /* ignore */ }
+    }
+  }, []);
 
   const locations = [
     { id: 'hyderabad', name: 'Hyderabad Studio', address: 'Banjara Hills, Hyderabad' },
@@ -36,20 +50,53 @@ const BespokeConsultation = () => {
         </div>
       </section>
 
-      {/* Progress Indicator */}
+      {/* Progress Indicator — reflects actual completion state */}
       <div className="progress-indicator">
         <div className="container">
           <div className="progress-steps">
-            <div className="progress-step completed"><div className="step-circle">✓</div><span>Measurements</span></div>
-            <div className="progress-line active"></div>
-            <div className="progress-step completed"><div className="step-circle">✓</div><span>Fabrics</span></div>
-            <div className="progress-line active"></div>
-            <div className="progress-step completed"><div className="step-circle">✓</div><span>Design</span></div>
-            <div className="progress-line active"></div>
-            <div className="progress-step active"><div className="step-circle">4</div><span>Consultation</span></div>
+            <div className={`progress-step ${hasMeasurements ? 'completed' : ''}`}>
+              <div className="step-circle"
+                style={{ cursor: hasMeasurements ? 'default' : 'pointer' }}
+                onClick={() => !hasMeasurements && navigate('/bespoke/measurements')}
+              >{hasMeasurements ? '✓' : '1'}</div>
+              <span>Measurements</span>
+            </div>
+            <div className={`progress-line ${hasMeasurements ? 'active' : ''}`}></div>
+            <div className={`progress-step ${hasFabric ? 'completed' : hasMeasurements ? 'active' : ''}`}>
+              <div className="step-circle"
+                style={{ cursor: (!hasFabric && hasMeasurements) ? 'pointer' : 'default' }}
+                onClick={() => !hasFabric && hasMeasurements && navigate('/bespoke/fabrics')}
+              >{hasFabric ? '✓' : '2'}</div>
+              <span>Fabrics</span>
+            </div>
+            <div className={`progress-line ${hasFabric ? 'active' : ''}`}></div>
+            <div className={`progress-step ${hasDesign ? 'completed' : hasFabric ? 'active' : ''}`}>
+              <div className="step-circle"
+                style={{ cursor: (!hasDesign && hasFabric) ? 'pointer' : 'default' }}
+                onClick={() => !hasDesign && hasFabric && navigate('/bespoke/design')}
+              >{hasDesign ? '✓' : '3'}</div>
+              <span>Design</span>
+            </div>
+            <div className={`progress-line ${hasDesign ? 'active' : ''}`}></div>
+            <div className="progress-step active">
+              <div className="step-circle">4</div>
+              <span>Consultation</span>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Guide banner when prior steps were skipped */}
+      {(!hasMeasurements || !hasFabric || !hasDesign) && (
+        <div className="bespoke-step-guide-banner">
+          <p>
+            For a fully personalised bespoke experience, complete all steps in order.
+            {!hasMeasurements && <> <button className="step-guide-link" onClick={() => navigate('/bespoke/measurements')}>Start with Measurements →</button></>}
+            {hasMeasurements && !hasFabric && <> <button className="step-guide-link" onClick={() => navigate('/bespoke/fabrics')}>Select your Fabric →</button></>}
+            {hasMeasurements && hasFabric && !hasDesign && <> <button className="step-guide-link" onClick={() => navigate('/bespoke/design')}>Choose your Design →</button></>}
+          </p>
+        </div>
+      )}
 
       <section className="section-padding consultation-section">
         <div className="container">

@@ -85,3 +85,26 @@
   line-height: 1.6;
   text-align: center;
 }
+
+/* Step guide banner — shown when prior steps were skipped */
+.bespoke-step-guide-banner {
+  background: #fff8e7;
+  border: 1px solid var(--color-gold-base);
+  border-left: 4px solid var(--color-gold-dark);
+  padding: 14px 24px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+.bespoke-step-guide-banner p { margin: 0; }
+.step-guide-link {
+  background: none;
+  border: none;
+  color: var(--color-gold-dark);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0 4px;
+}
+.step-guide-link:hover { color: var(--color-maroon-dark); }

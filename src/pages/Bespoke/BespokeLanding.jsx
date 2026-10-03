@@ -115,7 +115,7 @@ const BespokeLanding = () => {
               Begin Your Journey
               <ArrowRight size={20} />
             </Link>
-            <Link to="/bespoke/consultation" className="btn btn-outline btn-large">
+            <Link to="/bespoke/measurements" className="btn btn-outline btn-large">
               Book Consultation
             </Link>
           </div>
@@ -360,7 +360,7 @@ const BespokeLanding = () => {
             <h2>Ready to Create Your Masterpiece?</h2>
             <p>Begin your bespoke journey today and experience the luxury of perfect tailoring</p>
             <div className="cta-buttons">
-              <Link to="/bespoke/consultation" className="btn btn-gold btn-large">
+              <Link to="/bespoke/measurements" className="btn btn-gold btn-large">
                 Book Consultation
               </Link>
               <Link to="/bespoke/measurements" className="btn btn-outline btn-large">
