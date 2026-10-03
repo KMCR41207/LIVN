@@ -65,8 +65,9 @@ const CartProvider = ({ children }) => {
     if (!isAuthenticated || !accessToken) {
       // For unauthenticated users, add to local state
       setCartItems(prev => {
+        const pid = product._id || product.id;
         const existing = prev.findIndex(
-          i => i.productId === product.id && i.size === size
+          i => i.productId === pid && i.size === size
         );
         if (existing >= 0) {
           const updated = [...prev];
@@ -76,13 +77,13 @@ const CartProvider = ({ children }) => {
         return [
           ...prev,
           {
-            productId: product.id,
-            name: product.name,
-            price: product.price,
-            offerPrice: product.offer_price,
+            productId: pid,
+            name: product.name || 'Product',
+            price: Number(product.price) || 0,
+            offerPrice: product.offer_price != null ? Number(product.offer_price) : null,
             quantity: 1,
             size,
-            image: product.image,
+            image: product.image || product.images?.[0] || '',
             addedAt: new Date().toISOString(),
           },
         ];
@@ -98,13 +99,13 @@ const CartProvider = ({ children }) => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          productId: product.id,
-          name: product.name,
-          price: product.price,
-          offerPrice: product.offer_price,
+          productId: product._id || product.id,
+          name: product.name || 'Product',
+          price: Number(product.price) || 0,
+          offerPrice: product.offer_price != null ? Number(product.offer_price) : null,
           quantity: 1,
           size,
-          image: product.image,
+          image: product.image || product.images?.[0] || '',
         }),
       });
 
@@ -229,25 +230,30 @@ const CartProvider = ({ children }) => {
   // Convert cart items to format expected by Checkout
   // Each cartItem from DB has productId, name, price, offerPrice, quantity, size, image
   // We need to return items in format: { product: { id, name, price, offer_price, image, ... }, size, qty }
-  const formattedCartItems = cartItems.map(item => ({
-    product: {
-      id: item.productId,
-      name: item.name,
-      price: item.price,
-      offer_price: item.offerPrice,
-      image: item.image,
-      category: item.category || 'Uncategorized', // May need to fetch from product
-    },
-    size: item.size,
-    qty: item.quantity,
-    _id: item._id, // Keep the MongoDB ID for API calls
-  }));
+  const formattedCartItems = cartItems.map(item => {
+    const price = Number(item.price) || 0;
+    const offerPrice = item.offerPrice != null ? Number(item.offerPrice) : null;
+    return {
+      product: {
+        id: item.productId,
+        name: item.name || 'Product',
+        price,
+        offer_price: offerPrice,
+        image: item.image || '',
+        category: item.category || 'Uncategorized',
+      },
+      size: item.size || 'Standard',
+      qty: Number(item.quantity) || 1,
+      _id: item._id, // Keep the MongoDB ID for API calls
+    };
+  });
 
-  const totalItems = cartItems.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = cartItems.reduce(
-    (sum, i) => sum + (i.offerPrice || i.price) * i.quantity,
-    0
-  );
+  const totalItems = cartItems.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+  const totalPrice = cartItems.reduce((sum, i) => {
+    const price = Number(i.offerPrice) || Number(i.price) || 0;
+    const qty = Number(i.quantity) || 0;
+    return sum + price * qty;
+  }, 0);
 
   return (
     <CartContext.Provider
