@@ -6,7 +6,7 @@ import './UserProfile.css';
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated, isLoading, logout } = useAuth();
+  const { currentUser, isAuthenticated, isLoading, accessToken, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -56,6 +56,15 @@ const UserProfile = () => {
     );
   }
 
+  // After loading completes — not authenticated, redirect is already firing
+  if (!isAuthenticated) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <p style={{ color: '#8b6914', fontFamily: 'serif', fontSize: '1.1rem' }}>Redirecting...</p>
+      </div>
+    );
+  }
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -87,9 +96,9 @@ const UserProfile = () => {
     setMessage(null);
 
     try {
-      const token = localStorage.getItem('livn_token');
+      const token = accessToken || localStorage.getItem('livn_token');
       if (!token) {
-        setError('Not authenticated');
+        setError('Not authenticated. Please log in again.');
         navigate('/');
         return;
       }
@@ -133,10 +142,6 @@ const UserProfile = () => {
       navigate('/');
     }
   };
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="user-profile-page">
