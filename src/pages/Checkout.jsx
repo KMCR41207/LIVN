@@ -33,7 +33,11 @@ const CartStep = ({ cartItems, totalPrice, onNext, removeFromCart, updateQty, co
     setCouponError('');
     const { data, error } = await validateCoupon(couponInput.trim(), totalPrice);
     if (error) {
-      setCouponError(error);
+      // Show a friendly message for backend connectivity issues
+      const msg = error.includes('backend') || error.includes('server') || error.includes('connect')
+        ? 'Coupon service is temporarily unavailable. Please try again later.'
+        : error;
+      setCouponError(msg);
       setCoupon(null);
       setCouponDiscount(0);
     } else {
