@@ -51,8 +51,8 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/product/:id" element={<ProductPage />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/collections" element={<Collections />} />
+                <Route path="/checkout" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
+                <Route path="/collections" element={<ErrorBoundary><Collections /></ErrorBoundary>} />
                 <Route path="/new-arrivals" element={<NewArrivals />} />
                 <Route path="/track-order" element={<TrackOrder />} />
                 <Route path="/account" element={<Account />} />
