@@ -179,12 +179,19 @@ app.get('/api/health', (_req, res) =>
 
 // ─── Serve React Build ───────────────────────────────────────────────────────
 const distPath = path.join(__dirname, '..', 'dist');
-app.use(express.static(distPath));
 
-// All non-API routes → React index.html (client-side routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+// Only serve static files if dist exists (i.e. in production with frontend built)
+const fs = require('fs');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  // All non-API routes → React index.html (client-side routing)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  // API-only mode (Render deployment without frontend build)
+  app.get('/', (_req, res) => res.json({ status: 'Livaani API running', version: '1.0.0' }));
+}
 
 // ─── Start ───────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
