@@ -65,7 +65,7 @@ const CustomerAccount = () => {
   // Check auth on mount
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/auth');
+      navigate('/');
     }
   }, [isAuthenticated, navigate]);
 

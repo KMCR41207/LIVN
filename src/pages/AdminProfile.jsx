@@ -6,7 +6,7 @@ import './AdminProfile.css';
 
 const AdminProfile = () => {
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated, logout } = useAuth();
+  const { currentUser, isAuthenticated, isLoading, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState(null);
@@ -28,12 +28,12 @@ const AdminProfile = () => {
 
   const API = import.meta.env.VITE_API_URL || '/api';
 
-  // Redirect if not admin
+  // Redirect if not admin (wait for auth to load first)
   useEffect(() => {
-    if (!isAuthenticated || currentUser?.role !== 'admin') {
+    if (!isLoading && (!isAuthenticated || currentUser?.role !== 'admin')) {
       navigate('/');
     }
-  }, [isAuthenticated, currentUser, navigate]);
+  }, [isAuthenticated, isLoading, currentUser, navigate]);
 
   // Load current admin data
   useEffect(() => {
