@@ -37,6 +37,7 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [serverReady, setServerReady] = useState(false);
 
   const { login, signupEmail, loginWithGoogle, loginWithFacebook } = useAuth();
 
@@ -46,7 +47,9 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
   useEffect(() => {
     const API = import.meta.env.VITE_API_URL || '/api';
     const base = API.endsWith('/api') ? API.slice(0, -4) : API;
-    fetch(`${base}/api/health`).catch(() => {});
+    fetch(`${base}/api/health`)
+      .then(() => setServerReady(true))
+      .catch(() => setServerReady(true)); // still allow login attempts even if ping fails
   }, []);
 
   const handleGoogle = useGoogleLogin({
@@ -131,6 +134,11 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
             <p className="auth-subtitle">Sign in or create your account</p>
 
             {error && <p className="auth-error">{error}</p>}
+            {!serverReady && !error && (
+              <p style={{ textAlign: 'center', color: '#8b6914', fontSize: '0.85rem', margin: '4px 0 8px' }}>
+                ⏳ Connecting to server...
+              </p>
+            )}
 
             <div className="auth-providers">
               <button className="auth-provider-btn auth-provider-google" onClick={handleGoogle} disabled={loading}>
