@@ -298,7 +298,7 @@ const YourReviews = () => {
       {activeTab === 'all' ? (
         reviewableOrders.length === 0 ? (
           <div className="empty-state">
-            <MessageSquare size={48} />
+            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>✍️</div>
             <h3>No Orders to Review</h3>
             <p>After receiving your orders, you can share your experience here to help other shoppers.</p>
             <button className="btn-primary" onClick={() => navigate('/account?tab=orders')}>
