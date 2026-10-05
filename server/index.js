@@ -43,26 +43,25 @@ const app = express();
 // CORS Configuration - Restrict to frontend domains only
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests from:
-    // 1. Same origin (no origin in embedded requests like <img>)
-    // 2. Localhost in development
-    // 3. Production domain
     const allowedOrigins = [
-      'http://localhost:5173',   // Dev frontend
-      'http://localhost:3000',   // Fallback dev port
-      process.env.FRONTEND_URL || 'https://livaani.com', // Production
-    ];
-    
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://livaani.stackweb.net',
+      'https://livaani.vercel.app',
+      'https://livaani.onrender.com',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean);
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('CORS not allowed'));
     }
   },
-  credentials: true, // Allow cookies
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  maxAge: 3600, // Cache preflight for 1 hour
+  maxAge: 3600,
 };
 
 app.use(cors(corsOptions));
