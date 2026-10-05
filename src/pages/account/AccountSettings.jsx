@@ -7,7 +7,7 @@ const API = import.meta.env.VITE_API_URL || '/api';
 const STORAGE_KEY = 'livn_auth_state';
 
 const AccountSettings = () => {
-  const { currentUser, setCurrentUser } = useAuth();
+  const { currentUser, setCurrentUser, accessToken } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
