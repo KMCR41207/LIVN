@@ -107,9 +107,15 @@ const Collections = () => {
     if (searchFromUrl) {
       setSearchQuery(searchFromUrl);
     } else if (category) {
-      setActiveCategory(category);
+      // URL may use hyphenated slug (e.g. "corset-kurti") — find the matching real category name
+      const slug = category.toLowerCase();
+      const allCategories = [...new Set(PRODUCTS.map(p => p.category))];
+      const matched = allCategories.find(
+        c => c.toLowerCase().replace(/\s+/g, '-') === slug
+      ) || category;
+      setActiveCategory(matched);
       setTimeout(() => {
-        const el = document.getElementById(category.toLowerCase().replace(/\s+/g, '-'));
+        const el = document.getElementById(matched.toLowerCase().replace(/\s+/g, '-'));
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 400);
     } else {
