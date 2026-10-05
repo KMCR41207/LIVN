@@ -32,7 +32,7 @@ const YourCart = ({ user }) => {
       <div className="account-page">
         <h2 className="account-section-title">Your Cart</h2>
         <div className="empty-state">
-          <ShoppingBag size={48} />
+          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🛍️</div>
           <h3>Cart is Empty</h3>
           <p>Add items to your cart to see them here. Your cart is saved to your account.</p>
           <Link to="/collections" className="btn-primary">

@@ -105,7 +105,7 @@ const YourOrders = ({ user }) => {
 
       {!error && orders.length === 0 ? (
         <div className="empty-state">
-          <Package size={48} />
+          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📦</div>
           <h3>No Orders Yet</h3>
           <p>You haven't placed any orders yet. Start shopping to see your orders here.</p>
           <Link to="/collections" className="btn-primary">Shop Now</Link>

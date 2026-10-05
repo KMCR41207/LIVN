@@ -41,7 +41,7 @@ const RecentlyViewed = () => {
 
       {items.length === 0 ? (
         <div className="empty-state">
-          <Eye size={48} />
+          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>👁️</div>
           <h3>No Recently Viewed Items</h3>
           <p>Products you visit will appear here automatically.</p>
           <button

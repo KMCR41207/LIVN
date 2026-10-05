@@ -104,7 +104,7 @@ const SavedMeasurements = () => {
         </div>
       ) : !showForm && (
         <div className="empty-state">
-          <Ruler size={48} />
+          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📏</div>
           <h3>No Saved Measurements</h3>
           <p>Add your body measurements to make bespoke ordering faster and more accurate.</p>
           <button className="btn-primary" onClick={() => setShowForm(true)}>

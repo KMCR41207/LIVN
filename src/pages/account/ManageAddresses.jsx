@@ -208,7 +208,7 @@ const ManageAddresses = () => {
 
       {addresses.length === 0 && !showForm ? (
         <div className="empty-state">
-          <MapPin size={48} />
+          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📍</div>
           <h3>No Saved Addresses</h3>
           <p>Add a delivery address to make checkout faster.</p>
           <button type="button" className="btn-primary" onClick={() => { resetForm(); setShowForm(true); }}>

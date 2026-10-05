@@ -78,7 +78,7 @@ const ReturnsExchanges = () => {
       {activeSubTab === 'overview' && (
         orders.length === 0 ? (
           <div className="empty-state">
-            <Package size={48} />
+            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📦</div>
             <h3>No Orders</h3>
             <p>Place an order first to request a return or exchange.</p>
           </div>
@@ -114,7 +114,7 @@ const ReturnsExchanges = () => {
       {activeSubTab === 'returns' && (
         returns.length === 0 ? (
           <div className="empty-state">
-            <RotateCcw size={48} />
+            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔄</div>
             <h3>No Return Requests</h3>
             <p>Go to "My Orders" tab to initiate a return.</p>
           </div>
@@ -139,7 +139,7 @@ const ReturnsExchanges = () => {
       {activeSubTab === 'exchanges' && (
         exchanges.length === 0 ? (
           <div className="empty-state">
-            <RefreshCw size={48} />
+            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔃</div>
             <h3>No Exchange Requests</h3>
             <p>Go to "My Orders" tab to initiate an exchange.</p>
           </div>

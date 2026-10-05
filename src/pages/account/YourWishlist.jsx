@@ -48,7 +48,7 @@ const YourWishlist = () => {
       <div className="account-page">
         <h2 className="account-section-title">Your Wishlist</h2>
         <div className="empty-state">
-          <Heart size={48} />
+          <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🤍</div>
           <h3>Wishlist is Empty</h3>
           <p>Save items you love by clicking the ♡ heart icon on any product. They'll be waiting for you here.</p>
           <button className="btn-primary" onClick={() => navigate('/collections')}>
