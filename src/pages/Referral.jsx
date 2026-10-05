@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Copy, CheckCircle2, Users, Gift, Share2 } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 import './Referral.css';
-
-const MOCK_HISTORY = [
-  { email: 'priya.r@email.com',   status: 'Rewarded', date: '12 Jun 2025' },
-  { email: 'sunita.k@email.com',  status: 'Pending',  date: '05 Jul 2025' },
-  { email: 'ananya.s@email.com',  status: 'Rewarded', date: '21 Jul 2025' },
-];
 
 const HOW_IT_WORKS = [
   {
@@ -29,28 +24,44 @@ const HOW_IT_WORKS = [
   },
 ];
 
-const generateCode = () => {
+// Generate a deterministic code from user id or email
+const generateCode = (seed) => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
   let suffix = '';
-  for (let i = 0; i < 4; i++) {
-    suffix += chars[Math.floor(Math.random() * chars.length)];
+  let h = Math.abs(hash);
+  for (let i = 0; i < 6; i++) {
+    suffix += chars[h % chars.length];
+    h = Math.floor(h / chars.length) + 7;
   }
   return 'LIVN-' + suffix;
 };
 
 const Referral = () => {
+  const { currentUser, isAuthenticated } = useAuth();
   const [referralCode, setReferralCode] = useState('');
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    let code = localStorage.getItem('livn_referral_code');
-    if (!code) {
-      code = generateCode();
-      localStorage.setItem('livn_referral_code', code);
+    if (isAuthenticated && currentUser) {
+      // Use user id or email as seed for consistent code
+      const seed = currentUser.id || currentUser.email || 'guest';
+      setReferralCode(generateCode(seed));
+    } else {
+      // Fallback for non-logged-in users
+      let code = localStorage.getItem('livn_referral_code');
+      if (!code) {
+        code = generateCode('guest-' + Date.now());
+        localStorage.setItem('livn_referral_code', code);
+      }
+      setReferralCode(code);
     }
-    setReferralCode(code);
-  }, []);
+  }, [isAuthenticated, currentUser]);
 
   const handleCopy = () => {
     if (!referralCode) return;
@@ -126,34 +137,7 @@ const Referral = () => {
         {/* Referral History */}
         <section className="referral-history-section">
           <h2 className="referral-section-title">Referral History</h2>
-          {MOCK_HISTORY.length === 0 ? (
-            <p className="referral-empty">You haven't referred anyone yet. Share your code to get started!</p>
-          ) : (
-            <div className="referral-table-wrap">
-              <table className="referral-table">
-                <thead>
-                  <tr>
-                    <th>Friend</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {MOCK_HISTORY.map((row, i) => (
-                    <tr key={i}>
-                      <td>{row.email}</td>
-                      <td>
-                        <span className={`referral-status referral-status--${row.status.toLowerCase()}`}>
-                          {row.status}
-                        </span>
-                      </td>
-                      <td>{row.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <p className="referral-empty">No referrals yet. Share your code to get started!</p>
         </section>
 
         <div style={{ paddingBottom: '80px' }} />
