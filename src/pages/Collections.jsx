@@ -108,9 +108,11 @@ const Collections = () => {
       setSearchQuery(searchFromUrl);
     } else if (category) {
       // URL may use hyphenated slug (e.g. "corset-kurti") — find the matching real category name
-      const slug = category.toLowerCase();
+      const slug = category.toLowerCase().trim();
       const allCategories = [...new Set(PRODUCTS.map(p => p.category))];
       const matched = allCategories.find(
+        c => c.toLowerCase().replace(/[\s/]+/g, '-') === slug
+      ) || allCategories.find(
         c => c.toLowerCase().replace(/\s+/g, '-') === slug
       ) || category;
       setActiveCategory(matched);
