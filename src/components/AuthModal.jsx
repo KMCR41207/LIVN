@@ -47,9 +47,10 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
   useEffect(() => {
     const API = import.meta.env.VITE_API_URL || '/api';
     const base = API.endsWith('/api') ? API.slice(0, -4) : API;
-    fetch(`${base}/api/health`)
-      .then(() => setServerReady(true))
-      .catch(() => setServerReady(true)); // still allow login attempts even if ping fails
+    // Silent ping — just wake up the server, don't show errors
+    fetch(`${base}/api/health`, { signal: AbortSignal.timeout(60000) })
+      .then(() => { setServerReady(true); setError(''); })
+      .catch(() => setServerReady(true)); // backend might be starting — allow login anyway
   }, []);
 
   const handleGoogle = useGoogleLogin({
@@ -66,7 +67,10 @@ const AuthModal = ({ onClose, onAuthSuccess }) => {
         setLoading(false);
       }
     },
-    onError: () => setError('Google sign-in was cancelled or failed.'),
+    onError: (err) => {
+      // Only show error if user actually attempted to sign in
+      console.warn('Google OAuth error:', err);
+    },
     flow: 'implicit',
   });
 
