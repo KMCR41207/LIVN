@@ -165,7 +165,10 @@ const AccountSettings = () => {
               </div>
               <div className="form-group">
                 <label>Date of Birth</label>
-                <input type="date" name="dob" value={formData.dob} onChange={handleChange} />
+                <input type="date" name="dob" value={formData.dob} onChange={handleChange}
+                  max={new Date().toISOString().split('T')[0]}
+                  min="1900-01-01"
+                />
               </div>
             </div>
             <button className="save-btn" onClick={handleSave} disabled={saving}>
