@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Search, Menu, X, User, LogOut, ShoppingBag,
   Inbox, Package, Star, RotateCcw, Headphones,
@@ -11,6 +11,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import AuthModal from './AuthModal';
 import SearchBar from './SearchBar';
+import { useCurtainNavigate } from './ui/PageCurtain';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -22,6 +23,7 @@ const Navbar = () => {
   const [showOtherItems, setShowOtherItems] = useState(false);
   const panelRef = useRef(null);
   const navigate = useNavigate();
+  const curtainNavigate = useCurtainNavigate();
   const { totalItems } = useCart();
   const { currentUser, isAuthenticated, isLoading, logout } = useAuth();
 
@@ -61,7 +63,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     setShowAccountPanel(false);
     await logout();
-    navigate('/');
+    curtainNavigate('/');
   };
 
   const handleUserIconClick = () => {
@@ -78,7 +80,7 @@ const Navbar = () => {
   const navTo = (path) => {
     setShowAccountPanel(false);
     setShowOtherItems(false);
-    navigate(path);
+    curtainNavigate(path);
   };
 
   const greeting = currentUser?.name
@@ -93,16 +95,16 @@ const Navbar = () => {
         <nav className="temple-navbar">
           {/* Logo */}
           <div className="navbar-logo">
-            <Link to="/">
+            <a href="/" className="nav-link" onClick={(e) => { e.preventDefault(); curtainNavigate('/'); }}>
               <div className="logo-text">Livaani</div>
-            </Link>
+            </a>
           </div>
 
           {/* Desktop Links */}
           <div className="navbar-links">
-            <Link to="/" className="nav-link">Home</Link>
-            <Link to="/collections" className="nav-link">Collections</Link>
-            <Link to="/bespoke" className="nav-link">Bespoke</Link>
+            <a href="/" className="nav-link" onClick={(e) => { e.preventDefault(); curtainNavigate('/'); }}>Home</a>
+            <a href="/collections" className="nav-link" onClick={(e) => { e.preventDefault(); curtainNavigate('/collections'); }}>Collections</a>
+            <a href="/bespoke" className="nav-link" onClick={(e) => { e.preventDefault(); curtainNavigate('/bespoke'); }}>Bespoke</a>
           </div>
 
           {/* Icons */}
@@ -114,16 +116,16 @@ const Navbar = () => {
 
             {/* Admin Inbox */}
             {isAuthenticated && currentUser?.role === 'admin' && (
-              <Link to="/admin" className="icon-btn inbox-btn" aria-label="Admin Inbox" title="Orders Inbox">
+              <a href="/admin" className="icon-btn inbox-btn" aria-label="Admin Inbox" title="Orders Inbox" onClick={(e) => { e.preventDefault(); curtainNavigate('/admin'); }}>
                 <Inbox size={22} />
-              </Link>
+              </a>
             )}
 
             {/* Cart */}
-            <Link to="/checkout" className="icon-btn cart-icon-btn" aria-label="Cart">
+            <a href="/checkout" className="icon-btn cart-icon-btn" aria-label="Cart" onClick={(e) => { e.preventDefault(); curtainNavigate('/checkout'); }}>
               <ShoppingBag size={22} />
               {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
-            </Link>
+            </a>
 
             {/* Account Icon — always visible */}
             <div className="account-icon-wrapper" ref={panelRef}>
@@ -313,19 +315,19 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
         <div className="mobile-menu-content">
-          <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-          <Link to="/collections" onClick={() => setIsMobileMenuOpen(false)}>Collections</Link>
-          <Link to="/bespoke" onClick={() => setIsMobileMenuOpen(false)}>Bespoke</Link>
+          <a href="/" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/'); }}>Home</a>
+          <a href="/collections" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/collections'); }}>Collections</a>
+          <a href="/bespoke" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/bespoke'); }}>Bespoke</a>
 
           {isAuthenticated ? (
             <>
-              <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link>
-              <Link to="/account" onClick={() => setIsMobileMenuOpen(false)}>My Orders</Link>
-              <Link to="/track-order" onClick={() => setIsMobileMenuOpen(false)}>Track Order</Link>
-              <Link to="/rewards" onClick={() => setIsMobileMenuOpen(false)}>Rewards</Link>
-              <Link to="/whatsapp" onClick={() => setIsMobileMenuOpen(false)}>Customer Care</Link>
+              <a href="/profile" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/profile'); }}>My Profile</a>
+              <a href="/account" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/account'); }}>My Orders</a>
+              <a href="/track-order" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/track-order'); }}>Track Order</a>
+              <a href="/rewards" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/rewards'); }}>Rewards</a>
+              <a href="/whatsapp" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/whatsapp'); }}>Customer Care</a>
               {currentUser?.role === 'admin' && (
-                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>Admin</Link>
+                <a href="/admin" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); curtainNavigate('/admin'); }}>Admin</a>
               )}
               <button
                 onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}

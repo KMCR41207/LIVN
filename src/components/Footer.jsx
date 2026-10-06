@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import { CurtainLink } from './ui/PageCurtain';
 import './Footer.css';
 
 const Footer = () => {
@@ -23,22 +23,22 @@ const Footer = () => {
         <div className="footer-links">
           <h4>Explore</h4>
           <ul>
-            <li><Link to="/collections">Collections</Link></li>
-            <li><Link to="/new-arrivals">New Arrivals</Link></li>
-            <li><Link to="/bespoke">Bespoke Tailoring</Link></li>
-            <li><Link to="/bespoke/process">The Process</Link></li>
+            <li><CurtainLink to="/collections">Collections</CurtainLink></li>
+            <li><CurtainLink to="/new-arrivals">New Arrivals</CurtainLink></li>
+            <li><CurtainLink to="/bespoke">Bespoke Tailoring</CurtainLink></li>
+            <li><CurtainLink to="/bespoke/process">The Process</CurtainLink></li>
           </ul>
         </div>
 
         <div className="footer-links">
           <h4>Assistance</h4>
           <ul>
-            <li><Link to="/track-order">Track Order</Link></li>
-            <li><Link to="/shipping-returns">Shipping & Returns</Link></li>
-            <li><Link to="/referral">Refer a Friend</Link></li>
-            <li><Link to="/loyalty">Loyalty Program</Link></li>
-            <li><Link to="/rewards">Rewards Points</Link></li>
-            <li><Link to="/whatsapp">WhatsApp Alerts</Link></li>
+            <li><CurtainLink to="/track-order">Track Order</CurtainLink></li>
+            <li><CurtainLink to="/shipping-returns">Shipping &amp; Returns</CurtainLink></li>
+            <li><CurtainLink to="/referral">Refer a Friend</CurtainLink></li>
+            <li><CurtainLink to="/loyalty">Loyalty Program</CurtainLink></li>
+            <li><CurtainLink to="/rewards">Rewards Points</CurtainLink></li>
+            <li><CurtainLink to="/whatsapp">WhatsApp Alerts</CurtainLink></li>
             <li><a href="#">Size Guide</a></li>
             <li><a href="#">Contact Us</a></li>
           </ul>
