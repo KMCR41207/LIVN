@@ -7,7 +7,7 @@ const statusHistorySchema = new mongoose.Schema({
 }, { _id: false });
 
 const productSnapshotSchema = new mongoose.Schema({
-  productId: mongoose.Schema.Types.ObjectId,
+  productId: String,
   name: String,
   price: Number,
   offerPrice: Number,
