@@ -67,9 +67,9 @@ export function PageCurtain() {
               position: 'absolute',
               top: 0, left: 0, right: 0,
               height: '50%',
-              background: COLOR_A,
+              background: 'linear-gradient(180deg, #1a1208 0%, #2c1f0a 100%)',
               transformOrigin: 'top',
-              borderBottom: `1px solid ${GOLD}44`,
+              borderBottom: `1px solid ${GOLD}`,
             }}
             initial={{ scaleY: 0 }}
             animate={{
@@ -88,7 +88,7 @@ export function PageCurtain() {
               position: 'absolute',
               bottom: 0, left: 0, right: 0,
               height: '50%',
-              background: COLOR_B,
+              background: 'linear-gradient(0deg, #1a1208 0%, #2c1f0a 100%)',
               transformOrigin: 'bottom',
             }}
             initial={{ scaleY: 0 }}
@@ -103,7 +103,7 @@ export function PageCurtain() {
             }}
           />
 
-          {/* Livaani wordmark — visible only while fully covered */}
+          {/* Livaani wordmark — gold on dark charcoal */}
           <motion.span
             style={{
               position: 'absolute',
@@ -113,10 +113,11 @@ export function PageCurtain() {
               fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
               fontWeight: 700,
               letterSpacing: '0.3em',
-              color: '#2c2c2c',
+              color: GOLD,
               textTransform: 'uppercase',
               userSelect: 'none',
               zIndex: 1,
+              textShadow: `0 0 30px ${GOLD}66`,
             }}
             initial={{ opacity: 0 }}
             animate={{
