@@ -33,6 +33,7 @@ import PageTitle from './components/PageTitle';
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop';
 import { NotificationProvider } from './components/NotificationSystem';
+import { PageCurtain } from './components/ui/PageCurtain';
 
 import './index.css';
 
@@ -43,6 +44,7 @@ function App() {
         <CartProvider>
         <Router>
           <ScrollToTop />
+          <PageCurtain />
           <div className="app-container">
             <Navbar />
             <PageTitle />
