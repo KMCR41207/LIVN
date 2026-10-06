@@ -29,24 +29,35 @@ const BespokeOrderSummary = () => {
       const estimatedPrice = (orderData.fabric?.price || 0) + 15000;
       
       const bespokeOrder = {
+        // Required by Order schema
+        total:          estimatedPrice,
+        // Order classification
         order_type:     'bespoke',
+        product_name:   `Bespoke ${orderData.design?.garmentType || 'Garment'}`,
+        product_id:     'bespoke',
+        price:          estimatedPrice,
+        quantity:       1,
+        selected_size:  'Custom',
+        // Customer info
         customer_name:  orderData.measurements?.fullName || 'Guest',
         customer_email: orderData.measurements?.email    || user?.email || '',
         customer_phone: orderData.measurements?.phone    || '',
-
-        measurements:  orderData.measurements,
-        fabric:        {
-          name:   orderData.fabric?.name,
-          origin: orderData.fabric?.origin,
-          weight: orderData.fabric?.weight,
-          price:  orderData.fabric?.price,
-          image:  orderData.fabric?.image,
-        },
-        design:        orderData.design,
-        consultation:  orderData.consultation,
-
-        total_amount: estimatedPrice,
-        status:       'consultation_pending',
+        // Address (we don't have it yet — consultation will capture it)
+        shipping_address: 'To be confirmed at consultation',
+        // Payment
+        payment_method: 'consultation',
+        // Bespoke specifics stored in measurements field as JSON
+        measurements:   JSON.stringify({
+          personalInfo:  orderData.measurements,
+          fabric:        orderData.fabric,
+          design:        orderData.design,
+          consultation:  orderData.consultation,
+        }),
+        order_notes:    `Consultation: ${orderData.consultation?.consultationType || ''} on ${orderData.consultation?.date || ''} at ${orderData.consultation?.time || ''}`,
+        // Legacy total field
+        total_amount:   estimatedPrice,
+        subtotal:       estimatedPrice,
+        status:         'consultation_pending',
       };
 
       const { data, error: orderError } = await createOrder(bespokeOrder);
