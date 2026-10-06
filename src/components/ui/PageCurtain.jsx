@@ -1,191 +1,137 @@
 /**
- * PageCurtain — Premium Livaani page-transition component
- * Built with framer-motion (already installed).
- *
- * Sequence:
- *   1. Navigation fires → curtain panels slide IN (cover screen)
- *   2. React Router swaps the route
- *   3. Curtain panels slide OUT (reveal new page)
- *
- * Visual style: ivory/champagne silk panels — luxury editorial fashion
+ * PageCurtain — Premium Livaani page-transition
+ * Single elegant sweep: panels slide down over screen, then slide back up.
+ * Total duration ~600ms. Triggers once per route change.
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
-// ---------------------------------------------------------------------------
-// Config
-// ---------------------------------------------------------------------------
-const DURATION   = 0.55;   // seconds per panel animation
-const EASE_IN    = [0.76, 0, 0.24, 1];   // sharp easing in
-const EASE_OUT   = [0.76, 0, 0.24, 1];
+const DURATION  = 0.45;  // seconds for each panel move
+const EASE      = [0.76, 0, 0.24, 1];
 
 // Livaani design tokens
-const PANEL_COLOR_TOP    = '#f4eee0';   // --color-bg-secondary (warm ivory)
-const PANEL_COLOR_BOTTOM = '#fdfbf7';   // --color-bg-primary   (cream)
-const ACCENT_COLOR       = '#d4af37';   // --color-gold-base
-
-// ---------------------------------------------------------------------------
-// Curtain overlay — two panels sliding vertically
-// ---------------------------------------------------------------------------
-const curtainVariants = {
-  initial:  { scaleY: 0 },
-  animate:  { scaleY: 1, transition: { duration: DURATION, ease: EASE_IN  } },
-  exit:     { scaleY: 0, transition: { duration: DURATION, ease: EASE_OUT, delay: 0.05 } },
-};
-
-// ---------------------------------------------------------------------------
-// Hook: detect route changes and drive curtain state
-// ---------------------------------------------------------------------------
-export function usePageCurtain() {
-  const location  = useLocation();
-  const prevPath  = useRef(location.pathname);
-  const [phase, setPhase] = useState('idle'); // 'idle' | 'covering' | 'covered' | 'revealing'
-
-  useEffect(() => {
-    const newPath = location.pathname;
-    if (newPath === prevPath.current) return;
-    prevPath.current = newPath;
-
-    // A real route change happened — animate reveal only
-    // (covering is handled by the Link/navigate interception below)
-    setPhase('revealing');
-    const t = setTimeout(() => setPhase('idle'), DURATION * 1000 + 100);
-    return () => clearTimeout(t);
-  }, [location.pathname]);
-
-  return { phase, setPhase };
-}
-
-// ---------------------------------------------------------------------------
-// PageCurtainProvider — wraps the app and wires to router
-// ---------------------------------------------------------------------------
-let _triggerCover = null;
-
-/**
- * Call this from navigation handlers to trigger the cover phase
- * before the route actually changes.
- */
-export function triggerCurtainCover() {
-  if (_triggerCover) _triggerCover();
-}
+const COLOR_A = '#f4eee0'; // warm ivory
+const COLOR_B = '#fdfbf7'; // cream
+const GOLD    = '#d4af37';
 
 export function PageCurtain() {
-  const [visible, setVisible] = useState(false);
-  const [phase, setPhase]     = useState('idle'); // 'covering' | 'covered' | 'revealing' | 'idle'
-  const location  = useLocation();
-  const prevPath  = useRef(location.pathname);
-  const timerRef  = useRef(null);
+  const location = useLocation();
+  const prevPath = useRef(location.pathname);
+  const [active, setActive]   = useState(false);
+  const timerRef              = useRef(null);
 
-  // Register global trigger
   useEffect(() => {
-    _triggerCover = () => {
-      clearTimeout(timerRef.current);
-      setVisible(true);
-      setPhase('covering');
-    };
-    return () => { _triggerCover = null; };
-  }, []);
+    const next = location.pathname;
+    if (next === prevPath.current) return;
+    prevPath.current = next;
 
-  // When path changes → start reveal
-  useEffect(() => {
-    const newPath = location.pathname;
-    if (newPath === prevPath.current) return;
-    prevPath.current = newPath;
+    // Clear any running timer
+    clearTimeout(timerRef.current);
 
-    // If curtain wasn't triggered (direct URL / back/forward), do quick reveal
-    if (phase === 'idle') {
-      setVisible(true);
-      setPhase('covering');
-      timerRef.current = setTimeout(() => setPhase('revealing'), DURATION * 1000 + 50);
-    } else {
-      // Normal flow: covering already happened, now reveal
-      timerRef.current = setTimeout(() => setPhase('revealing'), 60);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Show curtain
+    setActive(true);
+
+    // After cover + hold + reveal duration, hide
+    // cover: DURATION, hold: 0.1s, reveal: DURATION
+    timerRef.current = setTimeout(() => {
+      setActive(false);
+    }, (DURATION * 2 + 0.15) * 1000);
+
+    return () => clearTimeout(timerRef.current);
   }, [location.pathname]);
 
-  // After reveal animation completes → hide curtain entirely
-  useEffect(() => {
-    if (phase === 'revealing') {
-      timerRef.current = setTimeout(() => {
-        setPhase('idle');
-        setVisible(false);
-      }, DURATION * 1000 + 200);
-    }
-  }, [phase]);
-
-  if (!visible) return null;
-
-  const showing  = phase === 'covering' || phase === 'covered';
-  const scaleVal = showing ? 1 : 0;
-  const originTop    = showing ? 'bottom' : 'top';
-  const originBottom = showing ? 'top'    : 'bottom';
-
   return (
-    <div
-      aria-hidden="true"
-      style={{
-        position:   'fixed',
-        inset:      0,
-        zIndex:     9999,
-        pointerEvents: phase === 'idle' ? 'none' : 'all',
-        display:    'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Top panel */}
-      <motion.div
-        style={{
-          flex:            '1',
-          background:      PANEL_COLOR_TOP,
-          transformOrigin: originTop,
-          borderBottom:    `1px solid ${ACCENT_COLOR}33`,
-        }}
-        initial={{ scaleY: 0 }}
-        animate={{ scaleY: scaleVal }}
-        transition={{ duration: DURATION, ease: EASE_IN }}
-      />
-
-      {/* Bottom panel */}
-      <motion.div
-        style={{
-          flex:            '1',
-          background:      PANEL_COLOR_BOTTOM,
-          transformOrigin: originBottom,
-        }}
-        initial={{ scaleY: 0 }}
-        animate={{ scaleY: scaleVal }}
-        transition={{ duration: DURATION, ease: EASE_IN, delay: 0.04 }}
-      />
-
-      {/* Centre wordmark — shown only while fully covered */}
-      <AnimatePresence>
-        {phase === 'covered' && (
+    <AnimatePresence>
+      {active && (
+        <motion.div
+          key="curtain"
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            pointerEvents: 'all',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+          // Whole container fades in/out to avoid abrupt cut
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.15, delay: DURATION } }}
+        >
+          {/* Top panel — slides down from top */}
           <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2 }}
             style={{
-              position:   'absolute',
+              position: 'absolute',
+              top: 0, left: 0, right: 0,
+              height: '50%',
+              background: COLOR_A,
+              transformOrigin: 'top',
+              borderBottom: `1px solid ${GOLD}44`,
+            }}
+            initial={{ scaleY: 0 }}
+            animate={{
+              scaleY: [0, 1, 1, 0],
+              transition: {
+                duration: DURATION * 2 + 0.15,
+                times: [0, 0.42, 0.58, 1],
+                ease: EASE,
+              },
+            }}
+          />
+
+          {/* Bottom panel — slides up from bottom */}
+          <motion.div
+            style={{
+              position: 'absolute',
+              bottom: 0, left: 0, right: 0,
+              height: '50%',
+              background: COLOR_B,
+              transformOrigin: 'bottom',
+            }}
+            initial={{ scaleY: 0 }}
+            animate={{
+              scaleY: [0, 1, 1, 0],
+              transition: {
+                duration: DURATION * 2 + 0.15,
+                times: [0, 0.42, 0.58, 1],
+                ease: EASE,
+                delay: 0.03,
+              },
+            }}
+          />
+
+          {/* Livaani wordmark — visible only while fully covered */}
+          <motion.span
+            style={{
+              position: 'absolute',
               top: '50%', left: '50%',
-              transform:  'translate(-50%, -50%)',
+              transform: 'translate(-50%, -50%)',
               fontFamily: "'Cinzel', serif",
-              fontSize:   'clamp(1.4rem, 3vw, 2rem)',
+              fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
               fontWeight: 700,
-              letterSpacing: '0.25em',
-              color:      '#2c2c2c',
+              letterSpacing: '0.3em',
+              color: '#2c2c2c',
               textTransform: 'uppercase',
               userSelect: 'none',
+              zIndex: 1,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: [0, 0, 1, 1, 0],
+              transition: {
+                duration: DURATION * 2 + 0.15,
+                times: [0, 0.38, 0.48, 0.58, 0.72],
+              },
             }}
           >
             Livaani
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          </motion.span>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
