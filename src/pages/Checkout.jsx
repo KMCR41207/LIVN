@@ -595,10 +595,14 @@ const Checkout = () => {
         const itemPrice = (item.product.offer_price || item.product.price) * item.qty;
         // Distribute coupon discount proportionally across items
         const itemDiscount = totalPrice > 0 ? Math.round((itemPrice / totalPrice) * couponDiscount) : 0;
+        const itemFinalPrice = itemPrice - itemDiscount;
         const payload = {
+          // Required by Order schema
+          total:            itemFinalPrice,
+          // Legacy flat fields (used by admin panel / order listing)
           product_id:       String(item.product._id || item.product.id || ''),
           product_name:     item.product.name,
-          price:            itemPrice - itemDiscount,
+          price:            itemFinalPrice,
           customer_name:    formData.name,
           customer_phone:   formData.phone,
           customer_email:   currentUser?.email || '',
@@ -611,6 +615,35 @@ const Checkout = () => {
           order_notes:      orderNotes || '',
           coupon_code:      coupon?.code || '',
           discount_amount:  itemDiscount,
+          // Structured fields for new schema
+          subtotal:         itemPrice,
+          discount:         itemDiscount,
+          paymentMethod:    paymentMethod,
+          customerSnapshot: {
+            name:  formData.name,
+            email: currentUser?.email || '',
+            phone: formData.phone,
+          },
+          shippingAddress: {
+            fullName: formData.name,
+            phone:    formData.phone,
+            houseNo:  formData.houseNo,
+            street:   formData.street,
+            colony:   formData.colony,
+            city:     formData.city,
+            state:    formData.state,
+            pincode:  formData.pincode,
+          },
+          products: [{
+            productId:    String(item.product._id || item.product.id || ''),
+            name:         item.product.name,
+            price:        item.product.price,
+            offerPrice:   item.product.offer_price || null,
+            quantity:     item.qty,
+            size:         item.size,
+            image:        item.product.image || '',
+            measurements: formData.measurements || '',
+          }],
         };
         console.log('Creating order with payload:', payload); // Debug log
         const { data, error } = await createOrder(payload);
