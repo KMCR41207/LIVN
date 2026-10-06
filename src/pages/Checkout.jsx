@@ -524,6 +524,14 @@ const ThankYouSplash = ({ ordersPlaced, formData, totalPrice, fallbackId }) => {
 const Checkout = () => {
   const { cartItems, removeFromCart, updateQty, clearCart, totalPrice } = useCart();
   const { currentUser, isAuthenticated } = useAuth();
+  
+  console.log('🛒 Checkout render:', {
+    cartItemsLength: cartItems?.length || 0,
+    isAuthenticated,
+    currentUser: currentUser?.email || 'none',
+    totalPrice
+  });
+  
   const [step, setStep] = useState(0);
   const [showAuth, setShowAuth] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -604,6 +612,7 @@ const Checkout = () => {
           coupon_code:      coupon?.code || '',
           discount_amount:  itemDiscount,
         };
+        console.log('Creating order with payload:', payload); // Debug log
         const { data, error } = await createOrder(payload);
         if (error) throw new Error(error);
         results.push(data);
@@ -612,6 +621,7 @@ const Checkout = () => {
       clearCart();
       if (onAfter) onAfter();
     } catch (err) {
+      console.error('Order creation error:', err);
       alert('Order failed: ' + err.message);
     } finally {
       setIsSubmitting(false);

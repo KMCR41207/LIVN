@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 
 const cartItemSchema = new mongoose.Schema({
   productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
+    type: String,   // Store as string to support both MongoDB ObjectIds and static numeric IDs
     required: true,
   },
   name: String,

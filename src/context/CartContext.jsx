@@ -13,23 +13,33 @@ const CartProvider = ({ children }) => {
 
   // Fetch cart from database
   const fetchCart = useCallback(async () => {
-    if (!isAuthenticated || !accessToken) return;
+    if (!isAuthenticated || !accessToken) {
+      console.log('⏭️ Skipping fetchCart: not authenticated');
+      return;
+    }
     
+    console.log('🔄 Fetching cart from API...');
     setIsLoading(true);
     try {
       const response = await fetch(`${API}/cart`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       
-      if (!response.ok) throw new Error('Failed to fetch cart');
+      if (!response.ok) {
+        console.error('❌ Fetch cart failed:', response.status);
+        throw new Error('Failed to fetch cart');
+      }
       
       const result = await response.json();
+      console.log('✅ Cart fetched:', result);
+      
       if (result.data) {
         setCartItems(result.data.items || []);
         setCartId(result.data._id);
+        console.log('✅ Cart state updated:', result.data.items?.length || 0, 'items');
       }
     } catch (err) {
-      console.error('Fetch cart error:', err);
+      console.error('❌ Fetch cart error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -62,81 +72,99 @@ const CartProvider = ({ children }) => {
 
   // Add to cart
   const addToCart = useCallback(async (product, size = 'Standard') => {
+    console.log('🛒 Add to cart called:', { product, size, isAuthenticated });
+    
     if (!isAuthenticated || !accessToken) {
       // For unauthenticated users, add to local state
+      console.log('📦 Adding to local cart (not authenticated)');
       setCartItems(prev => {
-        const pid = product._id || product.id;
+        const pid = String(product._id || product.id);
         const existing = prev.findIndex(
-          i => i.productId === pid && i.size === size
+          i => String(i.productId) === pid && i.size === size
         );
         if (existing >= 0) {
           const updated = [...prev];
           updated[existing].quantity += 1;
+          console.log('✅ Updated quantity for existing item');
           return updated;
         }
-        return [
-          ...prev,
-          {
-            productId: pid,
-            name: product.name || 'Product',
-            price: Number(product.price) || 0,
-            offerPrice: product.offer_price != null ? Number(product.offer_price) : null,
-            quantity: 1,
-            size,
-            image: product.image || product.images?.[0] || '',
-            addedAt: new Date().toISOString(),
-          },
-        ];
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API}/cart/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          productId: product._id || product.id,
+        const newItem = {
+          productId: pid,
           name: product.name || 'Product',
           price: Number(product.price) || 0,
           offerPrice: product.offer_price != null ? Number(product.offer_price) : null,
           quantity: 1,
           size,
           image: product.image || product.images?.[0] || '',
-        }),
+          addedAt: new Date().toISOString(),
+        };
+        console.log('✅ Added new item to cart:', newItem);
+        return [...prev, newItem];
+      });
+      return;
+    }
+
+    try {
+      console.log('🌐 Sending to backend API...');
+      const payload = {
+        productId: String(product._id || product.id),
+        name: product.name || 'Product',
+        price: Number(product.price) || 0,
+        offerPrice: product.offer_price != null ? Number(product.offer_price) : null,
+        quantity: 1,
+        size,
+        image: product.image || product.images?.[0] || '',
+      };
+      console.log('📤 Payload:', payload);
+      
+      const response = await fetch(`${API}/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error('Failed to add to cart');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error:', response.status, errorText);
+        throw new Error('Failed to add to cart');
+      }
 
       const result = await response.json();
+      console.log('✅ API Response:', result);
+      
       if (result.data) {
         setCartItems(result.data.items || []);
         setCartId(result.data._id);
+        console.log('✅ Cart updated with', result.data.items?.length || 0, 'items');
       }
+      // Refetch to ensure we have the latest state
+      await fetchCart();
     } catch (err) {
-      console.error('Add to cart error:', err);
+      console.error('❌ Add to cart error:', err);
+      alert('Failed to add to cart: ' + err.message);
     }
-  }, [isAuthenticated, accessToken]);
+  }, [isAuthenticated, accessToken, fetchCart]);
 
   // Remove from cart
   const removeFromCart = useCallback(async (productId, size = 'Standard') => {
     if (!isAuthenticated || !accessToken) {
       setCartItems(prev =>
-        prev.filter(i => !(i.productId === productId && i.size === size))
+        prev.filter(i => !(String(i.productId) === String(productId) && i.size === size))
       );
       return;
     }
 
     try {
-      // Find the item ID in current cart
-      const item = cartItems.find(
-        i => i.productId === productId && i.size === size
+      const item = cartItems.find(i =>
+        String(i.productId) === String(productId) && i.size === size
       );
+      
       if (!item || !item._id) {
-        console.warn('Item ID not found');
+        console.warn('Item ID not found for removal', { productId, size });
+        await fetchCart();
         return;
       }
 
@@ -154,7 +182,7 @@ const CartProvider = ({ children }) => {
     } catch (err) {
       console.error('Remove from cart error:', err);
     }
-  }, [isAuthenticated, accessToken, cartItems]);
+  }, [isAuthenticated, accessToken, cartItems, fetchCart]);
 
   // Update quantity
   const updateQty = useCallback(async (productId, size = 'Standard', quantity) => {
@@ -166,7 +194,7 @@ const CartProvider = ({ children }) => {
     if (!isAuthenticated || !accessToken) {
       setCartItems(prev =>
         prev.map(i =>
-          i.productId === productId && i.size === size
+          String(i.productId) === String(productId) && i.size === size
             ? { ...i, quantity }
             : i
         )
@@ -175,11 +203,13 @@ const CartProvider = ({ children }) => {
     }
 
     try {
-      const item = cartItems.find(
-        i => i.productId === productId && i.size === size
+      const item = cartItems.find(i =>
+        String(i.productId) === String(productId) && i.size === size
       );
+      
       if (!item || !item._id) {
-        console.warn('Item ID not found');
+        console.warn('Item ID not found for update', { productId, size });
+        await fetchCart();
         return;
       }
 
@@ -201,7 +231,7 @@ const CartProvider = ({ children }) => {
     } catch (err) {
       console.error('Update quantity error:', err);
     }
-  }, [isAuthenticated, accessToken, cartItems, removeFromCart]);
+  }, [isAuthenticated, accessToken, cartItems, removeFromCart, fetchCart]);
 
   // Clear cart
   const clearCart = useCallback(async () => {
@@ -229,15 +259,18 @@ const CartProvider = ({ children }) => {
 
   // Convert cart items to format expected by Checkout
   // Each cartItem from DB has productId, name, price, offerPrice, quantity, size, image
-  // We need to return items in format: { product: { id, name, price, offer_price, image, ... }, size, qty }
+  // We need to return items in format: { product: { id, name, price, offer_price, image, ... }, size, qty, _id }
   const formattedCartItems = cartItems
     .filter(item => item && item.productId) // skip malformed/stale items
     .map(item => {
       const price = Number(item.price) || 0;
       const offerPrice = item.offerPrice != null ? Number(item.offerPrice) : null;
+      // productId is now always stored as a string
+      const productId = String(item.productId || '');
       return {
         product: {
-          id: item.productId,
+          id: productId,
+          _id: productId, // Add _id for consistency
           name: item.name || 'Product',
           price,
           offer_price: offerPrice,
@@ -246,9 +279,11 @@ const CartProvider = ({ children }) => {
         },
         size: item.size || 'Standard',
         qty: Number(item.quantity) || 1,
-        _id: item._id, // Keep the MongoDB ID for API calls
+        _id: item._id, // Keep the MongoDB cart item ID for API calls
       };
     });
+
+  console.log('🎨 Formatted cart items:', formattedCartItems);
 
   const totalItems = cartItems.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
   const totalPrice = cartItems.reduce((sum, i) => {
@@ -256,6 +291,8 @@ const CartProvider = ({ children }) => {
     const qty = Number(i.quantity) || 0;
     return sum + price * qty;
   }, 0);
+
+  console.log('📊 Cart stats:', { totalItems, totalPrice, rawItemsCount: cartItems.length });
 
   return (
     <CartContext.Provider

@@ -43,11 +43,13 @@ const ProductPage = () => {
   }, [product]);
 
   const handleAddToCart = () => {
+    console.log('🛍️ ProductPage: Add to cart clicked', { product, size: selectedSize || 'Standard' });
     addToCart(product, selectedSize || 'Standard');
     // Stay on page — user can keep browsing
   };
 
   const handleOrderNow = () => {
+    console.log('🛍️ ProductPage: Buy now clicked', { product, size: selectedSize || 'Standard' });
     addToCart(product, selectedSize || 'Standard');
     navigate('/checkout');
   };

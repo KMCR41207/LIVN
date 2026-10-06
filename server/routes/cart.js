@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
   try {
     const userId = req.user.id;
     
-    let cart = await Cart.findOne({ userId }).populate('items.productId');
+    let cart = await Cart.findOne({ userId });
     
     if (!cart) {
       cart = await Cart.create({
@@ -34,6 +34,7 @@ router.get('/', async (req, res) => {
         _id: cart._id,
         userId: cart.userId,
         items: cart.items.map(item => ({
+          _id: item._id, // MongoDB subdocument ID
           productId: item.productId?._id || item.productId,
           name: item.name,
           price: item.price,
@@ -76,9 +77,12 @@ router.post('/add', async (req, res) => {
       cart = await Cart.create({ userId, items: [] });
     }
 
+    // Normalise productId to string for comparison
+    const pidStr = String(productId);
+
     // Check if item already exists with same size
     const existingItem = cart.items.find(
-      item => item.productId.toString() === productId && item.size === (size || 'Standard')
+      item => String(item.productId) === pidStr && item.size === (size || 'Standard')
     );
 
     if (existingItem) {
@@ -87,7 +91,7 @@ router.post('/add', async (req, res) => {
     } else {
       // Add new item
       cart.items.push({
-        productId,
+        productId: pidStr,
         name,
         price,
         offerPrice,
@@ -103,7 +107,17 @@ router.post('/add', async (req, res) => {
     return res.status(201).json({
       data: {
         _id: cart._id,
-        items: cart.items,
+        items: cart.items.map(item => ({
+          _id: item._id,
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          offerPrice: item.offerPrice,
+          quantity: item.quantity,
+          size: item.size,
+          image: item.image,
+          addedAt: item.addedAt,
+        })),
         subtotal: cart.subtotal,
         itemCount: cart.items.length,
         message: 'Item added to cart',
@@ -149,7 +163,17 @@ router.patch('/items/:itemId', async (req, res) => {
     return res.status(200).json({
       data: {
         _id: cart._id,
-        items: cart.items,
+        items: cart.items.map(item => ({
+          _id: item._id,
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          offerPrice: item.offerPrice,
+          quantity: item.quantity,
+          size: item.size,
+          image: item.image,
+          addedAt: item.addedAt,
+        })),
         subtotal: cart.subtotal,
         itemCount: cart.items.length,
         message: 'Item quantity updated',
@@ -182,7 +206,17 @@ router.delete('/items/:itemId', async (req, res) => {
     return res.status(200).json({
       data: {
         _id: cart._id,
-        items: cart.items,
+        items: cart.items.map(item => ({
+          _id: item._id,
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          offerPrice: item.offerPrice,
+          quantity: item.quantity,
+          size: item.size,
+          image: item.image,
+          addedAt: item.addedAt,
+        })),
         subtotal: cart.subtotal,
         itemCount: cart.items.length,
         message: 'Item removed from cart',
@@ -251,15 +285,16 @@ router.post('/merge', async (req, res) => {
 
     // Merge items: database items take precedence, add any new items from localStorage
     localItems.forEach(localItem => {
+      const pidStr = String(localItem.productId);
       const exists = cart.items.some(
         dbItem =>
-          dbItem.productId.toString() === localItem.productId &&
+          String(dbItem.productId) === pidStr &&
           dbItem.size === (localItem.size || 'Standard')
       );
 
       if (!exists) {
         cart.items.push({
-          productId: localItem.productId,
+          productId: pidStr,
           name: localItem.name,
           price: localItem.price,
           offerPrice: localItem.offerPrice,
@@ -276,7 +311,17 @@ router.post('/merge', async (req, res) => {
     return res.status(200).json({
       data: {
         _id: cart._id,
-        items: cart.items,
+        items: cart.items.map(item => ({
+          _id: item._id,
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          offerPrice: item.offerPrice,
+          quantity: item.quantity,
+          size: item.size,
+          image: item.image,
+          addedAt: item.addedAt,
+        })),
         subtotal: cart.subtotal,
         itemCount: cart.items.length,
         message: 'Cart merged successfully',
